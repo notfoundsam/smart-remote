@@ -13,4 +13,4 @@ nbproject/
 # third party components
 /bower_components/
 /node_modules/
-
+/flask/
