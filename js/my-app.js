@@ -21,6 +21,14 @@ var mainView = myApp.addView('.view-main', {
 
 console.log('START');
 
+mainView.router.load({
+				url: 'bid.html'
+				// reload: true,
+				// context: {
+				// 	title: 'Bid'
+				// }
+			});
+
 /*
 $$.ajax({
 	url: ajax_host + '/admin/api/check_login',
