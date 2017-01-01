@@ -1,0 +1,16 @@
+# temp files from editors
+*~
+*.bak
+.DS_Store
+.buildpath
+.project
+.settings
+*.tmproj
+build
+.idea
+nbproject/
+
+# third party components
+/bower_components/
+/node_modules/
+
