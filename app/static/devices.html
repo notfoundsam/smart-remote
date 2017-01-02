@@ -1,0 +1,27 @@
+<div class="pages">
+  <div data-page="devices" class="page">
+    <div class="navbar">
+      <div class="navbar-inner">
+        <!-- We need cool sliding animation on title element, so we have additional "sliding" class -->
+        <div class="center sliding">{{title}}</div>
+        <!-- <div class="right">
+          <a href="#" class="link icon-only open-panel"><i class="icon icon-bars"></i></a>
+        </div> -->
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <div class="content-block">
+        {{#each devices}}
+        <p class="buttons-row">
+          <a href="static/{{this.url}}" class="button button-big button-fill button-raised">{{this.name}}</a>
+        </p>
+        {{else}}
+        <p>NO DEVICES</p>
+        {{/each}}
+      </div>
+
+    </div>
+  </div>
+</div>
