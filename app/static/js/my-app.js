@@ -1,14 +1,10 @@
-// var ajax_host = 'http://yahooauc.dev';
-// var ajax_host = '';
-// var current_bidder = '';
-// var ajax_host = 'http://yahooauc-servletyahoo.rhcloud.com';
-
 // Initialize app
 var myApp = new Framework7({
     //Tell Framework7 to compile templates on app init
     template7Pages: true,
     material: true,
     // domCache: false,
+    // cache: false
 });
  
 // If we need to use custom DOM library, let's save it to $$ variable:
@@ -20,18 +16,19 @@ var mainView = myApp.addView('.view-main', {
   // dynamicNavbar: true
 });
 
-console.log('START');
-
-
 $$.ajax({
 	url: '/api/v1.0/devices',
 	type: 'GET',
 	success: function (data) {
-
 		var d_obj = JSON.parse(data);
-		console.log(d_obj);
-		var devices = d_obj.devices ? d_obj.devices : [];
+		if (d_obj.status_code != 100) {
+			myApp.addNotification({
+				message: 'Programm error',
+				hold: 3000
+			});
+		}
 
+		var devices = d_obj.devices ? d_obj.devices : [];
 
 		mainView.router.load({
 			url: 'static/devices.html',
@@ -41,28 +38,6 @@ $$.ajax({
 				devices: devices
 			}
 		});
-
-		// mainView.router.load({
-		// 	url: 'bidding.html',
-		// 	reload: true,
-		// 	context: {
-		// 		title: 'Bidding',
-		// 		auctions: auctions,
-		// 		current_bidder: current_bidder
-		// 	}
-		// });
-		// if (d_obj.status_code == 100) {
-		// 	$$('#username').text(d_obj.result.current_user);
-		// 	current_bidder = d_obj.result.current_bidder;
-
-		// 	mainView.router.load({
-		// 		url: 'bid.html'
-		// 		// reload: true,
-		// 		// context: {
-		// 		// 	title: 'Bid'
-		// 		// }
-		// 	});
-		// }
 	}
 	// statusCode: {
 	// 	401: function (xhr) {
@@ -73,7 +48,6 @@ $$.ajax({
 
 $$(document).on('pageInit', function (e) {
 	$$('.button-control').on('click', function() {
-
 		var name = $$(this).closest('.page').attr('data-page');
 		var command = $$(this).attr('data-command');
 
@@ -81,10 +55,13 @@ $$(document).on('pageInit', function (e) {
 			url: '/api/v1.0/device/' + name + '/' + command,
 			type: 'GET',
 			success: function (data) {
-				console.log('command was sent');
-				// var d_obj = JSON.parse(data);
-				// if (d_obj.status_code == 100) {
-				// }
+				var d_obj = JSON.parse(data);
+				if (d_obj.status_code != 100) {
+					myApp.addNotification({
+						message: 'Programm error',
+						hold: 3000
+					});
+				}
 			}
 			// statusCode: {
 			// 	401: function (xhr) {

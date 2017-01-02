@@ -1,6 +1,7 @@
 # temp files from editors
 *~
 *.bak
+*.pyc
 .DS_Store
 .buildpath
 .project
