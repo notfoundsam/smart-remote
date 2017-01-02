@@ -21,4 +21,4 @@ def get_task(name, command):
     # task = filter(lambda t: t['id'] == task_id, tasks)
     # if len(task) == 0:
     #     abort(404)
-    return jsonify({'status_code': status_code['failed']})
+    return jsonify({'status_code': status_code['success']})
