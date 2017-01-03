@@ -14,6 +14,11 @@ devices = [
     }
 ]
 
+device_commands = {
+    'tv': ['power', 'hdmi', 'vup', 'mute', 'vdown'],
+    'ac': ['heat', 'dry', 'cool']
+}
+
 # List of responce codes
 status_code = {
     'login_success' : 10,

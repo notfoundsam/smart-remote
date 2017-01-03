@@ -1,6 +1,6 @@
 from flask import render_template, jsonify
 from app import app
-from config import status_code, devices
+from config import status_code, devices, device_commands
 
 
 # Roure for start Framework7
@@ -13,12 +13,13 @@ def index():
 # REST API for Framework7
 @app.route('/api/v1.0/devices', methods=['GET'])
 def get_devices():
-    return jsonify({'devices': devices})
+    return jsonify({'devices': devices, 'status_code': status_code['success']})
 
 @app.route('/api/v1.0/device/<name>/<command>', methods=['GET'])
 def get_task(name, command):
-    # print(name, command)
-    # task = filter(lambda t: t['id'] == task_id, tasks)
-    # if len(task) == 0:
-    #     abort(404)
-    return jsonify({'status_code': status_code['success']})
+    if name in device_commands:
+        if command in device_commands[name]:
+            # print(name, command)
+            return jsonify({'status_code': status_code['success']})
+
+    return jsonify({'status_code': status_code['failed']})
