@@ -2,8 +2,9 @@ from flask import render_template, jsonify
 from app import app
 from config import status_code, devices, device_commands
 
-from app.gpio import led
-led.setup()
+# from app.gpio import led
+# l = led.Led()
+from app import l
 
 # Roure for start Framework7
 @app.route('/')
