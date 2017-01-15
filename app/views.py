@@ -3,7 +3,7 @@ from app import app
 from config import status_code, devices, device_commands
 
 from app.gpio import led
-l = led.Led()
+led.setup()
 
 # Roure for start Framework7
 @app.route('/')
