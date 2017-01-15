@@ -16,8 +16,8 @@ class Led:
     def __init__(self):
         print("INIT")
         GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
-        GPIO.setup(ledPin, GPIO.OUT)   # Set ledPin's mode is output
-        GPIO.output(ledPin, GPIO.LOW) # Set ledPin low to off led
+        GPIO.setup(self.ledPin, GPIO.OUT)   # Set ledPin's mode is output
+        GPIO.output(self.ledPin, GPIO.LOW) # Set ledPin low to off led
         # print 'using pin%d'%ledPin
         # 
         
@@ -47,10 +47,10 @@ class Led:
         if name == 'tv':
             if (command == 'power' and self.ledStatus):
                 self.ledStatus = False
-                GPIO.output(ledPin, GPIO.LOW)
+                GPIO.output(self.ledPin, GPIO.LOW)
                 print('OFF')
             else:
                 self.ledStatus = True
                 print('ON')
-                GPIO.output(ledPin, GPIO.HIGH)
+                GPIO.output(self.ledPin, GPIO.HIGH)
 
