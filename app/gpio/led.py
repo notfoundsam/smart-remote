@@ -12,19 +12,15 @@ except ImportError:
     import devgpio as GPIO
 
 ledPin    = 11    # RPI Board pin11 connected to led
-setted    = False
 ledStatus = False
 
 def setup():
-    global setted
     global ledPin
 
-    if (setted == False):
-        print("Setup GPIO")
-        GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
-        GPIO.setup(ledPin, GPIO.OUT)   # Set ledPin's mode is output
-        GPIO.output(ledPin, GPIO.LOW)  # Set ledPin low to off led
-        setted = True
+    print("Setup GPIO")
+    GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
+    GPIO.setup(ledPin, GPIO.OUT)   # Set ledPin's mode is output
+    GPIO.output(ledPin, GPIO.LOW)  # Set ledPin low to off led
 
 def destroy():
     global ledPin
