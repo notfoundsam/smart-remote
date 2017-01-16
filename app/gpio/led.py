@@ -1,56 +1,48 @@
 #!/usr/bin/env python
 ########################################################################
-# Filename    : Blink.py
-# Description : Make an led blinking.
-# auther      : www.freenove.com
-# modification: 2016/06/07
+# Filename    : led.py
+# Description : Turn On/Off a led
+# auther      : Sosetc
+# modification: 2017/01/16
 ########################################################################
-import RPi.GPIO as GPIO
-# import time
+try:
+    import RPi.GPIO as GPIO
+except ImportError:
+    print("Module RPi.GPIO not found. Switch to development mode")
+    import devgpio as GPIO
 
-class Led:
+ledPin    = 11    # RPI Board pin11 connected to led
+setted    = False
+ledStatus = False
 
-    ledPin = 11    # RPI Board pin11
-    ledStatus = False
+def setup():
+    global setted
+    global ledPin
 
-    def __init__(self):
-        print("INIT")
+    if (setted == False):
+        print("Setup GPIO")
         GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
-        GPIO.setup(self.ledPin, GPIO.OUT)   # Set ledPin's mode is output
-        GPIO.output(self.ledPin, GPIO.LOW) # Set ledPin low to off led
-        # print 'using pin%d'%ledPin
-        # 
-        
+        GPIO.setup(ledPin, GPIO.OUT)   # Set ledPin's mode is output
+        GPIO.output(ledPin, GPIO.LOW)  # Set ledPin low to off led
+        setted = True
 
-    # def loop():
-    #     while True:
-    #         GPIO.output(ledPin, GPIO.HIGH)  # led on
-    #         print '...led on'
-    #         time.sleep(1)   
-    #         GPIO.output(ledPin, GPIO.LOW) # led off
-    #         print 'led off...'
-    #         time.sleep(1)
+def destroy():
+    global ledPin
 
-    def destroy():
-      GPIO.output(self.ledPin, GPIO.LOW)     # led off
-      GPIO.cleanup()                     # Release resource
+    GPIO.output(ledPin, GPIO.LOW)     # Turn led off
+    GPIO.cleanup()                    # Release resource
 
-# if __name__ == '__main__':     # Program start from here
-#   setup()
-#   try:
-#       loop()
-#   except KeyboardInterrupt:  # When 'Ctrl+C' is pressed, the child program destroy() will be  executed.
-#       destroy()
+def start(name, command):
+    global ledPin
+    global ledStatus
 
-    def start(self, name, command):
-        # setup()
-        if name == 'tv':
-            if (command == 'power' and self.ledStatus):
-                self.ledStatus = False
-                GPIO.output(self.ledPin, GPIO.LOW)
-                print('OFF')
-            else:
-                self.ledStatus = True
-                print('ON')
-                GPIO.output(self.ledPin, GPIO.HIGH)
+    if name == 'tv':
+        if (command == 'power' and ledStatus):
+            ledStatus = False
+            GPIO.output(ledPin, GPIO.LOW)
+            print('OFF')
+        else:
+            ledStatus = True
+            print('ON')
+            GPIO.output(ledPin, GPIO.HIGH)
 
