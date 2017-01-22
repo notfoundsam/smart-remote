@@ -11,7 +11,7 @@ from devices.therm import Therm
 
 try:
     import RPi.GPIO as GPIO
-    import Adafruit_DHT
+    import Adafruit_DHT as DHT
 except ImportError:
     print("Module RPi.GPIO not found. Switch to development mode")
     import GPIO_Dev as GPIO
