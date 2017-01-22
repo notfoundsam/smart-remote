@@ -14,9 +14,13 @@ def index():
 def get_devices():
     return jsonify({'devices': devices, 'status_code': status_code['success']})
 
+# @app.route('/api/v1.0/device/<device>/<command>', methods=['GET'])
+# def get_task(device, command):
+
 @app.route('/api/v1.0/device/<device>/<command>', methods=['GET'])
 def get_task(device, command):
-    if driver.run(device, command):
-        return jsonify({'status_code': status_code['success']})
+    result = driver.run(device, command)
+    if result is not False:
+        return jsonify({'status_code': status_code['success'], 'result': result})
     else:
         return jsonify({'status_code': status_code['failed']})

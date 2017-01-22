@@ -20,7 +20,7 @@ class Led:
 		if command == 'off':
 			self.GPIO.output(self.PIN, self.GPIO.LOW)
 
-		return True
+		return "LED: return ok"
 
 	def __del__(self):
 		print('DEVICE LED: Destroy')

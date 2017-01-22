@@ -1,12 +1,12 @@
 # List of avalible devices
 devices = [
     {
-        'driver': 'tv',
+        # 'driver': 'tv',
         'name': u'TV',
         'url': u'tv.html'
     },
     {
-        'driver': 'led',
+        # 'driver': 'led',
         'name': u'Led',
         'url': u'led.html'
     }
@@ -22,7 +22,7 @@ devices = [
     # }
 ]
 
-# devices_drivers = ('tv', 'ac')
+devices_drivers = ('tv', 'led', 'therm')
 
 # devices_driver = {
 #     'tv': ['power', 'hdmi', 'vup', 'mute', 'vdown'],

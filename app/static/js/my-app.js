@@ -38,6 +38,8 @@ $$.ajax({
 				devices: devices
 			}
 		});
+		
+		getTemperature();
 	}
 	// statusCode: {
 	// 	401: function (xhr) {
@@ -46,7 +48,42 @@ $$.ajax({
 	// }
 });
 
+function getTemperature() {
+	var tid = setInterval(setTimer, 2000);
+	
+	function setTimer() {
+		$$.ajax({
+			url: '/api/v1.0/device/therm/status',
+			type: 'GET',
+			success: function (data) {
+				var d_obj = JSON.parse(data);
+				if (d_obj.status_code != 100) {
+					myApp.addNotification({
+						message: 'Could not get temperature',
+						hold: 3000
+					});
+					clearInterval(tid);
+					return;
+				}
+
+				console.log(d_obj.result)
+
+				// $$('div[data-page=devices] .temp').text("10");
+			}
+			// statusCode: {
+			// 	401: function (xhr) {
+			// 		myApp.loginScreen();
+			// 	}
+			// }
+		});
+	}
+	// function abortTimer(tid) { // to be called when you want to stop the timer
+	//   clearInterval(tid);
+	// }
+}
+
 $$(document).on('pageInit', function (e) {
+	console.log("aaaa");
 	$$('.button-control').on('click', function() {
 		var name = $$(this).closest('.page').attr('data-page');
 		var command = $$(this).attr('data-command');

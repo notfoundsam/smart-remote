@@ -7,6 +7,7 @@
 ########################################################################
 from devices.tv import Tv
 from devices.led import Led
+from devices.therm import Therm
 
 try:
     import RPi.GPIO as GPIO
@@ -14,6 +15,7 @@ try:
 except ImportError:
     print("Module RPi.GPIO not found. Switch to development mode")
     import GPIO_Dev as GPIO
+    import Adafruit_DHT_Dev as DHT
     # print("Load Adafruit_DHT in development mode")
     # import Adafruit_DHT_Dev as Adafruit_DHT
 
@@ -27,11 +29,14 @@ def init(devices):
     GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
 
     for d in devices:
-        if d['driver'] == 'led':
+        if d == 'led':
             drivers['led'] = Led(GPIO)
             continue
-        if d['driver'] == 'tv':
+        if d == 'tv':
             drivers['tv'] = Tv(GPIO)
+            continue
+        if d == 'therm':
+            drivers['therm'] = Therm(DHT)
             continue
 
     for k, v in drivers.items():
@@ -55,19 +60,7 @@ def run(device, command):
 
     if device in drivers:
         print("DRIVER: device found")
-        if drivers[device].run(command):
-            print("DRIVER: command ok")
-            return True
-            # if (command == 'power' and ledStatus):
-            # GPIO.output(ledPin, GPIO.LOW)
-            # ledStatus = False
-            # print('OFF')
-        else:
-            print("DRIVER: bad command")
-            return False
-            # GPIO.output(ledPin, GPIO.HIGH)
-            # ledStatus = True
-            # print('ON')
+        return drivers[device].run(command)
     else:
         print("DRIVER: device [%s] not found" % device)
         return False
