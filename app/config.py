@@ -1,23 +1,33 @@
 # List of avalible devices
 devices = [
     {
+        'driver': 'tv',
         'name': u'TV',
         'url': u'tv.html'
     },
     {
-        'name': u'Light',
-        'url': u'light.html'
-    },
-    {
-        'name': u'Air Condition',
-        'url': u'ac.html'
+        'driver': 'led',
+        'name': u'Led',
+        'url': u'led.html'
     }
+    # {
+    #     'driver': 'lidht',
+    #     'name': u'Light',
+    #     'url': u'light.html'
+    # }
+    # {
+    #     'driver': 'ac',
+    #     'name': u'Air Condition',
+    #     'url': u'ac.html'
+    # }
 ]
 
-device_commands = {
-    'tv': ['power', 'hdmi', 'vup', 'mute', 'vdown'],
-    'ac': ['heat', 'dry', 'cool']
-}
+# devices_drivers = ('tv', 'ac')
+
+# devices_driver = {
+#     'tv': ['power', 'hdmi', 'vup', 'mute', 'vdown'],
+#     'ac': ['heat', 'dry', 'cool']
+# }
 
 # List of responce codes
 status_code = {

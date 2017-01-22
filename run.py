@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 from app import app
-from app.gpio import led
+from app.gpio import driver
+from app.config import devices
 
 if __name__ == '__main__':
-	led.setup()
+	driver.init(devices)
 	app.run(host='0.0.0.0', threaded=True)
 	# app.run(debug=True, host='0.0.0.0', threaded=True)
-	led.destroy()
+	driver.destroy()
