@@ -49,7 +49,8 @@ $$.ajax({
 });
 
 function getTemperature() {
-	var tid = setInterval(setTimer, 2000);
+	var interval = 5000;
+	var tid = setTimeout(setTimer, interval);
 	
 	function setTimer() {
 		$$.ajax({
@@ -66,9 +67,11 @@ function getTemperature() {
 					return;
 				}
 
-				console.log(d_obj.result)
+				console.log(d_obj.result);
+				$$('div[data-page=devices] .temp').text(d_obj.result.temp + "*C");
+				$$('div[data-page=devices] .hum').text(d_obj.result.hum + "%");
+				tid = setTimeout(setTimer, interval);
 
-				// $$('div[data-page=devices] .temp').text("10");
 			}
 			// statusCode: {
 			// 	401: function (xhr) {

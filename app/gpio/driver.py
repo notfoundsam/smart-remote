@@ -41,17 +41,8 @@ def init(devices):
 
     for k, v in drivers.items():
         v.status()
-    # led = Led(GPIO)
-    # tv.status()
-
-    # import devi
-    # GPIO.setup(ledPin, GPIO.OUT)   # Set ledPin's mode is output
-    # GPIO.output(ledPin, GPIO.LOW)  # Set ledPin low to off led
 
 def destroy():
-    # global ledPin
-
-    # GPIO.output(ledPin, GPIO.LOW)     # Turn led off
     GPIO.cleanup()                    # Release resource
 
 def run(device, command):
