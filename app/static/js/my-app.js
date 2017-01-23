@@ -49,7 +49,7 @@ $$.ajax({
 });
 
 function getTemperature() {
-	var interval = 3000;
+	var interval = 5000;
 	var tid = setTimeout(setTimer, interval);
 	
 	function setTimer() {
@@ -63,14 +63,14 @@ function getTemperature() {
 						message: 'Could not get temperature',
 						hold: 3000
 					});
-					// clearInterval(tid);
+					clearInterval(tid);
 					return;
 				}
 
 				console.log(d_obj.result);
 				$$('div[data-page=devices] .temp').text(d_obj.result.temp + "*C");
 				$$('div[data-page=devices] .hum').text(d_obj.result.hum + "%");
-				// tid = setTimeout(setTimer, interval);
+				tid = setTimeout(setTimer, interval);
 
 			}
 			// statusCode: {
@@ -80,9 +80,9 @@ function getTemperature() {
 			// }
 		});
 	}
-	// function abortTimer(tid) { // to be called when you want to stop the timer
-	//   clearInterval(tid);
-	// }
+	function abortTimer(tid) { // to be called when you want to stop the timer
+	  clearInterval(tid);
+	}
 }
 
 $$(document).on('pageInit', function (e) {
