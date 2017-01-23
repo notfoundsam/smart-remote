@@ -49,10 +49,10 @@ $$.ajax({
 });
 
 function getTemperature() {
-	var interval = 5000;
-	// var tid = setTimeout(setTimer, interval);
+	var interval = 3000;
+	var tid = setTimeout(setTimer, interval);
 	
-	// function setTimer() {
+	function setTimer() {
 		$$.ajax({
 			url: '/api/v1.0/device/therm/status',
 			type: 'GET',
@@ -79,7 +79,7 @@ function getTemperature() {
 			// 	}
 			// }
 		});
-	// }
+	}
 	// function abortTimer(tid) { // to be called when you want to stop the timer
 	//   clearInterval(tid);
 	// }
