@@ -1,7 +1,7 @@
 # import config
 from flask import render_template, jsonify
 from app import app
-from gpio import driver
+# from gpio import driver
 from config import devices, status_code
 
 # Roure for start Framework7
@@ -19,8 +19,9 @@ def get_devices():
 
 @app.route('/api/v1.0/device/<device>/<command>', methods=['GET'])
 def get_task(device, command):
-    result = driver.run(device, command)
-    if result is not False:
-        return jsonify({'status_code': status_code['success'], 'result': result})
-    else:
-        return jsonify({'status_code': status_code['failed']})
+    pass
+    # result = driver.run(device, command)
+    # if result is not False:
+    #     return jsonify({'status_code': status_code['success'], 'result': result})
+    # else:
+    #     return jsonify({'status_code': status_code['failed']})
