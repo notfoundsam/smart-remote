@@ -40,12 +40,12 @@ $$.ajax({
 		});
 		
 		// getTemperature();
+	},
+	statusCode: {
+		401: function (xhr) {
+			myApp.loginScreen();
+		}
 	}
-	// statusCode: {
-	// 	401: function (xhr) {
-	// 		myApp.loginScreen();
-	// 	}
-	// }
 });
 
 function getTemperature() {
@@ -86,9 +86,9 @@ function getTemperature() {
 }
 
 $$(document).on('pageInit', function (e) {
-	if (e.detail.page.name === 'devices') {
-		getTemperature();
-	}
+	// if (e.detail.page.name === 'devices') {
+	// 	getTemperature();
+	// }
 
 	$$('.button-control').on('click', function() {
 		var name = $$(this).closest('.page').attr('data-page');
@@ -175,8 +175,10 @@ $$('#bidding').on('click', function() {
 		}
 	});
 });
+*/
 
 $$('#login').on('click', function() {
+	console.log('kkkk');
 	var email = $$('input[name=username]').val();
 	var password = $$('input[name=password]').val();
 
@@ -186,7 +188,7 @@ $$('#login').on('click', function() {
 	}
 
 	$$.ajax({
-		url: ajax_host + '/admin/api/login',
+		url: '/api/v1.0/login',
 		type: 'POST',
 		data: {
 			email: email,
@@ -213,7 +215,7 @@ $$('#login').on('click', function() {
 		}
 	});
 });
-
+/*
 $$('#logout').on('click', function() {
 	myApp.closePanel();
 	$$.ajax({
