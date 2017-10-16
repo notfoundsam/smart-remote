@@ -1,0 +1,28 @@
+{
+  "name": "raspberry",
+  "description": "raspberry",
+  "main": "",
+  "authors": [
+    "Zazimko Alexey <notfoundsam@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "remote",
+    "infrared",
+    "raspberry"
+  ],
+  "homepage": "https://github.com/notfoundsam/raspberry",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "Framework7": "framework7#^1.4.2",
+    "components-font-awesome": "^4.7.0",
+    "socket.io-client": "^2.0.3"
+  }
+}

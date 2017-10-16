@@ -1,12 +1,12 @@
 .card-green {
-	background-color: #f0fff7;
+    background-color: #f0fff7;
 }
 .card-red {
-	background-color: #fff0f0;
+    background-color: #fff0f0;
 }
 
 .bidding-card {
-	margin: 5px;
+    margin: 5px;
 }
 .bidding-card .card-header {
     font-size: 90%;
@@ -17,32 +17,32 @@
     min-height: 40px;
 }
 .bidding-inner {
-	display: flex;
-	justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
 }
 .bidding-card .card-content-inner {
     padding: 4px 16px;
 }
 .bidding-card .bidding-images {
-	padding: 10px 10px 0;
+    padding: 10px 10px 0;
     overflow-x: scroll;
 }
 .bidding-images img {
-	width: 100%;
+    width: 100%;
 }
 .bidding-images > div {
-	font-size: 0;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex: 0 0 30%;
+    font-size: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 0 0 30%;
 }
 .bid-error {
-	background-color: #5f0000;
+    background-color: #5f0000;
 }
 .bid-success {
     background-color: #065f00;
 }
 .menu-list {
-	margin: 0;
+    margin: 0;
 }

@@ -1,0 +1,77 @@
+<div class="pages">
+  <div data-page="add_remote" class="page">
+    <div class="navbar">
+      <div class="navbar-inner">
+        <!-- We need cool sliding animation on title element, so we have additional "sliding" class -->
+         <div class="left">
+            <a href="static/status.html" class="link icon-only">
+                <i class="icon icon-back"></i>
+            </a>
+        </div>
+        <div class="center sliding">IR Regist</div>
+        <div class="right">
+          <a href="#" class="link icon-only open-panel"><i class="icon icon-bars"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- REMOTE TYPE START -->
+      <div class="content-block-title">Remote type</div>
+      <div class="list-block">
+        <ul>
+          <li>
+            <!-- Additional "smart-select" class -->
+            <a href="#" class="item-link smart-select">
+              <!-- select -->
+              <select name="rc_type">
+                <option value="ir_rc" selected>IR Remote</option>
+                <option value="rc">Remote</option>
+              </select>
+              <div class="item-content">
+                <div class="item-inner">
+                  <!-- Select label -->
+                  <div class="item-title">Choose remote</div>
+                </div>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- REMOTE TYPE END -->
+
+      <div class="content-block-title">Remote settings</div>
+      <div class="list-block">
+        <ul>
+          <!-- Text inputs -->
+          <li>
+            <div class="item-content">
+              <div class="item-inner">
+                <div class="item-title floating-label">Remote ID</div>
+                <div class="item-input">
+                  <input type="text" name="rc_id" value="">
+                </div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="item-content">
+              <div class="item-inner">
+                <div class="item-title floating-label">Remote name</div>
+                <div class="item-input">
+                  <input type="text" name="rc_name" value="">
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="content-block">
+        <p class="buttons-row">
+          <a href="#" class="button-control button button-raised button-fill color-blue" id="add_remote_btn">Save</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
