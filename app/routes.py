@@ -30,12 +30,6 @@ def before_request():
 def index():
     return render_template('index.html')
 
-# REST API for Framework7
-# @app.route('/api/v1.0/devices', methods=['GET'])
-# @login_required
-# def get_devices():
-#     return jsonify({'devices': devices, 'status_code': status_code['success']})
-
 @app.route('/api/v1.0/login', methods=['POST'])
 def login():
     if g.user is not None and g.user.is_authenticated:
@@ -45,15 +39,14 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        if username and password:
-            user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(username=username).first()
 
-            if user is not None and user.password == password:
-                session['remember_me'] = True
-                login_user(user)
-                return jsonify({'status_code': status_code['login_success']})
+        if user is not None and user.password == password:
+            session['remember_me'] = True
+            login_user(user)
+            return jsonify({'status_code': status_code['login_success']})
 
-        return jsonify({'status_code': status_code['failed']})
+        return jsonify({'status_code': status_code['login_faild']})
 
     return jsonify({'status_code': status_code['login_faild']}), 401
 
