@@ -41,18 +41,21 @@ def login():
     if g.user is not None and g.user.is_authenticated:
         return jsonify({'status_code': status_code['alredy_logedin']})
 
-    username = request.form['username']
-    password = request.form['password']
+    if 'username' in request.form and 'password' in request.form:
+        username = request.form['username']
+        password = request.form['password']
 
-    if username and password:
-        user = User.query.filter_by(username=username).first()
+        if username and password:
+            user = User.query.filter_by(username=username).first()
 
-        if user is not None and user.password == password:
-            session['remember_me'] = True
-            login_user(user)
-            return jsonify({'status_code': status_code['login_success']})
+            if user is not None and user.password == password:
+                session['remember_me'] = True
+                login_user(user)
+                return jsonify({'status_code': status_code['login_success']})
 
-    return jsonify({'status_code': status_code['failed']})
+        return jsonify({'status_code': status_code['failed']})
+
+    return jsonify({'status_code': status_code['login_faild']}), 401
 
 # thread = None
 # thread_lock = Lock()
