@@ -50,6 +50,11 @@ def login():
 
     return jsonify({'status_code': status_code['login_faild']}), 401
 
+@app.route('/api/v1.0/logout', methods=['POST'])
+def logout():
+    logout_user()
+    return jsonify({'status_code': status_code['logout']})
+
 # thread = None
 # thread_lock = Lock()
 
