@@ -37,6 +37,8 @@ class Remote(db.Model):
     name = db.Column(db.String(200))
     public = db.Column(db.Boolean)
     remote_type = db.Column(db.String(20))
+    order = db.Column(db.Integer)
+    icon = db.Column(db.String(200))
     timestamp = db.Column(db.DateTime)
 
     def __repr__(self):
