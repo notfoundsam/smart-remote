@@ -41,14 +41,23 @@ function activateConnection() {
         socket_remotes = io.connect('http://' + document.domain + ':' + location.port + '/remotes');
         socket_remotes.on('connect', function() {
             console.log('connected to remotes');
+            var request = {};
+
+            request.action = 'remote_list';
+            sendRequest(request, socket_remotes);
             // socket_remotes.emit('my event', {data: 'I\'m connected!'});
         });
-        socket_remotes.on('message', function(msg) {
-            console.log(msg);
+        // socket_remotes.on('message', function(msg) {
+        //     console.log(msg);
+        // });
+        socket_remotes.on('json', function(data) {
+            console.log(data);
+            if (data.response) {
+                parseResponse(data.response);
+            }
         });
-        socket_remotes.on('json', function(msg) {
-            console.log(msg);
-        });
+
+        
     }
     // console.log(socket_remotes);
     // if (socket_commands == null) {
@@ -64,6 +73,29 @@ function activateConnection() {
     // }
 }
 
+function refreshRemoteMenu(remotes) {
+    var menu = $$('#remotes ul');
+    menu.empty();
+
+    remotes.forEach(function(element) {
+        var li = $$('<li>');
+        var anchor = $$('<a href="#" class="item-link item-content close-panel"></a>');
+        var icon = $$('<div class="item-media"><i class="fa fa-television" aria-hidden="true"></i></div>');
+        var inner = $$('<div class="item-inner"></div>');
+        var title = $$('<div class="item-title"></div>').text(element.name);
+
+        anchor.on('click', function (e) { 
+          console.log('clicked');
+        });
+
+        inner.append(title);
+        anchor.append(icon);
+        anchor.append(inner);
+        li.append(anchor);
+        menu.append(li);
+    });
+}
+
 function sendRequest(request, socket) {
     if (socket != null) {
         socket.emit('json', request);
@@ -75,3 +107,33 @@ function sendRequest(request, socket) {
         hold: 3000
     });
 }
+
+function parseResponse(response) {
+    if (response.result == 'success') {
+        myApp.hideIndicator();
+
+        if (response.callback == 'add_remote_to_menu') {
+            addRemoteToMenu();
+        }
+        if (response.callback == 'refresh_remote_menu') {
+            refreshRemoteMenu(response.remotes);
+        }
+        return;
+    }
+
+    myApp.addNotification({
+        message: 'No socket connection',
+        hold: 3000
+    });
+}
+
+function toTop(){
+    mainView.router.load({
+        url: 'static/status.html'
+    });
+}
+
+function addRemoteToMenu(){
+}
+
+

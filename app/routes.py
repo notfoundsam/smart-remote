@@ -9,7 +9,7 @@ from .models import User
 # from gpio import driver
 from config import devices, status_code
 from threading import Lock
-from flask_socketio import emit, send
+# from flask_socketio import emit
 from threading import Lock
 
 

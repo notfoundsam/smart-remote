@@ -30,7 +30,14 @@ def handle_connect():
 def handle_json(data):
     print('received json: ' + str(data), file=sys.stderr)
     
-    if data['action'] == 'add_remote':
+    rc = RemoteControl()
+    
+    if data['action'] == 'remote_add':
         content = data['content']
-        rc = RemoteControl()
-        rc.create(content['rc_type'], content['rc_id'], content['rc_name'])
+
+        if rc.create(content['rc_type'], content['rc_id'], content['rc_name']) == True:
+            emit('json', {'response': {'result': 'success', 'callback': 'add_remote_to_menu'}})
+
+    elif data['action'] == 'remote_list':
+        remotes = rc.getRemotesList()
+        emit('json', {'response': {'result': 'success', 'callback': 'refresh_remote_menu', 'remotes': remotes}})

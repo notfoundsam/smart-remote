@@ -8,7 +8,7 @@
     <!-- Color theme for statusbar -->
     <meta name="theme-color" content="#2196f3">
     <!-- Your app title -->
-    <title>My App</title>
+    <title>Smart Remote</title>
     <!-- Path to your custom app styles-->
     <link rel="stylesheet" href="{{ url_for('.static', filename = 'css/app.min.css') }}">
   </head>
@@ -24,26 +24,13 @@
         </div>
       </div>
 
+      <div class="list-block menu-list" id="remotes">
+        <ul></ul>
+      </div>
       <div class="list-block menu-list">
         <ul>
           <li>
-            <a href="tv_1.html" class="item-link item-content close-panel">
-              <div class="item-media"><i class="fa fa-television" aria-hidden="true"></i></div>
-              <div class="item-inner">
-                <div class="item-title">TV 1</div>
-              </div>
-            </a>
-          </li>
-          <li>
-           <a href="light_room_1.html" class="item-link item-content close-panel">
-            <div class="item-media"><i class="fa fa-rss" aria-hidden="true"></i></div>
-              <div class="item-inner">
-                <div class="item-title">Light Room 1</div>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a id="logout" href="#" class="item-link item-content">
+            <a id="logout" href="#" class="item-link item-content close-panel">
               <div class="item-media"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></div>
               <div class="item-inner">
                 <div class="item-title">Logout</div>
@@ -72,7 +59,7 @@
       <div class="view">
         <div data-page="login" class="page">
           <div class="page-content login-screen-content">
-            <div class="login-screen-title">My App</div>
+            <div class="login-screen-title">Login to Smart Remote</div>
             <form>
               <div class="list-block">
                 <ul>
@@ -98,10 +85,6 @@
                 <ul>
                   <li><a id="login" href="#" class="item-link list-button">Sign In</a></li>
                 </ul>
-                <div class="list-block-label">
-                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                  <p><a href="#" class="close-login-screen">Close Login Screen</a></p>
-                </div>
               </div>
             </form>
           </div>

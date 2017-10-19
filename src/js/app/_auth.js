@@ -23,6 +23,7 @@ $$('#login').on('click', function() {
                     mainView.router.load({
                         url: 'static/status.html'
                     });
+                    activateConnection();
                     myApp.closeModal('.login-screen');
                     break;
                 case 20: 
