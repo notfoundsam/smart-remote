@@ -6,7 +6,6 @@ myApp.onPageInit('status', function (page) {
                 onClick: function () {
                     mainView.router.load({
                         url: 'static/add_remote.html',
-                        reload: true,
                         context: {
                             title: 'IR Remote',
                         }

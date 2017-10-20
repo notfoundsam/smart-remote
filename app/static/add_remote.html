@@ -26,13 +26,30 @@
             <a href="#" class="item-link smart-select">
               <!-- select -->
               <select name="rc_type">
-                <option value="ir_rc" selected>IR Remote</option>
-                <option value="rc">Remote</option>
+                <option value="ir_rc" data-option-icon="fa fa-wifi" selected>IR Remote</option>
+                <option value="rc" data-option-icon="fa fa-microchip">Remote</option>
               </select>
               <div class="item-content">
                 <div class="item-inner">
                   <!-- Select label -->
                   <div class="item-title">Choose remote</div>
+                </div>
+              </div>
+            </a>
+          </li>
+          <li>
+            <!-- Additional "smart-select" class -->
+            <a href="#" class="item-link smart-select">
+              <!-- select -->
+              <select name="rc_icon">
+                <option value="fa fa-lightbulb-o" data-option-icon="fa fa-lightbulb-o" selected>Light</option>
+                <option value="fa fa-television" data-option-icon="fa fa-television">TV</option>
+                <option value="fa fa-shower" data-option-icon="fa fa-shower">Shower</option>
+              </select>
+              <div class="item-content">
+                <div class="item-inner">
+                  <!-- Select label -->
+                  <div class="item-title">Choose icon</div>
                 </div>
               </div>
             </a>

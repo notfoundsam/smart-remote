@@ -80,12 +80,18 @@ function refreshRemoteMenu(remotes) {
     remotes.forEach(function(element) {
         var li = $$('<li>');
         var anchor = $$('<a href="#" class="item-link item-content close-panel"></a>');
-        var icon = $$('<div class="item-media"><i class="fa fa-television" aria-hidden="true"></i></div>');
+        var icon = $$('<div class="item-media"><i class="' + element.icon + '" aria-hidden="true"></i></div>');
         var inner = $$('<div class="item-inner"></div>');
         var title = $$('<div class="item-title"></div>').text(element.name);
 
-        anchor.on('click', function (e) { 
-          console.log('clicked');
+        anchor.attr('data-type', element.type);
+        anchor.attr('data-id', element.identificator);
+        anchor.attr('data-title', element.name);
+
+        anchor.on('click', function (e) {
+            var data = $$(this).dataset();
+            loadRemoteControl(data);
+            console.log(data);
         });
 
         inner.append(title);
@@ -94,6 +100,7 @@ function refreshRemoteMenu(remotes) {
         li.append(anchor);
         menu.append(li);
     });
+    
 }
 
 function sendRequest(request, socket) {
@@ -113,7 +120,12 @@ function parseResponse(response) {
         myApp.hideIndicator();
 
         if (response.callback == 'add_remote_to_menu') {
-            addRemoteToMenu();
+            var request = {};
+
+            request.action = 'remote_list';
+            sendRequest(request, socket_remotes);
+            
+            redirectTo('status');
         }
         if (response.callback == 'refresh_remote_menu') {
             refreshRemoteMenu(response.remotes);
@@ -127,13 +139,26 @@ function parseResponse(response) {
     });
 }
 
-function toTop(){
+function redirectTo(page) {
     mainView.router.load({
-        url: 'static/status.html'
+        url: 'static/' + page + '.html'
     });
 }
 
-function addRemoteToMenu(){
+function addRemoteToMenu() {
+}
+
+function loadRemoteControl(data) {
+    mainView.router.load({
+        url: 'static/remote.html',
+        // reload: (mainView.url == 'bidding.html'),
+        // ignoreCache: true,
+        context: {
+            title: data.title,
+            type: data.type,
+            id: data.id
+        }
+    });
 }
 
 

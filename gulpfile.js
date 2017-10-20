@@ -12,6 +12,11 @@ var gulp = require('gulp'),
     plumber       = require('gulp-plumber'),
     livereload    = require('gulp-livereload');
 
+var livereload_opt = {
+    host: '0.0.0.0',
+    port: 35729
+}
+
 var path = {
     build: {
         js: 'app/static/js',
@@ -105,7 +110,7 @@ gulp.task('build', [
 ]);
 
 gulp.task('watch', function(){
-    livereload.listen();
+    livereload.listen(livereload_opt);
     watch([path.watch.style], { usePolling: true }, function(event, cb) {
         gulp.start('style:build');
     });

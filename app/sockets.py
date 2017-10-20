@@ -35,7 +35,7 @@ def handle_json(data):
     if data['action'] == 'remote_add':
         content = data['content']
 
-        if rc.create(content['rc_type'], content['rc_id'], content['rc_name']) == True:
+        if rc.create(content['rc_type'], content['rc_id'], content['rc_name'], content['rc_icon']) == True:
             emit('json', {'response': {'result': 'success', 'callback': 'add_remote_to_menu'}})
 
     elif data['action'] == 'remote_list':
