@@ -136,6 +136,12 @@ function parseResponse(response) {
         } else if (response.callback == 'ir_signal_recived') {
             // refreshRemoteMenu(response.remotes);
             console.log('signal ok');
+            myApp.hidePreloader()
+            // console.log('faild');
+            myApp.addNotification({
+                message: 'Signal recived',
+                hold: 3000
+            });
         } else if (response.callback == 'ir_signal_failed') {
             myApp.hidePreloader()
             // console.log('faild');

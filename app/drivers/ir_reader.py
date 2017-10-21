@@ -77,6 +77,8 @@ def read_signal():
 
             text = '-'.join(result)
 
+            print(text, file=sys.stderr)
+
             with open("ir_tmp_code.txt", "w") as text_file:
                 text_file.write(text)
 

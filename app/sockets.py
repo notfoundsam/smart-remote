@@ -46,6 +46,7 @@ def handle_json(data):
     elif data['action'] == 'catch_ir_signal':
         emit('json', {'response': {'result': 'success', 'callback': 'waiting_ir_signal'}})
         if (ir_reader.read_signal()):
+            print('signal ok', file=sys.stderr)
             emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_recived'}})
         else:
             print('faild', file=sys.stderr)
