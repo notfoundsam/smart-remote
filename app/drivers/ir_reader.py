@@ -73,6 +73,11 @@ def read_signal():
             result = []
 
             for (val, pulse) in command:
+                print(val, file=sys.stderr)
+                print(pulse, file=sys.stderr)
+                # print val, pulse
+
+            for (val, pulse) in command:
                 result.append(str(pulse))
 
             text = '-'.join(result)
