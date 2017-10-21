@@ -26,8 +26,8 @@ def read_signal():
     GPIO.setup(INPUT_WIRE, GPIO.IN)
 
 
-    # while time.time() < t_end:
     while time.time() < t_end:
+    # while True:
         print('--- start ---', file=sys.stderr)
         value = 1
         # Loop until we read a 0
@@ -70,24 +70,24 @@ def read_signal():
             previousVal = value
             value = GPIO.input(INPUT_WIRE)
         
-            result = []
+        result = []
 
-            for (val, pulse) in command:
-                print(val, file=sys.stderr)
-                print(pulse, file=sys.stderr)
-                # print val, pulse
+        # for (val, pulse) in command:
+        #     print(val, file=sys.stderr)
+        #     print(pulse, file=sys.stderr)
+        #     # print val, pulse
 
-            for (val, pulse) in command:
-                result.append(str(pulse))
+        for (val, pulse) in command:
+            result.append(str(pulse))
 
-            text = '-'.join(result)
+        text = '-'.join(result)
 
-            print(text, file=sys.stderr)
-            print(result, file=sys.stderr)
+        print(text, file=sys.stderr)
+        print(result, file=sys.stderr)
 
-            with open("ir_tmp_code.txt", "w") as text_file:
-                text_file.write(text)
+        with open("ir_tmp_code.txt", "w") as text_file:
+            text_file.write(text)
 
-            return True
+        return True
 
     return False
