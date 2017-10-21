@@ -26,68 +26,58 @@ def read_signal():
     GPIO.setup(INPUT_WIRE, GPIO.IN)
 
 
+    print('--- start ---', file=sys.stderr)
+    value = 1
+    # Loop until we read a 0
     while time.time() < t_end:
-    # while True:
-        print('--- start ---', file=sys.stderr)
-        value = 1
-        # Loop until we read a 0
-        while value:
-            value = GPIO.input(INPUT_WIRE)
+        value = GPIO.input(INPUT_WIRE)
+    if value:
+        return False
 
-        print('--- signal ---', file=sys.stderr)
-        # Grab the start time of the command
-        startTime = datetime.now()
+    print('--- signal ---', file=sys.stderr)
+    # Grab the start time of the command
+    startTime = datetime.now()
 
-        # Used to buffer the command pulses
-        command = []
+    # Used to buffer the command pulses
+    command = []
 
-        # The end of the "command" happens when we read more than
-        # a certain number of 1s (1 is off for my IR receiver)
-        numOnes = 0
+    # The end of the "command" happens when we read more than
+    # a certain number of 1s (1 is off for my IR receiver)
+    numOnes = 0
 
-        # Used to keep track of transitions from 1 to 0
-        previousVal = 0
+    # Used to keep track of transitions from 1 to 0
+    previousVal = 0
 
-        while True:
-            print('--- loop 2 ---', file=sys.stderr)
-            if value != previousVal:
-                # The value has changed, so calculate the length of this run
-                now = datetime.now()
-                pulseLength = now - startTime
-                startTime = now
+    while True:
+        # print('--- loop 2 ---', file=sys.stderr)
+        if value != previousVal:
+            # The value has changed, so calculate the length of this run
+            now = datetime.now()
+            pulseLength = now - startTime
+            startTime = now
 
-                command.append((previousVal, pulseLength.microseconds))
+            command.append((previousVal, pulseLength.microseconds))
 
-            if value:
-                numOnes = numOnes + 1
-            else:
-                numOnes = 0
+        if value:
+            numOnes = numOnes + 1
+        else:
+            numOnes = 0
 
-            # 10000 is arbitrary, adjust as necessary
-            if numOnes > 10000:
-                break
+        # 10000 is arbitrary, adjust as necessary
+        if numOnes > 10000:
+            break
 
-            previousVal = value
-            value = GPIO.input(INPUT_WIRE)
-        
-        result = []
+        previousVal = value
+        value = GPIO.input(INPUT_WIRE)
+    
+    result = []
 
-        # for (val, pulse) in command:
-        #     print(val, file=sys.stderr)
-        #     print(pulse, file=sys.stderr)
-        #     # print val, pulse
+    for (val, pulse) in command:
+        result.append(str(pulse))
 
-        for (val, pulse) in command:
-            result.append(str(pulse))
+    text = ' '.join(result)
 
-        text = '-'.join(result)
+    with open("ir_tmp_code.txt", "w") as text_file:
+        text_file.write(text)
 
-        print(text, file=sys.stderr)
-        print(result, file=sys.stderr)
-
-        with open("ir_tmp_code.txt", "w") as text_file:
-            text_file.write(text)
-
-        return True
-
-    return False
+    return True
