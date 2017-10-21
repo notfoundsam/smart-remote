@@ -10,7 +10,7 @@ def read_signal():
     INPUT_WIRE = 12
 
     env = os.environ['APP_ENV']
-    t_end = time.time() + 60 / 2
+    t_end = time.time() + 60 / 6
 
     if env != 'development':
         import RPi.GPIO as GPIO
@@ -29,7 +29,7 @@ def read_signal():
     print('--- start ---', file=sys.stderr)
     value = 1
     # Loop until we read a 0
-    while time.time() < t_end:
+    while value && time.time() < t_end:
         value = GPIO.input(INPUT_WIRE)
     if value:
         return False
