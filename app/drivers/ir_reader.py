@@ -29,7 +29,7 @@ def read_signal():
     print('--- start ---', file=sys.stderr)
     value = 1
     # Loop until we read a 0
-    while value && time.time() < t_end:
+    while value and time.time() < t_end:
         value = GPIO.input(INPUT_WIRE)
     if value:
         return False
