@@ -10,7 +10,7 @@ def read_signal():
     INPUT_WIRE = 12
 
     env = os.environ['APP_ENV']
-    t_end = time.time() + 60 / 30
+    t_end = time.time() + 60 / 2
 
     if env != 'development':
         import RPi.GPIO as GPIO
