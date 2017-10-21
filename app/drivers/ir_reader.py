@@ -19,19 +19,22 @@ def read_signal():
         while time.time() < t_end:
             # print('ooooooo', file=sys.stderr)
             pass
-        
+
         return False    
 
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(INPUT_WIRE, GPIO.IN)
 
 
+    # while time.time() < t_end:
     while time.time() < t_end:
+        print('--- start ---', file=sys.stderr)
         value = 1
         # Loop until we read a 0
         while value:
             value = GPIO.input(INPUT_WIRE)
 
+        print('--- signal ---', file=sys.stderr)
         # Grab the start time of the command
         startTime = datetime.now()
 
@@ -46,7 +49,7 @@ def read_signal():
         previousVal = 0
 
         while True:
-
+            print('--- loop 2 ---', file=sys.stderr)
             if value != previousVal:
                 # The value has changed, so calculate the length of this run
                 now = datetime.now()
