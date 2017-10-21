@@ -10,7 +10,7 @@ class RemoteControl:
             remote = Remote(remote_type = rc_type, identificator = rc_id.lower(), name = rc_name, icon = rc_icon, order = rc_order, public = public)
             db.session.add(remote)
             db.session.commit()
-            print('create remote type:%s' % type, file=sys.stderr)
+            # print('create remote type:%s' % type, file=sys.stderr)
             return True
 
     def getRemotesList(self):
@@ -19,7 +19,6 @@ class RemoteControl:
         for remote in Remote.query.order_by(Remote.id).all():
             r = {'identificator': remote.identificator, 'name': remote.name, 'type': remote.remote_type, 'icon': remote.icon}
             remotes.append(r)
-            print('remote: %s' % remote.name, file=sys.stderr)
 
         return remotes
         

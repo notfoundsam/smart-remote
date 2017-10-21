@@ -6,6 +6,7 @@ from app import so
 from .remotes import *
 from flask_login import current_user
 from flask_socketio import disconnect
+from drivers import ir_reader
 
 def authenticated_only(f):
     @functools.wraps(f)
@@ -40,4 +41,12 @@ def handle_json(data):
 
     elif data['action'] == 'remote_list':
         remotes = rc.getRemotesList()
-        emit('json', {'response': {'result': 'success', 'callback': 'refresh_remote_menu', 'remotes': remotes}})
+        emit('json', {'response': {'result': 'success', 'callback': 'refresh_remote_menu', 'remotes': remotes}}, broadcast = True)
+
+    elif data['action'] == 'catch_ir_signal':
+        emit('json', {'response': {'result': 'success', 'callback': 'waiting_ir_signal'}})
+        if (ir_reader.read_signal()):
+            emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_recived'}})
+        else:
+            print('faild', file=sys.stderr)
+            emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_failed'}})

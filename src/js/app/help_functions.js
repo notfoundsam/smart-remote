@@ -80,7 +80,7 @@ function refreshRemoteMenu(remotes) {
     remotes.forEach(function(element) {
         var li = $$('<li>');
         var anchor = $$('<a href="#" class="item-link item-content close-panel"></a>');
-        var icon = $$('<div class="item-media"><i class="' + element.icon + '" aria-hidden="true"></i></div>');
+        var icon = $$('<div class="item-media"><i class="' + element.icon + ' size-25" aria-hidden="true"></i></div>');
         var inner = $$('<div class="item-inner"></div>');
         var title = $$('<div class="item-title"></div>').text(element.name);
 
@@ -100,7 +100,7 @@ function refreshRemoteMenu(remotes) {
         li.append(anchor);
         menu.append(li);
     });
-    
+
 }
 
 function sendRequest(request, socket) {
@@ -126,10 +126,25 @@ function parseResponse(response) {
             sendRequest(request, socket_remotes);
             
             redirectTo('status');
-        }
-        if (response.callback == 'refresh_remote_menu') {
+        } else if (response.callback == 'refresh_remote_menu') {
             refreshRemoteMenu(response.remotes);
+        } else if (response.callback == 'waiting_ir_signal') {
+            myApp.showPreloader('Waiting for signal');
+            // myApp.alert('Waiting for signal', 'Waiting', function () {
+            //     myApp.alert('Button clicked!');
+            // });
+        } else if (response.callback == 'ir_signal_recived') {
+            // refreshRemoteMenu(response.remotes);
+            console.log('signal ok');
+        } else if (response.callback == 'ir_signal_failed') {
+            myApp.hidePreloader()
+            // console.log('faild');
+            myApp.addNotification({
+                message: 'Signal didn\'t recive',
+                hold: 3000
+            });
         }
+
         return;
     }
 
@@ -149,16 +164,22 @@ function addRemoteToMenu() {
 }
 
 function loadRemoteControl(data) {
-    mainView.router.load({
-        url: 'static/remote.html',
-        // reload: (mainView.url == 'bidding.html'),
-        // ignoreCache: true,
-        context: {
-            title: data.title,
-            type: data.type,
-            id: data.id
-        }
-    });
+    if (data.type == 'ir_rc') {
+        console.log(data.title)
+        // if (mainView.url == 'ir_remote.html') {
+        //     mainView.router.reloadContent(content)
+        // }
+        mainView.router.load({
+            url: 'static/ir_remote.html',
+            reload: (mainView.url == 'static/ir_remote.html'),
+            ignoreCache: true,
+            // animatePages: true,
+            context: {
+                title: data.title,
+                id: data.id
+            }
+        });
+    }
 }
 
 

@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     command: bash -c "python run.py"
     working_dir: /app
+    environment:
+      - APP_ENV=development
     volumes:
       - ./:/app
     ports:
