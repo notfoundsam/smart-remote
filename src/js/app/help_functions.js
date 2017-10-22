@@ -91,7 +91,6 @@ function refreshRemoteMenu(remotes) {
         anchor.on('click', function (e) {
             var data = $$(this).dataset();
             loadRemoteControl(data);
-            console.log(data);
         });
 
         inner.append(title);
@@ -100,7 +99,41 @@ function refreshRemoteMenu(remotes) {
         li.append(anchor);
         menu.append(li);
     });
+}
 
+
+function refreshRemoteButtons(buttons) {
+    var page = $$('div.page[data-page=ir_remote]');
+
+    if (page.length && buttons.length) {
+        var button_area = $$('#button_area');
+
+        var row = 0;
+
+        var content_block = $$('<div class="content-block"></div>');
+        var buttons_row = null;
+
+        buttons.forEach(function(element) {
+            if (element.order_ver != row) {
+                row = element.order_ver;
+
+                if (buttons_row)
+                    content_block.append(buttons_row);
+
+                buttons_row = $$('<p class="buttons-row"></p>');
+            }
+
+            var anchor = $$('<a href="#" class="button-control button button-raised button-fill"></a>');
+            anchor.addClass(element.color);
+            anchor.attr('data-id', element.identificator);
+            anchor.text(element.name);
+            buttons_row.append(anchor);
+        });
+
+        content_block.append(buttons_row);
+        button_area.append(content_block);
+        myApp.hideIndicator();
+    }
 }
 
 function sendRequest(request, socket) {
@@ -128,23 +161,25 @@ function parseResponse(response) {
             redirectTo('status');
         } else if (response.callback == 'refresh_remote_menu') {
             refreshRemoteMenu(response.remotes);
-        } else if (response.callback == 'waiting_ir_signal') {
-            myApp.showPreloader('Waiting for signal');
-            // myApp.alert('Waiting for signal', 'Waiting', function () {
-            //     myApp.alert('Button clicked!');
-            // });
+        } else if (response.callback == 'refresh_remote_buttons') {
+            refreshRemoteButtons(response.buttons);
+        } else if (response.callback == 'back_to_remote') {
+            redirectTo('status');
+            // refreshRemoteButtons(response.buttons);
         } else if (response.callback == 'ir_signal_recived') {
-            // refreshRemoteMenu(response.remotes);
-            console.log('signal ok');
-            myApp.hidePreloader()
-            // console.log('faild');
-            myApp.addNotification({
-                message: 'Signal recived',
-                hold: 3000
+            console.log(response.signal);
+            var rc_id = $$('div.page[data-page=ir_remote]').attr('data-rc-id');
+            myApp.hidePreloader();
+
+            mainView.router.load({
+                url: 'static/add_ir_button.html',
+                context: {
+                    signal: response.signal,
+                    rc_id: rc_id
+                }
             });
         } else if (response.callback == 'ir_signal_failed') {
-            myApp.hidePreloader()
-            // console.log('faild');
+            myApp.hidePreloader();
             myApp.addNotification({
                 message: 'Signal didn\'t recive',
                 hold: 3000
@@ -166,23 +201,17 @@ function redirectTo(page) {
     });
 }
 
-function addRemoteToMenu() {
-}
-
 function loadRemoteControl(data) {
     if (data.type == 'ir_rc') {
-        console.log(data.title)
-        // if (mainView.url == 'ir_remote.html') {
-        //     mainView.router.reloadContent(content)
-        // }
+        var request = {};
+
         mainView.router.load({
             url: 'static/ir_remote.html',
             reload: (mainView.url == 'static/ir_remote.html'),
             ignoreCache: true,
-            // animatePages: true,
             context: {
                 title: data.title,
-                id: data.id
+                rc_id: data.id
             }
         });
     }

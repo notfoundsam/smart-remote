@@ -40,6 +40,7 @@ class Remote(db.Model):
     order = db.Column(db.Integer)
     icon = db.Column(db.String(200))
     timestamp = db.Column(db.DateTime)
+    buttons = db.relationship('Button', backref = 'remote', lazy = 'dynamic')
 
     def __repr__(self):
         return '<Remote %r>' % (self.identificator)
@@ -52,6 +53,7 @@ class Button(db.Model):
     order_ver = db.Column(db.Integer)
     color = db.Column(db.String(10))
     timestamp = db.Column(db.DateTime)
+    signal = db.Column(db.Text)
     remote_id = db.Column(db.Integer, db.ForeignKey('remote.id'))
 
     def __repr__(self):

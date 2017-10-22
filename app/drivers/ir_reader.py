@@ -10,21 +10,23 @@ def read_signal():
     INPUT_WIRE = 12
 
     env = os.environ['APP_ENV']
-    t_end = time.time() + 60 / 6
+    t_end = time.time() + 60 / 10
 
-    if env != 'development':
-        import RPi.GPIO as GPIO
-    else:
+    # Using for development
+    if 'APP_ENV' in os.environ and os.environ['APP_ENV'] == 'development':
         print('%s - Waiting - %s' % (time.time(), t_end), file=sys.stderr)
-        while time.time() < t_end:
-            # print('ooooooo', file=sys.stderr)
-            pass
+        # while time.time() < t_end:
+        #     pass
 
-        return False    
+        # with open("ir_tmp_code.txt", "w") as text_file:
+        #     text_file.write("500 1200 500 500 500 500")
+
+        return "500 1200 500 500 500 500"    
+    else:
+        import RPi.GPIO as GPIO
 
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(INPUT_WIRE, GPIO.IN)
-
 
     print('--- start ---', file=sys.stderr)
     value = 1
@@ -49,7 +51,6 @@ def read_signal():
     previousVal = 0
 
     while True:
-        # print('--- loop 2 ---', file=sys.stderr)
         if value != previousVal:
             # The value has changed, so calculate the length of this run
             now = datetime.now()
@@ -77,7 +78,7 @@ def read_signal():
 
     text = ' '.join(result)
 
-    with open("ir_tmp_code.txt", "w") as text_file:
-        text_file.write(text)
+    # with open("ir_tmp_code.txt", "w") as text_file:
+    #     text_file.write(text)
 
-    return True
+    return text

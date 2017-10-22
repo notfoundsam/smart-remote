@@ -5,10 +5,7 @@ myApp.onPageInit('status', function (page) {
                 text: 'Add Remote',
                 onClick: function () {
                     mainView.router.load({
-                        url: 'static/add_remote.html',
-                        context: {
-                            title: 'IR Remote',
-                        }
+                        url: 'static/add_remote.html'
                     });
                 }
             },
@@ -33,12 +30,5 @@ myApp.onPageInit('status', function (page) {
             },
         ];
         myApp.actions(buttons);
-        
-        // var request = {};
-        // request.command = $$(this).attr('data-command');
-        // console.log(request);
-        // conn.send(JSON.stringify(request));
-
-        // myApp.alert('Waiting for IR command');
     });
 });
