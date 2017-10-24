@@ -115,6 +115,11 @@ class RemoteControl:
 
                     # print('---BTN END---', file=sys.stderr)
             print('---RC END---', file=sys.stderr)
+
+        os.system("sudo /etc/init.d/lirc stop")
+        os.system("sudo cp ir_tmp_code.txt /etc/lirc/lircd.conf")
+        os.system("sudo /etc/init.d/lirc start")
+
     
     def sendLircCommand(self, rc_id, btn_id):
         if 'APP_ENV' in os.environ and os.environ['APP_ENV'] == 'development':
