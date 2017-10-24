@@ -88,27 +88,29 @@ class RemoteControl:
 
                 for rc in ir_remotes:
                     text_file.write("begin remote\n")
-                    text_file.write("  name %s\n" % rc.identificator)
-                    text_file.write("  flags RAW_CODES\n")
-                    text_file.write("  eps 30\n")
-                    text_file.write("  aeps 100\n")
-
-                    text_file.write("  ptrail 0\n")
-                    text_file.write("  repeat 0\n")
-                    text_file.write("  gap 108000\n")
-
-                    text_file.write("  begin raw_codes\n")
+                    text_file.write("\n")
+                    text_file.write("name %s\n" % rc.identificator)
+                    text_file.write("flags RAW_CODES\n")
+                    text_file.write("eps 30\n")
+                    text_file.write("aeps 100\n")
+                    text_file.write("\n")
+                    text_file.write("ptrail 0\n")
+                    text_file.write("repeat 0 0\n")
+                    text_file.write("gap 108000\n")
+                    text_file.write("\n")
+                    text_file.write("begin raw_codes\n")
 
 
                     # print('---RC START---', file=sys.stderr)
                     # print(rc.name, file=sys.stderr)
                     # print('---BTN START---', file=sys.stderr)
                     for button in rc.buttons.all():
-                        text_file.write("    name %s\n" % button.identificator)
-                        text_file.write("      %s\n" % button.signal)
+                        text_file.write("  name %s\n" % button.identificator)
+                        text_file.write("    %s\n" % button.signal)
                         # print(button.name, file=sys.stderr)
 
-                    text_file.write("  end raw_codes\n")
+                    text_file.write("end raw_codes\n")
+                    text_file.write("\n")
                     text_file.write("end remote\n")
 
                     # print('---BTN END---', file=sys.stderr)
