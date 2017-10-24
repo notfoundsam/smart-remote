@@ -78,11 +78,12 @@ class RemoteControl:
         return buttons
 
     def regenerateLircCommands(self):
-        buttons = []
+        print('---ENTER---', file=sys.stderr)
 
         ir_remotes = Remote.query.filter_by(remote_type = 'ir_rc').all()
 
         if ir_remotes is not None:
+            print('---RC START---', file=sys.stderr)
             with open("ir_tmp_code.txt", "w") as text_file:
 
                 for rc in ir_remotes:
@@ -110,7 +111,7 @@ class RemoteControl:
                     text_file.write("end remote\n")
 
                     # print('---BTN END---', file=sys.stderr)
-                    # print('---RC END---', file=sys.stderr)
+            print('---RC END---', file=sys.stderr)
     
     def sendLircCommand(self, rc_id, btn_id):
         if 'APP_ENV' in os.environ and os.environ['APP_ENV'] == 'development':
