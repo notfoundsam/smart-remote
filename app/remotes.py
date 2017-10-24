@@ -104,7 +104,8 @@ class RemoteControl:
                     # print(rc.name, file=sys.stderr)
                     # print('---BTN START---', file=sys.stderr)
                     for button in rc.buttons.all():
-                        text_file.write("    name %s %s\n" % (button.identificator, button.signal))
+                        text_file.write("    name %s\n" % button.identificator)
+                        text_file.write("      %s\n" % button.signal)
                         # print(button.name, file=sys.stderr)
 
                     text_file.write("  end raw_codes\n")
