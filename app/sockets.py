@@ -64,3 +64,18 @@ def handle_json(data):
         else:
             print('faild', file=sys.stderr)
             emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_failed'}})
+
+    elif data['action'] == 'regenerate_lirc_commands':
+        result = rc.regenerateLircCommands()
+
+        # if signal != False:
+        #     print('signal ok', file=sys.stderr)
+        #     emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_recived', 'signal': signal}})
+        # else:
+        #     print('faild', file=sys.stderr)
+        #     emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_failed'}})
+
+    elif data['action'] == 'send_ir_command':
+        content = data['content']
+
+        result = rc.sendLircCommand(content['rc_id'], content['btn_id'])

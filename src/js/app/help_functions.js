@@ -125,8 +125,14 @@ function refreshRemoteButtons(buttons) {
 
             var anchor = $$('<a href="#" class="button-control button button-raised button-fill"></a>');
             anchor.addClass(element.color);
-            anchor.attr('data-id', element.identificator);
+            anchor.attr('data-btn-id', element.identificator);
             anchor.text(element.name);
+            anchor.on('click', function (e) {
+                var data = $$(this).dataset();
+                data.rcId = $$(this).closest('.page').attr('data-rc-id');
+                sendIrCommand(data);
+            });
+
             buttons_row.append(anchor);
         });
 
@@ -215,6 +221,17 @@ function loadRemoteControl(data) {
             }
         });
     }
+}
+
+function sendIrCommand(data) {
+    console.log(data);
+    var request = {};
+
+    request.action = 'send_ir_command';
+    request.content = {}
+    request.content.rc_id = data.rcId;
+    request.content.btn_id = data.btnId;
+    sendRequest(request, socket_remotes);
 }
 
 

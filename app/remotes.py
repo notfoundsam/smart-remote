@@ -1,5 +1,5 @@
 from __future__ import print_function
-import sys
+import sys, os
 from .models import Remote, Button
 from app import so, db
 import uuid
@@ -76,4 +76,47 @@ class RemoteControl:
                 buttons.append(btn)
 
         return buttons
+
+    def regenerateLircCommands(self):
+        buttons = []
+
+        ir_remotes = Remote.query.filter_by(remote_type = 'ir_rc').all()
+
+        if ir_remotes is not None:
+            with open("ir_tmp_code.txt", "w") as text_file:
+
+                for rc in ir_remotes:
+                    text_file.write("begin remote\n")
+                    text_file.write("  name %s\n" % rc.identificator)
+                    text_file.write("  flags RAW_CODES\n")
+                    text_file.write("  eps 30\n")
+                    text_file.write("  aeps 100\n")
+
+                    text_file.write("  ptrail 0\n")
+                    text_file.write("  repeat 0\n")
+                    text_file.write("  gap 108000\n")
+
+                    text_file.write("  begin raw_codes\n")
+
+
+                    # print('---RC START---', file=sys.stderr)
+                    # print(rc.name, file=sys.stderr)
+                    # print('---BTN START---', file=sys.stderr)
+                    for button in rc.buttons.all():
+                        text_file.write("    name %s %s\n" % (button.identificator, button.signal))
+                        # print(button.name, file=sys.stderr)
+
+                    text_file.write("  end raw_codes\n")
+                    text_file.write("end remote\n")
+
+                    # print('---BTN END---', file=sys.stderr)
+                    # print('---RC END---', file=sys.stderr)
+    
+    def sendLircCommand(self, rc_id, btn_id):
+        if 'APP_ENV' in os.environ and os.environ['APP_ENV'] == 'development':
+            print(rc_id, file=sys.stderr)
+            print(btn_id, file=sys.stderr)
+        else:
+            os.system("irsend SEND_ONCE %s %s" % (rc_id, btn_id))
+
         

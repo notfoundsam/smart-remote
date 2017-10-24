@@ -31,4 +31,11 @@ myApp.onPageInit('status', function (page) {
         ];
         myApp.actions(buttons);
     });
+
+    $$('#regenerate_lirc_btn').on('click', function () {
+        var request = {};
+
+        request.action = 'regenerate_lirc_commands';
+        sendRequest(request, socket_remotes);
+    });
 });
