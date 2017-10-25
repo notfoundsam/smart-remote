@@ -15,4 +15,16 @@ myApp.onPageInit('add_ir_button', function (page) {
         sendRequest(request, socket_remotes);
         myApp.showIndicator();
     });
+
+    $$('#ir_test_signal_btn').on('click', function () {
+        var request = {};
+        var page = $$(this).closest('.page-content');
+
+        request.action = 'ir_test_signal';
+        request.content = {}
+        request.content.signal = page.find('#recived_signal').text();
+
+        sendRequest(request, socket_remotes);
+        // myApp.showIndicator();
+    });
 });

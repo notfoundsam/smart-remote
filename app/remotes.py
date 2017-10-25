@@ -77,7 +77,7 @@ class RemoteControl:
 
         return buttons
 
-    def regenerateLircCommands(self):
+    def regenerateLircCommands(self, test_signal = False):
         print('---ENTER---', file=sys.stderr)
 
         ir_remotes = Remote.query.filter_by(remote_type = 'ir_rc').all()
@@ -116,9 +116,35 @@ class RemoteControl:
                     # print('---BTN END---', file=sys.stderr)
             print('---RC END---', file=sys.stderr)
 
+        # Test signal
+        if test_signal != False:
+            with open('ir_tmp_code.txt', 'a') as file:
+                text_file.write("begin remote\n")
+                text_file.write("\n")
+                text_file.write("name test\n")
+                text_file.write("flags RAW_CODES\n")
+                text_file.write("eps 30\n")
+                text_file.write("aeps 100\n")
+                text_file.write("\n")
+                text_file.write("ptrail 0\n")
+                text_file.write("repeat 0 0\n")
+                text_file.write("gap 108000\n")
+                text_file.write("\n")
+                text_file.write("begin raw_codes\n")
+
+                text_file.write("  name test_signal\n")
+                text_file.write("    %s\n" % test_signal)
+
+                text_file.write("end raw_codes\n")
+                text_file.write("\n")
+                text_file.write("end remote\n")
+
         os.system("sudo /etc/init.d/lirc stop")
         os.system("sudo cp ir_tmp_code.txt /etc/lirc/lircd.conf")
         os.system("sudo /etc/init.d/lirc start")
+
+        if test_signal != False:
+            os.system("irsend SEND_ONCE %s %s" % ('test', 'test_signal'))
 
     
     def sendLircCommand(self, rc_id, btn_id):

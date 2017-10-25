@@ -79,3 +79,8 @@ def handle_json(data):
         content = data['content']
 
         result = rc.sendLircCommand(content['rc_id'], content['btn_id'])
+    
+    elif data['action'] == 'ir_test_signal':
+        content = data['content']
+
+        result = rc.regenerateLircCommands(test_signal = content['signal'])
