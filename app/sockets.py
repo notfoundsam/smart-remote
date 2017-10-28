@@ -67,6 +67,7 @@ def handle_json(data):
 
     elif data['action'] == 'regenerate_lirc_commands':
         result = rc.regenerateLircCommands()
+        rc.reloadLirc()
 
         # if signal != False:
         #     print('signal ok', file=sys.stderr)
@@ -82,5 +83,8 @@ def handle_json(data):
     
     elif data['action'] == 'ir_test_signal':
         content = data['content']
-
-        result = rc.regenerateLircCommands(test_signal = content['signal'])
+        print(content['signal'], file=sys.stderr)
+        rc.regenerateLircCommands()
+        rc.addTestSignal(content['signal'])
+        rc.reloadLirc()
+        rc.sendTestSignal()

@@ -24,6 +24,8 @@ myApp.onPageInit('add_ir_button', function (page) {
         request.content = {}
         request.content.signal = page.find('#recived_signal').text();
 
+        console.log(request);
+
         sendRequest(request, socket_remotes);
         // myApp.showIndicator();
     });

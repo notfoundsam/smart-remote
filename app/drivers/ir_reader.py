@@ -9,7 +9,7 @@ def read_signal():
     # This pin is also referred to as GPIO18
     INPUT_WIRE = 12
 
-    env = os.environ['APP_ENV']
+    # env = os.environ['APP_ENV']
     t_end = time.time() + 60 / 10
 
     # Using for development
