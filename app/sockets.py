@@ -43,7 +43,13 @@ def handle_json(data):
         content = data['content']
 
         if rc.addBtnToRemote(content) == True:
-            emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote'}})
+            emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote', 'rc_id': content['rc_id'], 'rc_name': content['rc_name']}})
+
+    elif data['action'] == 'remove_ir_buttons':
+        content = data['content']
+
+        rc.removeBtnFromRemote(content)
+        emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote', 'rc_id': content['rc_id'], 'rc_name': content['rc_name']}})
 
     elif data['action'] == 'remote_list':
         remotes = rc.getRemotesList()

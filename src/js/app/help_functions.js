@@ -102,7 +102,7 @@ function refreshRemoteMenu(remotes) {
 }
 
 
-function refreshRemoteButtons(buttons) {
+function refreshRemoteButtons(buttons, rc_name) {
     var page = $$('div.page[data-page=ir_remote]');
 
     if (page.length && buttons.length) {
@@ -168,20 +168,29 @@ function parseResponse(response) {
         } else if (response.callback == 'refresh_remote_menu') {
             refreshRemoteMenu(response.remotes);
         } else if (response.callback == 'refresh_remote_buttons') {
-            refreshRemoteButtons(response.buttons);
+            refreshRemoteButtons(response.buttons, response.rc_name);
         } else if (response.callback == 'back_to_remote') {
-            redirectTo('status');
+            mainView.router.load({
+                url: 'static/ir_remote.html',
+                context: {
+                    title: response.rc_name,
+                    rc_id: response.rc_id
+                }
+            });
+            // redirectTo('status');
             // refreshRemoteButtons(response.buttons);
         } else if (response.callback == 'ir_signal_recived') {
             console.log(response.signal);
             var rc_id = $$('div.page[data-page=ir_remote]').attr('data-rc-id');
+            var rc_name = $$('div.page[data-page=ir_remote]').attr('data-rc-name');
             myApp.hidePreloader();
 
             mainView.router.load({
                 url: 'static/add_ir_button.html',
                 context: {
                     signal: response.signal,
-                    rc_id: rc_id
+                    rc_id: rc_id,
+                    rc_name: rc_name
                 }
             });
         } else if (response.callback == 'ir_signal_failed') {
@@ -209,7 +218,6 @@ function redirectTo(page) {
 
 function loadRemoteControl(data) {
     if (data.type == 'ir_rc') {
-        var request = {};
 
         mainView.router.load({
             url: 'static/ir_remote.html',

@@ -9,18 +9,11 @@ def read_signal():
     # This pin is also referred to as GPIO18
     INPUT_WIRE = 12
 
-    # env = os.environ['APP_ENV']
     t_end = time.time() + 60 / 10
 
     # Using for development
     if 'APP_ENV' in os.environ and os.environ['APP_ENV'] == 'development':
         print('%s - Waiting - %s' % (time.time(), t_end), file=sys.stderr)
-        # while time.time() < t_end:
-        #     pass
-
-        # with open("ir_tmp_code.txt", "w") as text_file:
-        #     text_file.write("500 1200 500 500 500 500")
-
         return "500 1200 500 500 500 500"    
     else:
         import RPi.GPIO as GPIO
@@ -77,8 +70,5 @@ def read_signal():
         result.append(str(pulse))
 
     text = ' '.join(result)
-
-    # with open("ir_tmp_code.txt", "w") as text_file:
-    #     text_file.write(text)
 
     return text

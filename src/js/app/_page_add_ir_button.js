@@ -6,6 +6,7 @@ myApp.onPageInit('add_ir_button', function (page) {
         request.action = 'remote_ir_btn_add';
         request.content = {}
         request.content.rc_id = page.find('input[name=rc_id]').val();
+        request.content.rc_name = page.find('input[name=rc_name]').val();
         request.content.btn_name = page.find('input[name=btn_name]').val();
         request.content.btn_order_ver = page.find('input[name=btn_order_ver]').val();
         request.content.btn_order_hor = page.find('input[name=btn_order_hor]').val();

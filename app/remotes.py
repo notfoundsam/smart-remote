@@ -47,6 +47,15 @@ class RemoteControl:
             print('create btn: %s' % btn_id, file=sys.stderr)
             return True
 
+    def removeBtnFromRemote(self, content):
+        ids = content['buttons']
+
+        for button in ids:
+            btn = Button.query.filter_by(identificator = button).first()
+            db.session.delete(btn)
+
+        db.session.commit()
+
     def getRemotesList(self):
         remotes = []
 

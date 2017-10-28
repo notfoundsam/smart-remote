@@ -14,5 +14,6 @@
 //= app/_page_add_remote.js
 //= app/_page_ir_remote.js
 //= app/_page_add_ir_button.js
+//= app/_page_remove_ir_buttons.js
 
 //= app/help_functions.js

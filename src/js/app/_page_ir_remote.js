@@ -1,11 +1,11 @@
 myApp.onPageInit('ir_remote', function (page) {
     var rc_id = $$('div.page[data-page=ir_remote]').attr('data-rc-id');
-    console.log(rc_id);
-
     var request = {};
+
     request.action = 'remote_buttons_list';
     request.content = {}
     request.content.rc_id = rc_id;
+
     sendRequest(request, socket_remotes);
     myApp.showIndicator();
 
@@ -30,7 +30,27 @@ myApp.onPageInit('ir_remote', function (page) {
             {
                 text: 'Remove Buttons',
                 onClick: function () {
-                    myApp.alert('Button2 clicked');
+                    var rc_name = $$('div.page[data-page=ir_remote]').attr('data-rc-name');
+                    var rc_id = $$('div.page[data-page=ir_remote]').attr('data-rc-id');
+                    var buttons = [];
+
+                    $$('#button_area a.button').each(function() {
+                        var btn = {};
+
+                        btn.id = $$(this).attr('data-btn-id');
+                        btn.name = $$(this).text();
+                        
+                        buttons.push(btn);
+                    });
+                    
+                    mainView.router.load({
+                        url: 'static/remove_ir_buttons.html',
+                        context: {
+                            buttons: buttons,
+                            rc_id: rc_id,
+                            rc_name: rc_name
+                        }
+                    });
                 }
             },
             {
