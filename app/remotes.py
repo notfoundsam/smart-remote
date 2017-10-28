@@ -8,7 +8,7 @@ from datetime import datetime
 class RemoteControl:
     """docstring for RemoteControl"""
     def create(self, rc_type, rc_name, rc_icon, rc_order = 1, public = True):
-        rc_id = str(uuid.uuid4())
+        rc_id = "RC_" + str(uuid.uuid4()).replace('-', '_')
 
         if rc_type and rc_name and rc_icon:
             remote = Remote(remote_type = rc_type,
@@ -25,7 +25,7 @@ class RemoteControl:
             return True
 
     def addBtnToRemote(self, content):
-        btn_id = str(uuid.uuid4())
+        btn_id = "BTN_" + str(uuid.uuid4()).replace('-', '_')
         print(content['rc_id'], file=sys.stderr)
 
         rc = Remote.query.filter_by(identificator = content['rc_id']).first()
@@ -121,6 +121,7 @@ class RemoteControl:
                     text_file.write("end raw_codes\n")
                     text_file.write("\n")
                     text_file.write("end remote\n")
+                    text_file.write("\n")
 
                     # print('---BTN END---', file=sys.stderr)
             print('---RC END---', file=sys.stderr)
