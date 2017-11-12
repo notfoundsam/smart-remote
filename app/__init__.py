@@ -15,7 +15,7 @@ from app import routes, models, sockets
 import threading
 from drivers import wire_recive
 
-# @app.before_first_request
-# def before_first_request():
-#     t1 = threading.Thread(target=wire_recive.read_signal)
-#     t1.start()
+@app.before_first_request
+def before_first_request():
+    t1 = threading.Thread(target=wire_recive.read_signal)
+    t1.start()
