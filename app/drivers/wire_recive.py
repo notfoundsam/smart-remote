@@ -20,7 +20,7 @@ def read_signal():
     pipes = [[0xE8, 0xE8, 0xF0, 0xF0, 0xE1], [0xF0, 0xF0, 0xF0, 0xF0, 0xE1]]
 
     radio = NRF24(GPIO, spidev.SpiDev())
-    radio.begin(0, 24)
+    radio.begin(0, 25)
 
     radio.setPayloadSize(32)
     radio.setChannel(0x76)
