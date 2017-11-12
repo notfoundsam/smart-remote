@@ -87,21 +87,21 @@ def read_signal():
     radio2.startListening()
 
     c=1
-    while True:
-        akpl_buf = [c,1, 2, 3,4,5,6,7,8,9,0,1, 2, 3,4,5,6,7,8]
-        pipe = [0]
-        while not radio2.available(pipe):
-            time.sleep(10000/1000000.0)
+    # while True:
+    #     akpl_buf = [c,1, 2, 3,4,5,6,7,8,9,0,1, 2, 3,4,5,6,7,8]
+    #     pipe = [0]
+    #     while not radio2.available(pipe):
+    #         time.sleep(10000/1000000.0)
 
-        recv_buffer = []
-        radio2.read(recv_buffer, radio2.getDynamicPayloadSize())
-        print ("Received:") ,
-        print (recv_buffer)
-        c = c + 1
-        if (c&1) == 0:
-            radio2.writeAckPayload(1, akpl_buf, len(akpl_buf))
-            print ("Loaded payload reply:"),
-            print (akpl_buf)
-        else:
-            print ("(No return payload)")
+    #     recv_buffer = []
+    #     radio2.read(recv_buffer, radio2.getDynamicPayloadSize())
+    #     print ("Received:") ,
+    #     print (recv_buffer)
+    #     c = c + 1
+    #     if (c&1) == 0:
+    #         radio2.writeAckPayload(1, akpl_buf, len(akpl_buf))
+    #         print ("Loaded payload reply:"),
+    #         print (akpl_buf)
+    #     else:
+    #         print ("(No return payload)")
             
