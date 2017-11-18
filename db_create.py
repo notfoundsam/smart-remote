@@ -4,6 +4,8 @@ from config import SQLALCHEMY_DATABASE_URI
 from config import SQLALCHEMY_MIGRATE_REPO
 from app import db
 import os.path
+from app.models import User
+
 db.create_all()
 if not os.path.exists(SQLALCHEMY_MIGRATE_REPO):
     api.create(SQLALCHEMY_MIGRATE_REPO, 'database repository')
@@ -11,3 +13,8 @@ if not os.path.exists(SQLALCHEMY_MIGRATE_REPO):
 else:
     api.version_control(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO,
                         api.version(SQLALCHEMY_MIGRATE_REPO))
+
+root = User(username = 'root', password = 'root', role = '1')
+
+db.session.add(root)
+db.session.commit()
