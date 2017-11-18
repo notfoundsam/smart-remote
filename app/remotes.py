@@ -165,9 +165,9 @@ class RemoteControl:
         if 'APP_ENV' in os.environ and os.environ['APP_ENV'] == 'development':
             print('--- Lirc config reloaded ---', file=sys.stderr)
         else:
-            os.system("sudo /etc/init.d/lirc stop")
+            os.system("sudo /etc/init.d/lircd stop")
             os.system("sudo cp ir_tmp_code.txt /etc/lirc/lircd.conf")
-            os.system("sudo /etc/init.d/lirc start")
+            os.system("sudo /etc/init.d/lircd start")
 
 
         
