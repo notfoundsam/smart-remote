@@ -58,7 +58,7 @@ def read_signal():
             numOnes = 0
 
         # 10000 is arbitrary, adjust as necessary
-        if numOnes > 10000:
+        if numOnes > 80000:
             break
 
         previousVal = value
