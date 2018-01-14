@@ -80,6 +80,26 @@
               </div>
             </a>
           </li>
+          <li>
+            <!-- Additional "smart-select" class -->
+            <a href="#" class="item-link smart-select">
+              <!-- select -->
+              <select name="radio">
+                <option value="0" data-option-color="blue" selected>Local</option>
+                <option value="1" data-option-color="green">Radio 1</option>
+                <option value="2" data-option-color="green">Radio 2</option>
+                <option value="3" data-option-color="green">Radio 3</option>
+                <option value="4" data-option-color="green">Radio 4</option>
+                <option value="5" data-option-color="green">Radio 5</option>
+              </select>
+              <div class="item-content">
+                <div class="item-inner">
+                  <!-- Select label -->
+                  <div class="item-title">Choose radio</div>
+                </div>
+              </div>
+            </a>
+          </li>
         </ul>
       </div>
 
@@ -94,6 +114,46 @@
         <div class="card-content">
           <div class="card-content-inner" id="recived_signal">{{signal}}</div>
         </div>
+      </div>
+      <div class="list-block">
+        <ul>
+          <!-- Single radio input -->
+          <li>
+            <label class="label-radio item-content">
+              <!-- Checked by default -->
+              <input type="radio" name="radio" value="lirc" checked="checked">
+              <div class="item-media">
+                <i class="icon icon-form-radio"></i>
+              </div>
+              <div class="item-inner">
+                <div class="item-title">Lirc</div>
+              </div>
+            </label>
+          </li>
+          <!-- Another radio input -->
+          <li>
+            <label class="label-radio item-content">
+              <input type="radio" name="radio" value="0">
+              <div class="item-media">
+                <i class="icon icon-form-radio"></i>
+              </div>
+              <div class="item-inner">
+                <div class="item-title">Local</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="label-radio item-content">
+              <input type="radio" name="radio" value="1">
+              <div class="item-media">
+                <i class="icon icon-form-radio"></i>
+              </div>
+              <div class="item-inner">
+                <div class="item-title">Radio 1</div>
+              </div>
+            </label>
+          </li>
+        </ul>
       </div>
       <div class="content-block">
         <p class="buttons-row">

@@ -39,7 +39,7 @@ def handle_json(data):
         if rc.create(content['rc_type'], content['rc_name'], content['rc_icon']) == True:
             emit('json', {'response': {'result': 'success', 'callback': 'add_remote_to_menu'}})
 
-    elif data['action'] == 'remote_ir_btn_add':
+    elif data['action'] == 'remote_add_btn':
         content = data['content']
 
         if rc.addBtnToRemote(content) == True:
@@ -88,9 +88,14 @@ def handle_json(data):
         result = rc.sendLircCommand(content['rc_id'], content['btn_id'])
     
     elif data['action'] == 'ir_test_signal':
+
         content = data['content']
-        print(content['signal'], file=sys.stderr)
-        rc.regenerateLircCommands()
-        rc.addTestSignal(content['signal'])
-        rc.reloadLirc()
-        rc.sendTestSignal()
+
+        if content['radio'] == 'lirc':
+            print(content['signal'], file=sys.stderr)
+            rc.regenerateLircCommands()
+            rc.addTestSignal(content['signal'])
+            rc.reloadLirc()
+            rc.sendTestSignal()
+        else:
+            pass

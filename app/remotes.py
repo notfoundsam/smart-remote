@@ -40,6 +40,7 @@ class RemoteControl:
                         color = content['btn_color'],
                         signal = content['signal'],
                         remote_id = rc.id,
+                        radio = content['radio'],
                         timestamp = datetime.utcnow())
 
             db.session.add(btn)

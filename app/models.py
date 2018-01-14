@@ -55,6 +55,7 @@ class Button(db.Model):
     timestamp = db.Column(db.DateTime)
     signal = db.Column(db.Text)
     remote_id = db.Column(db.Integer, db.ForeignKey('remote.id'))
+    radio = db.Column(db.Integer)
 
     def __repr__(self):
         return '<Button %r>' % (self.identificator)
