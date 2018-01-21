@@ -74,7 +74,7 @@ class ArduinoDev:
 
         print('Signal to send: %s' % signal, file=sys.stderr)
 
-        return False
+        return True
 
 @Singleton
 class Arduino:
@@ -96,19 +96,19 @@ class Arduino:
         if self.ser is None:
             # self.ser = True
             self.ser = serial.Serial()
-            ser.baudrate = 500000
-            ser.port = '/dev/ttyUSB0'
-            ser.timeout = 0.5
-            ser.open()
+            self.ser.baudrate = 500000
+            self.ser.port = '/dev/ttyUSB0'
+            self.ser.timeout = 0.5
+            self.ser.open()
 
             # Only after write sketch into Arduino
             time.sleep(2)
-            ser.flushInput()
-            ser.flushOutput()
-            ser.write(b'connect')
+            self.ser.flushInput()
+            self.ser.flushOutput()
+            self.ser.write(b'connect')
             time.sleep(1)
-            ser.flushInput()
-            ser.flushOutput()
+            self.ser.flushInput()
+            self.ser.flushOutput()
 
     def send_ir_signal(self, raw_signal, radio):
         prepared_signal = []
@@ -129,7 +129,7 @@ class Arduino:
         ser.write(b_arr)
         ser.flush()
 
-        response = ser.readline()
+        response = self.ser.readline()
 
         response = response.rstrip()
 
