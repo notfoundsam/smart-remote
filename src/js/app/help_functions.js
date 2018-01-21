@@ -43,7 +43,7 @@ function activateConnection() {
             console.log('connected to remotes');
             var request = {};
 
-            request.action = 'remote_list';
+            request.action = 'refresh_rc_list';
             sendRequest(request, socket_remotes);
             // socket_remotes.emit('my event', {data: 'I\'m connected!'});
         });
@@ -101,7 +101,6 @@ function refreshRemoteMenu(remotes) {
     });
 }
 
-
 function refreshRemoteButtons(buttons, rc_name) {
     var page = $$('div.page[data-page=ir_remote]');
 
@@ -156,18 +155,10 @@ function sendRequest(request, socket) {
 
 function parseResponse(response) {
     if (response.result == 'success') {
-        myApp.hideIndicator();
+        runCallback(response.callback, response);
+        
 
-        if (response.callback == 'add_remote_to_menu') {
-            var request = {};
-
-            request.action = 'remote_list';
-            sendRequest(request, socket_remotes);
-            
-            redirectTo('status');
-        } else if (response.callback == 'refresh_remote_menu') {
-            refreshRemoteMenu(response.remotes);
-        } else if (response.callback == 'refresh_remote_buttons') {
+        if (response.callback == 'refresh_remote_buttons') {
             refreshRemoteButtons(response.buttons, response.rc_name);
         } else if (response.callback == 'back_to_remote') {
             mainView.router.load({
@@ -180,7 +171,6 @@ function parseResponse(response) {
             // redirectTo('status');
             // refreshRemoteButtons(response.buttons);
         } else if (response.callback == 'ir_signal_recived') {
-            console.log(response.signal);
             var rc_id = $$('div.page[data-page=ir_remote]').attr('data-rc-id');
             var rc_name = $$('div.page[data-page=ir_remote]').attr('data-rc-name');
             myApp.hidePreloader();
@@ -250,4 +240,31 @@ function sendIrCommand(data) {
     sendRequest(request, socket_remotes);
 }
 
+function runCallback(calback, args = '') {
+    if (calback) {
+        var func = callbacks[calback];
+    
+        if (typeof func === "function") { 
+            func(args);
+        }
+    }
+}
+
+/**
+ * Custom callbacks
+ */
+var callbacks = {
+    rc_saved: function() {
+        var request = {};
+
+        request.action = 'refresh_rc_list';
+        sendRequest(request, socket_remotes);
+        myApp.hideIndicator();
+        redirectTo('status');
+    },
+    refresh_rc_list: function(response) {
+        console.log(response);
+        refreshRemoteMenu(response.remotes);
+    }
+};
 

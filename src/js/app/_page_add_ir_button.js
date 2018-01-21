@@ -1,4 +1,5 @@
 myApp.onPageInit('add_ir_button', function (page) {
+    console.log('aaaa');
     $$('#add_remote_button_btn').on('click', function () {
         var request = {};
         var page = $$(this).closest('.page-content');

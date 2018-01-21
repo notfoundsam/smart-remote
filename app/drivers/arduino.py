@@ -42,8 +42,24 @@ class Singleton:
     def __instancecheck__(self, inst):
         return isinstance(inst, self._decorated)
 
+class Common():
+
+    def prepareSignal(self, raw_signal, radio):
+        prepared_signal = []
+        prepared_signal.append('i%s' % radio)
+
+        for x in raw_signal.split(' '):
+            if int(x) > 65000:
+                prepared_signal.append('65000')
+            else:
+                prepared_signal.append(x)
+
+        prepared_signal.append('\n')
+
+        return ' '.join(prepared_signal)
+
 @Singleton
-class ArduinoDev:
+class ArduinoDev(Common):
     ser = None
 
     def connect(self):
@@ -57,27 +73,14 @@ class ArduinoDev:
     def test(self):
         print('IT IS TEST', file=sys.stderr)
 
-
     def send_ir_signal(self, raw_signal, radio):
-        prepared_signal = []
-        prepared_signal.append('i%s' % radio)
-
-        for x in raw_signal.split(' '):
-            if int(x) > 65000:
-                prepared_signal.append('65000')
-            else:
-                prepared_signal.append(x)
-
-        prepared_signal.append('\n')
-
-        signal = ' '.join(prepared_signal)
-
+        signal = self.prepareSignal(raw_signal, radio)
         print('Signal to send: %s' % signal, file=sys.stderr)
 
         return True
 
 @Singleton
-class Arduino:
+class Arduino(Common):
     flag = True
     ser = None
 
@@ -111,25 +114,13 @@ class Arduino:
             self.ser.flushOutput()
 
     def send_ir_signal(self, raw_signal, radio):
-        prepared_signal = []
-        prepared_signal.append('i%s' % radio)
-
-        for x in raw_signal.split(' '):
-            if int(x) > 65000:
-                prepared_signal.append('65000')
-            else:
-                prepared_signal.append(x)
-
-        prepared_signal.append('\n')
-
-        signal = ' '.join(prepared_signal)
-
+        signal = self.prepareSignal(raw_signal, radio)
         b_arr = bytearray(signal.encode())
+
         self.ser.write(b_arr)
         self.ser.flush()
 
         response = self.ser.readline()
-
         response = response.rstrip()
 
         if response == 'OK':

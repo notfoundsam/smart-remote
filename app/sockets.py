@@ -36,11 +36,9 @@ def handle_json(data):
     
     rc = RemoteControl()
     
-    if data['action'] == 'remote_add':
-        content = data['content']
-
-        if rc.create(content['rc_type'], content['rc_name'], content['rc_icon']) == True:
-            emit('json', {'response': {'result': 'success', 'callback': 'add_remote_to_menu'}})
+    if data['action'] == 'rc_save':
+        if rc.create(data['content']) == True:
+            emit('json', {'response': {'result': 'success', 'callback': 'rc_saved'}})
 
     elif data['action'] == 'remote_add_btn':
         content = data['content']
@@ -56,9 +54,9 @@ def handle_json(data):
         rc.removeBtnFromRemote(content)
         emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote', 'rc_id': content['rc_id'], 'rc_name': content['rc_name']}})
 
-    elif data['action'] == 'remote_list':
+    elif data['action'] == 'refresh_rc_list':
         remotes = rc.getRemotesList()
-        emit('json', {'response': {'result': 'success', 'callback': 'refresh_remote_menu', 'remotes': remotes}}, broadcast = True)
+        emit('json', {'response': {'result': 'success', 'callback': 'refresh_rc_list', 'remotes': remotes}}, broadcast = True)
     
     elif data['action'] == 'remote_buttons_list':
         content = data['content']
@@ -77,8 +75,8 @@ def handle_json(data):
             emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_failed'}})
 
     elif data['action'] == 'regenerate_lirc_commands':
-        result = rc.regenerateLircCommands()
-        rc.reloadLirc()
+        lirc.regenerateLircCommands()
+        lirc.reloadLirc()
 
         # if signal != False:
         #     print('signal ok', file=sys.stderr)
@@ -87,7 +85,7 @@ def handle_json(data):
         #     print('faild', file=sys.stderr)
         #     emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_failed'}})
 
-    elif data['action'] == 'send_ir_command':
+    elif data['action'] == 'send_command':
         content = data['content']
 
         result = lirc.sendLircCommand(content['rc_id'], content['btn_id'])

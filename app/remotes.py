@@ -6,22 +6,18 @@ import uuid
 from datetime import datetime
 
 class RemoteControl:
-    def create(self, rc_type, rc_name, rc_icon, rc_order = 1, public = True):
+    def create(self, content):
         rc_id = "RC_" + str(uuid.uuid4()).replace('-', '_')
+        remote = Remote(identificator = rc_id,
+                        name = content['rc_name'],
+                        icon = content['rc_icon'],
+                        order = 1,
+                        public = True,
+                        timestamp = datetime.utcnow())
 
-        if rc_type and rc_name and rc_icon:
-            remote = Remote(remote_type = rc_type,
-                            identificator = rc_id,
-                            name = rc_name,
-                            icon = rc_icon,
-                            order = rc_order,
-                            public = public,
-                            timestamp = datetime.utcnow())
-
-            db.session.add(remote)
-            db.session.commit()
-            # print('create remote type:%s' % type, file=sys.stderr)
-            return True
+        db.session.add(remote)
+        db.session.commit()
+        return True
 
     def addBtnToRemote(self, content):
         btn_id = "BTN_" + str(uuid.uuid4()).replace('-', '_')
@@ -62,7 +58,7 @@ class RemoteControl:
         for remote in Remote.query.order_by(Remote.id).all():
             r = {'identificator': remote.identificator,
                 'name': remote.name,
-                'type': remote.remote_type,
+                # 'type': remote.remote_type,
                 'icon': remote.icon}
 
             remotes.append(r)

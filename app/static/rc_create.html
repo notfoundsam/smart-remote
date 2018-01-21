@@ -1,5 +1,5 @@
 <div class="pages">
-  <div data-page="add_remote" class="page">
+  <div data-page="rc_create" class="page">
     <div class="navbar">
       <div class="navbar-inner">
         <!-- We need cool sliding animation on title element, so we have additional "sliding" class -->
@@ -8,7 +8,7 @@
                 <i class="icon icon-back"></i>
             </a>
         </div>
-        <div class="center sliding">IR Regist</div>
+        <div class="center sliding">Add new RC</div>
         <div class="right">
           <a href="#" class="link icon-only open-panel"><i class="icon icon-bars"></i></a>
         </div>
@@ -17,14 +17,14 @@
 
     <div class="page-content">
 
-      <div class="content-block-title">Remote settings</div>
+      <div class="content-block-title">RC settings</div>
       <div class="list-block">
         <ul>
           <!-- Text inputs -->
           <li>
             <div class="item-content">
               <div class="item-inner">
-                <div class="item-title floating-label">Remote name</div>
+                <div class="item-title floating-label">RC name</div>
                 <div class="item-input">
                   <input type="text" name="rc_name" value="">
                 </div>
@@ -34,26 +34,10 @@
         </ul>
       </div>
 
-      <!-- REMOTE TYPE START -->
-      <div class="content-block-title">Remote type</div>
+      <!-- RC OPTIONS START -->
+      <div class="content-block-title">Remote icon</div>
       <div class="list-block">
         <ul>
-          <li>
-            <!-- Additional "smart-select" class -->
-            <a href="#" class="item-link smart-select">
-              <!-- select -->
-              <select name="rc_type">
-                <option value="ir_rc" data-option-icon="fa fa-wifi" selected>IR Remote</option>
-                <option value="rc" data-option-icon="fa fa-microchip">Remote</option>
-              </select>
-              <div class="item-content">
-                <div class="item-inner">
-                  <!-- Select label -->
-                  <div class="item-title">Choose remote</div>
-                </div>
-              </div>
-            </a>
-          </li>
           <li>
             <!-- Additional "smart-select" class -->
             <a href="#" class="item-link smart-select">
@@ -62,6 +46,16 @@
                 <option value="fa fa-lightbulb-o" data-option-icon="fa fa-lightbulb-o" selected>Light</option>
                 <option value="fa fa-television" data-option-icon="fa fa-television">TV</option>
                 <option value="fa fa-shower" data-option-icon="fa fa-shower">Shower</option>
+                <option value="fa fa-shower" data-option-icon="fa fa-power-off">Shower</option>
+                <option value="fa fa-shower" data-option-icon="fa fa-volume-up">Shower</option>
+                <option value="fa fa-shower" data-option-icon="fa fa-wifi">Shower</option>
+                <option value="fa fa-shower" data-option-icon="fa fa-microchip">Shower</option>
+                <option value="fa fa-shower" data-option-icon="fa fa-bolt">Shower</option>
+                <option value="fa fa-shower" data-option-icon="fa fa-plug">Shower</option>
+                <option value="fa fa-shower" data-option-icon="fa fa-unlock">Shower</option>
+                <option value="fa fa-shower" data-option-icon="fa fa-recycle">Shower</option>
+                <option value="fa fa-shower" data-option-icon="fa fa-thermometer-full">Shower</option>
+                <option value="fa fa-shower" data-option-icon="fa fa-bell-o">Shower</option>
               </select>
               <div class="item-content">
                 <div class="item-inner">
@@ -73,11 +67,11 @@
           </li>
         </ul>
       </div>
-      <!-- REMOTE TYPE END -->
+      <!-- RC OPTIONS END -->
       
       <div class="content-block">
         <p class="buttons-row">
-          <a href="#" class="button-control button button-raised button-fill color-blue" id="add_remote_btn">Save</a>
+          <a href="#" class="button-control button button-raised button-fill color-blue" id="rc_save_btn">Save</a>
         </p>
       </div>
     </div>

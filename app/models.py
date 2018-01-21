@@ -36,7 +36,6 @@ class Remote(db.Model):
     identificator = db.Column(db.String(200))
     name = db.Column(db.String(200))
     public = db.Column(db.Boolean)
-    remote_type = db.Column(db.String(20))
     order = db.Column(db.Integer)
     icon = db.Column(db.String(200))
     timestamp = db.Column(db.DateTime)
@@ -56,6 +55,7 @@ class Button(db.Model):
     signal = db.Column(db.Text)
     remote_id = db.Column(db.Integer, db.ForeignKey('remote.id'))
     radio = db.Column(db.Integer)
+    type = db.Column(db.String(20))
 
     def __repr__(self):
         return '<Button %r>' % (self.identificator)

@@ -1,11 +1,11 @@
 myApp.onPageInit('status', function (page) {
-    $$('#rc_menu_btn').on('click', function () {
+    $$('#rc_action_btn').on('click', function () {
         var buttons = [
             {
                 text: 'Add Remote',
                 onClick: function () {
                     mainView.router.load({
-                        url: 'static/add_remote.html'
+                        url: 'static/rc_create.html'
                     });
                 }
             },
