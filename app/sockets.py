@@ -7,7 +7,7 @@ from .remotes import *
 from flask_login import current_user
 from flask_socketio import disconnect
 from drivers import ir_reader
-from run import arduino
+from run import arduino, lirc
 
 def authenticated_only(f):
     @functools.wraps(f)
@@ -46,6 +46,8 @@ def handle_json(data):
         content = data['content']
 
         if rc.addBtnToRemote(content) == True:
+            lirc.regenerateLircCommands()
+            lirc.reloadLirc()
             emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote', 'rc_id': content['rc_id'], 'rc_name': content['rc_name']}})
 
     elif data['action'] == 'remove_ir_buttons':
@@ -88,18 +90,17 @@ def handle_json(data):
     elif data['action'] == 'send_ir_command':
         content = data['content']
 
-        result = rc.sendLircCommand(content['rc_id'], content['btn_id'])
+        result = lirc.sendLircCommand(content['rc_id'], content['btn_id'])
     
     elif data['action'] == 'ir_test_signal':
 
         content = data['content']
 
         if content['radio'] == 'lirc':
-            print(content['signal'], file=sys.stderr)
-            rc.regenerateLircCommands()
-            rc.addTestSignal(content['signal'])
-            rc.reloadLirc()
-            rc.sendTestSignal()
+            lirc.regenerateLircCommands()
+            lirc.addTestSignal(content['signal'])
+            lirc.reloadLirc()
+            lirc.sendTestSignal()
         else:
             if arduino.send_ir_signal(content['signal'], content['radio']) == False:
                 emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
