@@ -124,7 +124,6 @@ class Arduino:
 
         signal = ' '.join(prepared_signal)
 
-        started_at = current_milli_time()
         b_arr = bytearray(signal)
         ser.write(b_arr)
         ser.flush()
