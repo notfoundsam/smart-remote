@@ -203,6 +203,14 @@ function parseResponse(response) {
 
         return;
     }
+    else if (response.result == 'error') {
+        myApp.addNotification({
+            message: response.message,
+            hold: 3000
+        });
+        
+        return;
+    }
 
     myApp.addNotification({
         message: 'No socket connection',

@@ -7,6 +7,7 @@ from .remotes import *
 from flask_login import current_user
 from flask_socketio import disconnect
 from drivers import ir_reader
+from run import arduino
 
 def authenticated_only(f):
     @functools.wraps(f)
@@ -29,6 +30,8 @@ def handle_connect():
 @so.on('json', namespace='/remotes')
 @authenticated_only
 def handle_json(data):
+    # arduino.send()
+    # print(arduino, file=sys.stderr)
     print('received json: ' + str(data), file=sys.stderr)
     
     rc = RemoteControl()
@@ -98,4 +101,5 @@ def handle_json(data):
             rc.reloadLirc()
             rc.sendTestSignal()
         else:
-            pass
+            if arduino.send_ir_signal(content['signal'], content['radio']) == False:
+                emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})

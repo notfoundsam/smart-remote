@@ -1,7 +1,7 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-RF24 radio(8, 9);
+RF24 radio(9, 10);
 unsigned short index = 0;
 unsigned char packageEnd = '\n';
 unsigned short code;
@@ -27,15 +27,15 @@ void setup() {
   radio.openWritingPipe(0xAABBCCDD11LL);
   // radio.openWritingPipe(0xF0F0F0F0AALL);
   radio.startListening();
-  Serial.println("Loaded");
+  Serial.print("Loaded\n");
 }
 
 void loop() {
   if (Serial.available() > 0) {
     if (!readSerial()) {
-      Serial.println("FAIL");
+      Serial.print("FAIL\n");
     } else {
-      Serial.println("OK");
+      Serial.print("OK\n");
     }
 
     timeout = false;
@@ -66,7 +66,7 @@ boolean readSerial() {
   }
   
   if (timeout) {
-    Serial.println("TIMEOUT");
+    Serial.print("TIMEOUT\n");
   } else {
 
     // If recive IR signal (it starts with i)

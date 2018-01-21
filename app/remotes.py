@@ -6,7 +6,6 @@ import uuid
 from datetime import datetime
 
 class RemoteControl:
-    """docstring for RemoteControl"""
     def create(self, rc_type, rc_name, rc_icon, rc_order = 1, public = True):
         rc_id = "RC_" + str(uuid.uuid4()).replace('-', '_')
 
@@ -161,7 +160,6 @@ class RemoteControl:
         else:
             os.system("irsend SEND_ONCE %s %s" % (rc_id, btn_id))
 
-
     def reloadLirc(self):
         if 'APP_ENV' in os.environ and os.environ['APP_ENV'] == 'development':
             print('--- Lirc config reloaded ---', file=sys.stderr)
@@ -169,6 +167,3 @@ class RemoteControl:
             os.system("sudo /etc/init.d/lircd stop")
             os.system("sudo cp ir_tmp_code.txt /etc/lirc/lircd.conf")
             os.system("sudo /etc/init.d/lircd start")
-
-
-        

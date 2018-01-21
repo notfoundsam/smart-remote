@@ -1,51 +1,139 @@
+from __future__ import print_function
 import serial
 import time
 import array
+import os, sys
 
-ser = serial.Serial('/dev/ttyUSB0', 500000)
+class Singleton:
+    """
+    A non-thread-safe helper class to ease implementing singletons.
+    This should be used as a decorator -- not a metaclass -- to the
+    class that should be a singleton.
 
-# Only after write sketch into Arduino
-time.sleep(2)
-ser.flushInput()
-ser.flushOutput()
-ser.write(b'connect')
-time.sleep(1)
+    The decorated class can define one `__init__` function that
+    takes only the `self` argument. Also, the decorated class cannot be
+    inherited from. Other than that, there are no restrictions that apply
+    to the decorated class.
 
-def send_ir_signal(raw_signal, radio):
-    prepared_signal = []
-    prepared_signal.append('i1')
+    To get the singleton instance, use the `Instance` method. Trying
+    to use `__call__` will result in a `TypeError` being raised.
 
-    for x in raw_signal.split(' '):
-        c = int(x)
-        if int(x) > 65000:
-            prepared_signal.append('65000')
-        else:
-            prepared_signal.append(x)
+    """
 
-    prepared_signal.append('\n')
+    def __init__(self, decorated):
+        self._decorated = decorated
 
-    signal = ' '.join(prepared_signal)
+    def Instance(self):
+        """
+        Returns the singleton instance. Upon its first call, it creates a
+        new instance of the decorated class and calls its `__init__` method.
+        On all subsequent calls, the already created instance is returned.
 
-    repeat2 = current_milli_time()
-    data = ""
-    b_arr = bytearray(signal)
-    ser.write(b_arr)
-    ser.flush()
+        """
+        try:
+            return self._instance
+        except AttributeError:
+            self._instance = self._decorated()
+            return self._instance
 
-    while current_milli_time() - repeat2 < 50:
-        while ser.in_waiting > 0:
-            data += ser.read()
+    def __call__(self):
+        raise TypeError('Singletons must be accessed through `Instance()`.')
 
-    data = data.rstrip()
+    def __instancecheck__(self, inst):
+        return isinstance(inst, self._decorated)
 
-    if data == 'FAIL':
-        fail += 1
-    elif data == 'OK':
-        total += 1
-    elif data == 'TIMEOUT':
-        arduino_timeout += 1
-    else:
-        no_response += 1
+@Singleton
+class ArduinoDev:
+    ser = None
 
-    print "Success: %d Fail: %d Arduino timeout: %d No responce: %d" % (total, fail, arduino_timeout, no_response)
+    def connect(self):
+        if self.ser is None:
+            self.ser = True
+            print('Connect to /dev/ttyUSB0', file=sys.stderr)
 
+    def close(self):
+        print('Close /dev/ttyUSB0', file=sys.stderr)
+
+    def test(self):
+        print('IT IS TEST', file=sys.stderr)
+
+
+    def send_ir_signal(self, raw_signal, radio):
+        prepared_signal = []
+        prepared_signal.append('i%s' % radio)
+
+        for x in raw_signal.split(' '):
+            if int(x) > 65000:
+                prepared_signal.append('65000')
+            else:
+                prepared_signal.append(x)
+
+        prepared_signal.append('\n')
+
+        signal = ' '.join(prepared_signal)
+
+        print('Signal to send: %s' % signal, file=sys.stderr)
+
+        return False
+
+@Singleton
+class Arduino:
+    flag = True
+    ser = None
+
+    def test(self):
+        if self.flag:
+            print('Test', file=sys.stderr)
+            self.flag = False
+
+    def send(self):
+        print('SEND', file=sys.stderr)
+
+    def close(self):
+        print('Close /dev/ttyUSB0', file=sys.stderr)
+
+    def connect(self):
+        if self.ser is None:
+            # self.ser = True
+            self.ser = serial.Serial()
+            ser.baudrate = 500000
+            ser.port = '/dev/ttyUSB0'
+            ser.timeout = 0.5
+            ser.open()
+
+            # Only after write sketch into Arduino
+            time.sleep(2)
+            ser.flushInput()
+            ser.flushOutput()
+            ser.write(b'connect')
+            time.sleep(1)
+            ser.flushInput()
+            ser.flushOutput()
+
+    def send_ir_signal(self, raw_signal, radio):
+        prepared_signal = []
+        prepared_signal.append('i%s' % radio)
+
+        for x in raw_signal.split(' '):
+            if int(x) > 65000:
+                prepared_signal.append('65000')
+            else:
+                prepared_signal.append(x)
+
+        prepared_signal.append('\n')
+
+        signal = ' '.join(prepared_signal)
+
+        started_at = current_milli_time()
+        b_arr = bytearray(signal)
+        ser.write(b_arr)
+        ser.flush()
+
+        response = ser.readline()
+
+        response = response.rstrip()
+
+        if response == 'OK':
+            return True
+
+        return False
