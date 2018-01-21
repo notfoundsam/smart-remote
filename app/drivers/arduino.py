@@ -124,7 +124,7 @@ class Arduino:
 
         signal = ' '.join(prepared_signal)
 
-        b_arr = bytearray(signal)
+        b_arr = bytearray(signal.encode())
         ser.write(b_arr)
         ser.flush()
 
