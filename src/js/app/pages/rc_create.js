@@ -9,6 +9,6 @@ myApp.onPageInit('rc_create', function (page) {
         request.content.rc_name = page.find('input[name=rc_name]').val();
         
         sendRequest(request, socket_remotes);
-        myApp.showIndicator();
+        redirectTo('status');
     });
 });

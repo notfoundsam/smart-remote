@@ -54,22 +54,21 @@ def handle_json(data):
         rc.removeBtnFromRemote(content)
         emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote', 'rc_id': content['rc_id'], 'rc_name': content['rc_name']}})
 
-    elif data['action'] == 'refresh_rc_list':
+    elif data['action'] == 'rc_refresh':
         remotes = rc.getRemotesList()
-        emit('json', {'response': {'result': 'success', 'callback': 'refresh_rc_list', 'remotes': remotes}}, broadcast = True)
+        emit('json', {'response': {'result': 'success', 'callback': 'rc_refresh', 'remotes': remotes}}, broadcast = True)
     
-    elif data['action'] == 'remote_buttons_list':
+    elif data['action'] == 'rc_buttons_refresh':
         content = data['content']
         buttons = rc.getRemoteButtons(content['rc_id'])
-        emit('json', {'response': {'result': 'success', 'callback': 'refresh_remote_buttons', 'buttons': buttons}})
+        emit('json', {'response': {'result': 'success', 'callback': 'rc_buttons_refresh', 'buttons': buttons}})
 
     elif data['action'] == 'catch_ir_signal':
         # emit('json', {'response': {'result': 'success', 'callback': 'waiting_ir_signal'}})
         signal = ir_reader.read_signal()
 
         if signal != False:
-            print('signal ok', file=sys.stderr)
-            emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_recived', 'signal': signal}})
+            emit('json', {'response': {'result': 'success', 'callback': 'rc_button_save', 'signal': signal}})
         else:
             print('faild', file=sys.stderr)
             emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_failed'}})

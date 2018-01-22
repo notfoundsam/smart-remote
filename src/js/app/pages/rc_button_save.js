@@ -1,10 +1,10 @@
-myApp.onPageInit('add_ir_button', function (page) {
+myApp.onPageInit('rc_button_save', function (page) {
     console.log('aaaa');
-    $$('#add_remote_button_btn').on('click', function () {
+    $$('#rc_button_save_btn').on('click', function () {
         var request = {};
         var page = $$(this).closest('.page-content');
 
-        request.action = 'remote_add_btn';
+        request.action = 'rc_save';
         request.content = {}
         request.content.rc_id = page.find('input[name=rc_id]').val();
         request.content.rc_name = page.find('input[name=rc_name]').val();
@@ -16,7 +16,7 @@ myApp.onPageInit('add_ir_button', function (page) {
         request.content.signal = page.find('#recived_signal').text();
 
         sendRequest(request, socket_remotes);
-        myApp.showIndicator();
+        
     });
 
     $$('#ir_test_signal_btn').on('click', function () {
