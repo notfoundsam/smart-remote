@@ -29,14 +29,15 @@ class Common():
     
     def regenerateLircCommands(self):
 
-        ir_remotes = Remote.query.filter_by(remote_type = 'ir_rc').all()
+        ir_remotes = Remote.query.all()
 
         if ir_remotes is not None:
             print('---REGENERATE START---', file=sys.stderr)
             with open("ir_tmp_code.txt", "w") as text_file:
 
                 for rc in ir_remotes:
-                    buttons = rc.buttons.all()
+                    buttons = rc.buttons.filter_by(type = 'ir').all()
+                    print(buttons, file=sys.stderr)
 
                     if buttons:
                         text_file.write("begin remote\n")

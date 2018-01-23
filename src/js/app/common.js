@@ -38,14 +38,14 @@ function activateConnection() {
 
 function sendRequest(request, socket) {
     if (socket != null) {
+        console.log(request);
         socket.emit('json', request);
-
-        return true;
+    } else {
+        myApp.addNotification({
+            message: 'No socket connection',
+            hold: 3000
+        });
     }
-    myApp.addNotification({
-        message: 'No socket connection',
-        hold: 3000
-    });
 }
 
 function parseResponse(response) {
@@ -69,17 +69,6 @@ function redirectTo(page) {
     mainView.router.load({
         url: 'static/' + page + '.html'
     });
-}
-
-function sendIrCommand(data) {
-    console.log(data);
-    var request = {};
-
-    request.action = 'send_ir_command';
-    request.content = {}
-    request.content.rc_id = data.rcId;
-    request.content.btn_id = data.btnId;
-    sendRequest(request, socket_remotes);
 }
 
 function runCallback(calback, args = '') {

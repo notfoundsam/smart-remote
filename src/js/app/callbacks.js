@@ -25,14 +25,18 @@ var callbacks = {
                     buttons_row = $$('<p class="buttons-row"></p>');
                 }
 
-                var anchor = $$('<a href="#" class="button-control button button-raised button-fill"></a>');
+                var anchor = $$('<a href="#" class="button button-raised button-fill"></a>');
                 anchor.addClass(element.color);
                 anchor.attr('data-btn-id', element.identificator);
                 anchor.text(element.name);
                 anchor.on('click', function (e) {
                     var data = $$(this).dataset();
-                    data.rcId = $$(this).closest('.page').attr('data-rc-id');
-                    sendIrCommand(data);
+                    var request = {};
+
+                    request.action = 'rc_button_pushed';
+                    request.content = {}
+                    request.content.btn_id = data.btnId;
+                    sendRequest(request, socket_remotes);
                 });
 
                 buttons_row.append(anchor);
@@ -88,13 +92,14 @@ var callbacks = {
             context: {
                 signal: response.signal,
                 rc_id: rc_id,
-                rc_name: rc_name
+                rc_name: rc_name,
+                rc_button_type: 'ir'
             }
         });
     },
     back_to_remote: function(response) {
         mainView.router.load({
-            url: 'static/ir_remote.html',
+            url: 'static/rc_buttons.html',
             context: {
                 title: response.rc_name,
                 rc_id: response.rc_id

@@ -19,7 +19,7 @@ class RemoteControl:
         db.session.commit()
         return True
 
-    def addBtnToRemote(self, content):
+    def createButton(self, content):
         btn_id = "BTN_" + str(uuid.uuid4()).replace('-', '_')
         print(content['rc_id'], file=sys.stderr)
 
@@ -36,6 +36,7 @@ class RemoteControl:
                         signal = content['signal'],
                         remote_id = rc.id,
                         radio = content['radio'],
+                        type = content['rc_button_type'],
                         timestamp = datetime.utcnow())
 
             db.session.add(btn)

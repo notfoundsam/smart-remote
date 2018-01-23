@@ -4,10 +4,11 @@ myApp.onPageInit('rc_button_save', function (page) {
         var request = {};
         var page = $$(this).closest('.page-content');
 
-        request.action = 'rc_save';
+        request.action = 'rc_button_save';
         request.content = {}
         request.content.rc_id = page.find('input[name=rc_id]').val();
         request.content.rc_name = page.find('input[name=rc_name]').val();
+        request.content.rc_button_type = page.find('input[name=rc_button_type]').val();
         request.content.btn_name = page.find('input[name=btn_name]').val();
         request.content.btn_order_ver = page.find('input[name=btn_order_ver]').val();
         request.content.btn_order_hor = page.find('input[name=btn_order_hor]').val();
@@ -15,7 +16,11 @@ myApp.onPageInit('rc_button_save', function (page) {
         request.content.radio = page.find('select[name=radio]').val();
         request.content.signal = page.find('#recived_signal').text();
 
+        myApp.showIndicator();
         sendRequest(request, socket_remotes);
+        // mainView.router.back({
+        //     pageName: 'static/rc_buttons.html'
+        // });
         
     });
 

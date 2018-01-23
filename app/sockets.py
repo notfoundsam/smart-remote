@@ -40,10 +40,9 @@ def handle_json(data):
         if rc.create(data['content']) == True:
             emit('json', {'response': {'result': 'success', 'callback': 'rc_saved'}})
 
-    elif data['action'] == 'remote_add_btn':
+    elif data['action'] == 'rc_button_save':
         content = data['content']
-
-        if rc.addBtnToRemote(content) == True:
+        if rc.createButton(content) == True:
             lirc.regenerateLircCommands()
             lirc.reloadLirc()
             emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote', 'rc_id': content['rc_id'], 'rc_name': content['rc_name']}})
@@ -84,7 +83,7 @@ def handle_json(data):
         #     print('faild', file=sys.stderr)
         #     emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_failed'}})
 
-    elif data['action'] == 'send_command':
+    elif data['action'] == 'rc_button_pushed':
         content = data['content']
 
         result = lirc.sendLircCommand(content['rc_id'], content['btn_id'])
