@@ -4,6 +4,7 @@ from .models import Remote, Button
 from app import so, db
 import uuid
 from datetime import datetime
+from run import arduino, lirc
 
 class RemoteControl:
     def create(self, content):
@@ -25,8 +26,6 @@ class RemoteControl:
 
         rc = Remote.query.filter_by(identificator = content['rc_id']).first()
 
-        # print(rc, file=sys.stderr)
-
         if rc is not None:
             btn = Button(identificator = btn_id,
                         name = content['btn_name'],
@@ -44,7 +43,7 @@ class RemoteControl:
             print('create btn: %s' % btn_id, file=sys.stderr)
             return True
 
-    def removeBtnFromRemote(self, content):
+    def removeButton(self, content):
         ids = content['buttons']
 
         for button in ids:
@@ -57,10 +56,11 @@ class RemoteControl:
         remotes = []
 
         for remote in Remote.query.order_by(Remote.id).all():
-            r = {'identificator': remote.identificator,
+            r = {
+                'identificator': remote.identificator,
                 'name': remote.name,
-                # 'type': remote.remote_type,
-                'icon': remote.icon}
+                'icon': remote.icon
+            }
 
             remotes.append(r)
 
@@ -73,13 +73,34 @@ class RemoteControl:
 
         if rc is not None:
             for button in rc.buttons.order_by(Button.order_ver.asc(), Button.order_hor.asc()).all():
-                btn = {'identificator': button.identificator,
-                        'name': button.name,
-                        'color': button.color,
-                        'order_ver': button.order_ver,
-                        'order_hor': button.order_hor}
+                btn = {
+                    'identificator': button.identificator,
+                    'name': button.name,
+                    'color': button.color,
+                    'order_ver': button.order_ver,
+                    'order_hor': button.order_hor
+                }
 
                 buttons.append(btn)
 
         return buttons
 
+    def execute(self, btn_id):
+        btn = Button.query.filter_by(identificator = btn_id).first()
+
+        if btn is not None:
+            if btn.type == 'ir':
+                lirc.sendLircCommand(btn.remote.identificator, btn.identificator)
+                return True
+            else:
+                return arduino.sendIrSignal(btn.signal, btn.radio)
+
+    def test(self, content):
+        if content['radio'] == 'lirc':
+            lirc.regenerateLircCommands()
+            lirc.addTestSignal(content['signal'])
+            lirc.reloadLirc()
+            lirc.sendTestSignal()
+            return True
+        else:
+            return arduino.send_ir_signal(content['signal'], content['radio'])

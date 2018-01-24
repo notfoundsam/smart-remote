@@ -16,9 +16,9 @@ myApp.onPageInit('rc_buttons', function (page) {
                 text: 'Catch IR signal',
                 onClick: function () {
                     var request = {};
-                    request.action = 'catch_ir_signal';
-                    sendRequest(request, socket_remotes);
+                    request.action = 'catch_signal';
                     myApp.showPreloader('Waiting for signal');
+                    sendRequest(request, socket_remotes);
                 }
             },
             {

@@ -7,7 +7,7 @@ from .remotes import *
 from flask_login import current_user
 from flask_socketio import disconnect
 from drivers import ir_reader
-from run import arduino, lirc
+from run import lirc
 
 def authenticated_only(f):
     @functools.wraps(f)
@@ -47,10 +47,10 @@ def handle_json(data):
             lirc.reloadLirc()
             emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote', 'rc_id': content['rc_id'], 'rc_name': content['rc_name']}})
 
-    elif data['action'] == 'remove_ir_buttons':
+    elif data['action'] == 'rc_buttons_remove':
         content = data['content']
 
-        rc.removeBtnFromRemote(content)
+        rc.removeButton(content)
         emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote', 'rc_id': content['rc_id'], 'rc_name': content['rc_name']}})
 
     elif data['action'] == 'rc_refresh':
@@ -62,41 +62,25 @@ def handle_json(data):
         buttons = rc.getRemoteButtons(content['rc_id'])
         emit('json', {'response': {'result': 'success', 'callback': 'rc_buttons_refresh', 'buttons': buttons}})
 
-    elif data['action'] == 'catch_ir_signal':
-        # emit('json', {'response': {'result': 'success', 'callback': 'waiting_ir_signal'}})
+    elif data['action'] == 'catch_signal':
         signal = ir_reader.read_signal()
 
         if signal != False:
             emit('json', {'response': {'result': 'success', 'callback': 'rc_button_save', 'signal': signal}})
         else:
             print('faild', file=sys.stderr)
-            emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_failed'}})
+            emit('json', {'response': {'result': 'success', 'callback': 'catch_failed'}})
 
-    elif data['action'] == 'regenerate_lirc_commands':
+    elif data['action'] == 'lirc_update':
         lirc.regenerateLircCommands()
         lirc.reloadLirc()
 
-        # if signal != False:
-        #     print('signal ok', file=sys.stderr)
-        #     emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_recived', 'signal': signal}})
-        # else:
-        #     print('faild', file=sys.stderr)
-        #     emit('json', {'response': {'result': 'success', 'callback': 'ir_signal_failed'}})
-
     elif data['action'] == 'rc_button_pushed':
-        content = data['content']
+        if rc.execute(data['content']['btn_id']) != True:
+            emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
 
-        result = lirc.sendLircCommand(content['rc_id'], content['btn_id'])
-    
-    elif data['action'] == 'ir_test_signal':
+    elif data['action'] == 'test_signal':
+        if rc.test(data['content']) != True:
+            emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
 
-        content = data['content']
-
-        if content['radio'] == 'lirc':
-            lirc.regenerateLircCommands()
-            lirc.addTestSignal(content['signal'])
-            lirc.reloadLirc()
-            lirc.sendTestSignal()
-        else:
-            if arduino.send_ir_signal(content['signal'], content['radio']) == False:
-                emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
+        

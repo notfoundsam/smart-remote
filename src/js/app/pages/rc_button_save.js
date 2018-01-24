@@ -1,5 +1,4 @@
 myApp.onPageInit('rc_button_save', function (page) {
-    console.log('aaaa');
     $$('#rc_button_save_btn').on('click', function () {
         var request = {};
         var page = $$(this).closest('.page-content');
@@ -18,24 +17,17 @@ myApp.onPageInit('rc_button_save', function (page) {
 
         myApp.showIndicator();
         sendRequest(request, socket_remotes);
-        // mainView.router.back({
-        //     pageName: 'static/rc_buttons.html'
-        // });
-        
     });
 
-    $$('#ir_test_signal_btn').on('click', function () {
+    $$('#test_signal_btn').on('click', function () {
         var request = {};
         var page = $$(this).closest('.page-content');
 
-        request.action = 'ir_test_signal';
+        request.action = 'test_signal';
         request.content = {}
         request.content.radio = page.find('input[name=radio]:checked').val();
         request.content.signal = page.find('#recived_signal').text();
 
-        console.log(request);
-
         sendRequest(request, socket_remotes);
-        // myApp.showIndicator();
     });
 });

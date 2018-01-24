@@ -73,7 +73,7 @@ class ArduinoDev(Common):
     def test(self):
         print('IT IS TEST', file=sys.stderr)
 
-    def send_ir_signal(self, raw_signal, radio):
+    def sendIrSignal(self, raw_signal, radio):
         signal = self.prepareSignal(raw_signal, radio)
         print('Signal to send: %s' % signal, file=sys.stderr)
 
@@ -113,7 +113,7 @@ class Arduino(Common):
             self.ser.flushInput()
             self.ser.flushOutput()
 
-    def send_ir_signal(self, raw_signal, radio):
+    def sendIrSignal(self, raw_signal, radio):
         signal = self.prepareSignal(raw_signal, radio)
         b_arr = bytearray(signal.encode())
 

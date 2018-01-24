@@ -80,6 +80,3 @@ function runCallback(calback, args = '') {
         }
     }
 }
-
-
-

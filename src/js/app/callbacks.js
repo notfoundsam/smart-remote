@@ -2,7 +2,6 @@
  * Custom callbacks
  */
 var callbacks = {
-    // Return to top after save rc
     rc_buttons_refresh: function(response) {
         var buttons = response.buttons;
         var page = $$('div.page[data-page=rc_buttons]');
@@ -104,6 +103,13 @@ var callbacks = {
                 title: response.rc_name,
                 rc_id: response.rc_id
             }
+        });
+    },
+    catch_failed: function(response) {
+        myApp.hidePreloader();
+        myApp.addNotification({
+            message: 'Signal didn\'t recive',
+            hold: 3000
         });
     }
 };
