@@ -90,10 +90,11 @@ class RemoteControl:
 
         if btn is not None:
             if btn.type == 'ir':
-                lirc.sendLircCommand(btn.remote.identificator, btn.identificator)
-                return True
-            else:
-                return arduino.sendIrSignal(btn.signal, btn.radio)
+                if btn.radio == 999:
+                    lirc.sendLircCommand(btn.remote.identificator, btn.identificator)
+                    return True
+                else:
+                    return arduino.sendIrSignal(btn.signal, btn.radio)
 
     def test(self, content):
         if content['radio'] == 'lirc':
@@ -103,4 +104,4 @@ class RemoteControl:
             lirc.sendTestSignal()
             return True
         else:
-            return arduino.send_ir_signal(content['signal'], content['radio'])
+            return arduino.sendIrSignal(content['signal'], content['radio'])
