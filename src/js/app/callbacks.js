@@ -43,8 +43,8 @@ var callbacks = {
 
             content_block.append(buttons_row);
             button_area.append(content_block);
-            myApp.hideIndicator();
         }
+        myApp.hideIndicator();
     },
     rc_refresh: function(response) {
         var remotes = response.remotes;
