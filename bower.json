@@ -21,7 +21,7 @@
     "tests"
   ],
   "devDependencies": {
-    "Framework7": "framework7#^1.4.2",
+    "Framework7": "framework7#^1.6.5",
     "components-font-awesome": "^4.7.0",
     "socket.io-client": "^2.0.3"
   }
