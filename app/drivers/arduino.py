@@ -81,13 +81,7 @@ class ArduinoDev(Common):
 
 @Singleton
 class Arduino(Common):
-    flag = True
     ser = None
-
-    def test(self):
-        if self.flag:
-            print('Test', file=sys.stderr)
-            self.flag = False
 
     def send(self):
         print('SEND', file=sys.stderr)
@@ -97,7 +91,7 @@ class Arduino(Common):
 
     def connect(self):
         if self.ser is None:
-            # self.ser = True
+            print('Connect to /dev/ttyUSB0', file=sys.stderr)
             self.ser = serial.Serial()
             self.ser.baudrate = 500000
             self.ser.port = '/dev/ttyUSB0'
@@ -114,6 +108,7 @@ class Arduino(Common):
             self.ser.flushOutput()
 
     def sendIrSignal(self, raw_signal, radio):
+        print(self.ser, file=sys.stderr)
         signal = self.prepareSignal(raw_signal, radio)
         b_arr = bytearray(signal.encode())
 
@@ -125,5 +120,6 @@ class Arduino(Common):
 
         if response == 'OK':
             return True
+        print(response, file=sys.stderr)
 
         return False
