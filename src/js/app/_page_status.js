@@ -1,11 +1,11 @@
 myApp.onPageInit('status', function (page) {
-    $$('#rc_menu_btn').on('click', function () {
+    $$('#rc_action_btn').on('click', function () {
         var buttons = [
             {
                 text: 'Add Remote',
                 onClick: function () {
                     mainView.router.load({
-                        url: 'static/add_remote.html'
+                        url: 'static/rc_create.html'
                     });
                 }
             },
@@ -32,10 +32,10 @@ myApp.onPageInit('status', function (page) {
         myApp.actions(buttons);
     });
 
-    $$('#regenerate_lirc_btn').on('click', function () {
+    $$('#lirc_update_btn').on('click', function () {
         var request = {};
 
-        request.action = 'regenerate_lirc_commands';
+        request.action = 'lirc_update';
         sendRequest(request, socket_remotes);
     });
 });
