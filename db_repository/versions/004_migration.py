@@ -36,6 +36,7 @@ def upgrade(migrate_engine):
     # migrate_engine to your metadata
     pre_meta.bind = migrate_engine
     post_meta.bind = migrate_engine
+    post_meta.tables['button'].columns['radio'].create()
     post_meta.tables['button'].columns['type'].create()
     pre_meta.tables['remote'].columns['remote_type'].drop()
 
@@ -44,5 +45,6 @@ def downgrade(migrate_engine):
     # Operations to reverse the above upgrade go here.
     pre_meta.bind = migrate_engine
     post_meta.bind = migrate_engine
+    post_meta.tables['button'].columns['radio'].drop()
     post_meta.tables['button'].columns['type'].drop()
     pre_meta.tables['remote'].columns['remote_type'].create()

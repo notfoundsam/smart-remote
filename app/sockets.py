@@ -38,7 +38,8 @@ def handle_json(data):
     
     if data['action'] == 'rc_save':
         if rc.create(data['content']) == True:
-            emit('json', {'response': {'result': 'success', 'callback': 'rc_saved'}})
+            remotes = rc.getRemotesList()
+            emit('json', {'response': {'result': 'success', 'callback': 'rc_refresh', 'remotes': remotes}}, broadcast = True)
 
     elif data['action'] == 'rc_button_save':
         content = data['content']
