@@ -94,6 +94,7 @@ boolean irSignal(byte *signal) {
     } else if (b == 32) {
       count++;
       if (!sendSignal(atoi(strBuffer))) {
+        clearBuffer();
         return false;
       }
       clearBuffer();
