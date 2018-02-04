@@ -110,6 +110,7 @@ class Arduino(Common):
     def sendIrSignal(self, raw_signal, radio):
         print(self.ser, file=sys.stderr)
         signal = self.prepareSignal(raw_signal, radio)
+        print(signal, file=sys.stderr)
         b_arr = bytearray(signal.encode())
 
         self.ser.write(b_arr)
