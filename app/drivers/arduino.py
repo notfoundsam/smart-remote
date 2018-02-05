@@ -95,7 +95,7 @@ class Arduino(Common):
             self.ser = serial.Serial()
             self.ser.baudrate = 500000
             self.ser.port = '/dev/ttyUSB0'
-            self.ser.timeout = 1
+            self.ser.timeout = 2
             self.ser.open()
 
             # Only after write sketch into Arduino
