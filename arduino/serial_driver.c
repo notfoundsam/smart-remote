@@ -89,7 +89,6 @@ boolean readSerial() {
 
 boolean irSignal(byte *signal) {
   byte b;
-  int count = 0;
 
   // FIX ME Move to db
   // Set pipe to send signal
@@ -112,35 +111,34 @@ boolean irSignal(byte *signal) {
       strBuffer[strIndex] = b;
       strIndex++;
     } else if (b == 32) {
-      count++;
       if (!sendSignal(atoi(strBuffer), false)) {
-        clearBuffer();
         return false;
       }
-      clearBuffer();
     } else if (b == 10) {
-      if (!sendSignal(10, true)) {
-        return false;
-      }
+      return sendSignal(10, true);
     }
   }
 
-  return true;
+  return false;
 }
 
 boolean sendSignal(int code, boolean end) {
   for (int i = 0; i < radio_retries; i++) {
     if (end) {
       if (radio.write(&packageEnd, sizeof(packageEnd))) {
+        clearBuffer();
         return true;
       }
     } else {
       if (radio.write(&code, sizeof(code))) {
+        clearBuffer();
         return true;
       }
     }
   }
-  
+
+  clearBuffer();
+
   return false;
 }
 

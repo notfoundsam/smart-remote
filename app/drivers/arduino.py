@@ -104,8 +104,7 @@ class Arduino(Common):
             self.ser.flushOutput()
             self.ser.write(b'connect')
             time.sleep(1)
-            self.ser.flushInput()
-            self.ser.flushOutput()
+            print(repr(ser.readline()), file=sys.stderr)
 
     def sendIrSignal(self, raw_signal, radio):
         print(self.ser, file=sys.stderr)
