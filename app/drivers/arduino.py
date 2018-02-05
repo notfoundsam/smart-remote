@@ -95,7 +95,7 @@ class Arduino(Common):
             self.ser = serial.Serial()
             self.ser.baudrate = 500000
             self.ser.port = '/dev/ttyUSB0'
-            self.ser.timeout = 10
+            self.ser.timeout = 5
             self.ser.open()
 
             # Only after write sketch into Arduino
@@ -114,6 +114,7 @@ class Arduino(Common):
         print(signal, file=sys.stderr)
         b_arr = bytearray(signal.encode())
 
+        self.ser.flushInput()
         self.ser.write(b_arr)
         self.ser.flush()
         time.sleep(0.01)
@@ -124,7 +125,7 @@ class Arduino(Common):
         if response == 'OK':
             return True
         print(repr(response_in), file=sys.stderr)
-        print('----', file=sys.stderr)
-        print(repr(self.ser.readline()), file=sys.stderr)
+        # print('----', file=sys.stderr)
+        # print(repr(self.ser.readline()), file=sys.stderr)
 
         return False
