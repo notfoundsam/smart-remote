@@ -106,8 +106,6 @@ class Arduino(Common):
             time.sleep(1)
             print(repr(self.ser.readline()), file=sys.stderr)
             self.ser.flushInput()
-            # time.sleep(1)
-            # print(repr(self.ser.readline()), file=sys.stderr)
 
     def sendIrSignal(self, raw_signal, radio):
         signal = self.prepareSignal(raw_signal, radio)
@@ -119,13 +117,9 @@ class Arduino(Common):
         self.ser.flush()
         time.sleep(0.01)
 
-        response_in = self.ser.readline()
-        response = response_in.rstrip()
+        response = self.ser.readline()
 
-        if response == 'OK':
+        if response.rstrip() == 'OK':
             return True
-        print(repr(response_in), file=sys.stderr)
-        # print('----', file=sys.stderr)
-        # print(repr(self.ser.readline()), file=sys.stderr)
 
         return False
