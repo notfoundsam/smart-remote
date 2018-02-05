@@ -95,7 +95,7 @@ class Arduino(Common):
             self.ser = serial.Serial()
             self.ser.baudrate = 500000
             self.ser.port = '/dev/ttyUSB0'
-            self.ser.timeout = 0.5
+            self.ser.timeout = 1
             self.ser.open()
 
             # Only after write sketch into Arduino
@@ -107,19 +107,21 @@ class Arduino(Common):
             print(repr(self.ser.readline()), file=sys.stderr)
 
     def sendIrSignal(self, raw_signal, radio):
-        print(self.ser, file=sys.stderr)
         signal = self.prepareSignal(raw_signal, radio)
         print(signal, file=sys.stderr)
         b_arr = bytearray(signal.encode())
 
         self.ser.write(b_arr)
         self.ser.flush()
+        time.sleep(0.01)
 
-        response = self.ser.readline()
-        response = response.rstrip()
+        response_in = self.ser.readline()
+        response = response_in.rstrip()
 
         if response == 'OK':
             return True
-        print(response, file=sys.stderr)
+        print(repr(response_in), file=sys.stderr)
+        print('----', file=sys.stderr)
+        print(repr(self.ser.readline()), file=sys.stderr)
 
         return False
