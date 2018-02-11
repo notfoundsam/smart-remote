@@ -115,7 +115,6 @@ class Arduino(Common):
         self.ser.flushInput()
         self.ser.write(b_arr)
         self.ser.flush()
-        time.sleep(0.01)
 
         response = self.ser.readline()
 

@@ -19,7 +19,7 @@ uint64_t pipes[5] = {
 
 unsigned long started_waiting_at;               // Set up a timeout period, get the current microseconds
 boolean timeout = false;
-boolean isEnded = false;
+boolean isSucces = false;
 
 void setup() {
   Serial.begin(500000);
@@ -30,23 +30,23 @@ void setup() {
   radio.powerUp();
   radio.setChannel(75);
   radio.setRetries(15,15);
-  radio.setDataRate(RF24_250KBPS);     // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
+  radio.setDataRate(RF24_1MBPS);     // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);       // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
   radio.setAutoAck(1);
-  // radio.openWritingPipe(0xAABBCCDD11LL);
-  // radio.openWritingPipe(0xF0F0F0F0AALL);
   radio.startListening();
   Serial.print("Loaded\n");
 }
 
 void loop() {
   if (Serial.available() > 0) {
+    isSucces = false;
     radio.stopListening();
 
-    if (!readSerial()) {
-      Serial.print("FAIL\n");
-    } else {
+    readSerial();
+    if (isSucces) {
       Serial.print("OK\n");
+    } else {
+      Serial.print("FAIL\n");
     }
 
     timeout = false;
@@ -56,7 +56,7 @@ void loop() {
   }
 }
 
-boolean readSerial() {
+void readSerial() {
   byte portSignal[1000];
   timeout = true;
   started_waiting_at = micros();
@@ -76,32 +76,48 @@ boolean readSerial() {
   }
   
   if (timeout) {
-    return false;
+    return;
   } else {
-    // If recive IR signal (it starts with i)
     if (portSignal[0] == 105) {
-      return irSignal(portSignal);
+      // If recive IR signal (it starts with i)
+      irSignal(portSignal);
+    } else if (portSignal[0] == 99) {
+      // If recive comand (it starts with c)
+      command(portSignal);
     }
-
-    return false;
   }
 }
 
-boolean irSignal(byte *signal) {
+void command(byte *signal) {
+  byte b;
+  setRadioPipe(signal[1]);
+
+  if (!sendSignal(99)) {
+    return;
+  }
+
+  for (int i = 3; i < index; i++) {
+    b = signal[i];
+    
+    if (b == 10) {
+      if (sendSignal(10)) {
+        isSucces = true;
+      }
+    } else {
+      if (!sendSignal(b)) {
+        return;
+      }
+    }
+  }
+}
+
+void irSignal(byte *signal) {
   byte b;
 
-  // FIX ME Move to db
-  // Set pipe to send signal
-  if (signal[1] == 49) {
-    radio.openWritingPipe(pipes[0]);
-  } else if (signal[1] == 50) {
-    radio.openWritingPipe(pipes[1]);
-  } else if (signal[1] == 51) {
-    radio.openWritingPipe(pipes[2]);
-  } else if (signal[1] == 52) {
-    radio.openWritingPipe(pipes[3]);
-  } else if (signal[1] == 53) {
-    radio.openWritingPipe(pipes[4]);
+  setRadioPipe(signal[1]);
+
+  if (!sendSignal(105)) {
+    return;
   }
   
   for (int i = 3; i < index; i++) {
@@ -111,29 +127,23 @@ boolean irSignal(byte *signal) {
       strBuffer[strIndex] = b;
       strIndex++;
     } else if (b == 32) {
-      if (!sendSignal(atoi(strBuffer), false)) {
-        return false;
+      if (!sendSignal(atoi(strBuffer))) {
+        return;
       }
     } else if (b == 10) {
-      return sendSignal(10, true);
+      if (sendSignal(10)) {
+        isSucces = true;
+        return;
+      }
     }
   }
-
-  return false;
 }
 
-boolean sendSignal(int code, boolean end) {
+boolean sendSignal(int code) {
   for (int i = 0; i < radio_retries; i++) {
-    if (end) {
-      if (radio.write(&packageEnd, sizeof(packageEnd))) {
-        clearBuffer();
-        return true;
-      }
-    } else {
-      if (radio.write(&code, sizeof(code))) {
-        clearBuffer();
-        return true;
-      }
+    if (radio.write(&code, sizeof(code))) {
+      clearBuffer();
+      return true;
     }
   }
 
@@ -142,7 +152,37 @@ boolean sendSignal(int code, boolean end) {
   return false;
 }
 
+// boolean sendCommand() {
+//   for (int i = 0; i < radio_retries; i++) {
+//     if (radio.write(&strBuffer, sizeof(strBuffer))) {
+//       clearBuffer();
+//       return true;
+//     }
+//   }
+
+//   clearBuffer();
+
+//   return false;
+// }
+
 void clearBuffer() {
   memset(strBuffer, 0, sizeof(strBuffer));
   strIndex = 0;
+}
+
+void setRadioPipe(int pipe) {
+
+  // FIX ME Move to db
+  // Set pipe to send signal
+  if (pipe == 49) {
+    radio.openWritingPipe(pipes[0]);
+  } else if (pipe == 50) {
+    radio.openWritingPipe(pipes[1]);
+  } else if (pipe == 51) {
+    radio.openWritingPipe(pipes[2]);
+  } else if (pipe == 52) {
+    radio.openWritingPipe(pipes[3]);
+  } else if (pipe == 53) {
+    radio.openWritingPipe(pipes[4]);
+  }
 }
