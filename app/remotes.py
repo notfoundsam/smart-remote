@@ -95,6 +95,8 @@ class RemoteControl:
                     return True
                 else:
                     return arduino.sendIrSignal(btn.signal, btn.radio)
+            elif btn.type == 'cmd':
+                return arduino.sendCommand(btn.signal, btn.radio)
 
     def test(self, content):
         if content['radio'] == 'lirc':

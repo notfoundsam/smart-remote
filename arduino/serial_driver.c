@@ -3,8 +3,8 @@
 #include <RF24.h>
 RF24 radio(9, 10);
 unsigned short index = 0;
-unsigned char packageEnd = '\n';
 int radio_retries = 20;
+int radio_delay = 20;
 
 uint64_t pipes[5] = {
   0xAABBCCDD11LL,
@@ -13,8 +13,6 @@ uint64_t pipes[5] = {
   0xAABBCCDD44LL,
   0xAABBCCDD55LL,
 };
-
-// uint64_t responce_address = 0xAABBCCDD55LL;
 
 unsigned long started_waiting_at;               // Set up a timeout period, get the current microseconds
 boolean timeout = false;
@@ -32,7 +30,6 @@ void setup() {
   radio.setDataRate(RF24_1MBPS);     // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);       // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
   radio.setAutoAck(1);
-  // radio.openReadingPipe(1, responce_address);
   radio.startListening();
   Serial.print("Loaded\n");
 }
@@ -44,9 +41,9 @@ void loop() {
 
     readSerial();
     if (isSucces) {
-      Serial.print("OK\n");
+      Serial.print(":OK\n");
     } else {
-      Serial.print("FAIL\n");
+      Serial.print(":FAIL\n");
     }
 
     timeout = false;
@@ -77,6 +74,7 @@ void readSerial() {
   }
   
   if (timeout) {
+    Serial.print("SERIAL READ TIMEOUT");
     return;
   } else {
     if (portSignal[0] == 105) {
@@ -94,7 +92,7 @@ void command(byte *signal) {
   setWritingPipe(signal[1]);
 
   if (!sendSignal(99)) {
-    Serial.print(":99fail");
+    Serial.print("RADIO COMMAND FIRST");
     return;
   }
 
@@ -103,18 +101,19 @@ void command(byte *signal) {
     
     if (b == 10) {
       if (sendSignal(10)) {
+        // This delay is necessary
         delay(30);
         setReadingPipe(signal[1]);
         radio.startListening();
-        // delay(20);
+        // FIX ME
         radio.flush_rx();
         waitResponce();
       } else {
-        Serial.print(":10fail");
+        Serial.print("RADIO COMMAND LAST");
       }
     } else {
       if (!sendSignal(b)) {
-        Serial.print(":bfail");
+        Serial.print("RADIO COMMAND BUFF");
         return;
       }
     }
@@ -129,6 +128,7 @@ void irSignal(byte *signal) {
   setWritingPipe(signal[1]);
 
   if (!sendSignal(105)) {
+    Serial.print("RADIO IR SIGNAL FIRST");
     return;
   }
   
@@ -140,6 +140,7 @@ void irSignal(byte *signal) {
       strIndex++;
     } else if (b == 32) {
       if (!sendSignal(atoi(strBuffer))) {
+        Serial.print("RADIO IR SIGNAL BUFFER");
         return;
       }
       memset(strBuffer, 0, sizeof(strBuffer));
@@ -148,6 +149,8 @@ void irSignal(byte *signal) {
       if (sendSignal(10)) {
         isSucces = true;
         return;
+      } else {
+        Serial.print("RADIO IR SIGNAL LAST");
       }
     }
   }
@@ -158,7 +161,7 @@ boolean sendSignal(int signal) {
     if (radio.write(&signal, sizeof(signal))) {
       return true;
     }
-    delay(20);
+    delay(radio_delay);
   }
 
   return false;
@@ -180,7 +183,7 @@ void setWritingPipe(int pipe) {
   }
 }
 
-// Set pipe to send signal
+// Set pipe to recieve responce
 void setReadingPipe(int pipe) {
   if (pipe == 49) {
     radio.openReadingPipe(1, pipes[0]);
@@ -208,10 +211,8 @@ void waitResponce() {
       if (pipe == 1) {
         started_waiting_at = micros();
         radio.read(&signal, sizeof(signal));
+
         if (signal == 10) {
-          timeout = false;
-          // ASCII symbol ":" before OK
-          Serial.print(":");
           isSucces = true;
           return;
         } else {
@@ -220,4 +221,6 @@ void waitResponce() {
       }
     }
   }
+
+  Serial.print("RADIO RESPONCE TIMEOUT");
 }

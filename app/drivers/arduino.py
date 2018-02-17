@@ -44,19 +44,22 @@ class Singleton:
 
 class Common():
 
-    def prepareSignal(self, raw_signal, radio):
-        prepared_signal = []
-        prepared_signal.append('i%s' % radio)
+    def prepareIrSignal(self, raw_signal, radio):
+        data = []
+        data.append('i%s' % radio)
 
         for x in raw_signal.split(' '):
             if int(x) > 65000:
-                prepared_signal.append('65000')
+                data.append('65000')
             else:
-                prepared_signal.append(x)
+                data.append(x)
 
-        prepared_signal.append('\n')
+        data.append('\n')
 
-        return ' '.join(prepared_signal)
+        return ' '.join(data)
+
+    def prepareCommand(self, command, radio):
+        return data = 'c%s %s\n' % (radio, command)
 
 @Singleton
 class ArduinoDev(Common):
@@ -70,21 +73,19 @@ class ArduinoDev(Common):
     def close(self):
         print('Close /dev/ttyUSB0', file=sys.stderr)
 
-    def test(self):
-        print('IT IS TEST', file=sys.stderr)
+    def sendCommand(self, command):
+        data = self.prepareCommand(command, radio)
+        print('Command to send: %s' % data, file=sys.stderr)
 
     def sendIrSignal(self, raw_signal, radio):
-        signal = self.prepareSignal(raw_signal, radio)
-        print('Signal to send: %s' % signal, file=sys.stderr)
+        data = self.prepareIrSignal(raw_signal, radio)
+        print('Signal to send: %s' % data, file=sys.stderr)
 
         return True
 
 @Singleton
 class Arduino(Common):
     ser = None
-
-    def send(self):
-        print('SEND', file=sys.stderr)
 
     def close(self):
         print('Close /dev/ttyUSB0', file=sys.stderr)
@@ -106,19 +107,28 @@ class Arduino(Common):
             time.sleep(1)
             print(repr(self.ser.readline()), file=sys.stderr)
             self.ser.flushInput()
-
-    def sendIrSignal(self, raw_signal, radio):
-        signal = self.prepareSignal(raw_signal, radio)
-        print(signal, file=sys.stderr)
-        b_arr = bytearray(signal.encode())
+    
+    def send(self, data):
+        print(data, file=sys.stderr)
+        b_arr = bytearray(data.encode())
 
         self.ser.flushInput()
         self.ser.write(b_arr)
         self.ser.flush()
 
         response = self.ser.readline()
+        result = response.rstrip()
 
-        if response.rstrip() == 'OK':
-            return True
+        if result:
+            return result
 
         return False
+
+    def sendCommand(self, command):
+        data = self.prepareCommand(command, radio)
+        return self.send(data)
+
+    def sendIrSignal(self, raw_signal, radio):
+        data = self.prepareIrSignal(raw_signal, radio)
+        return self.send(data)
+        

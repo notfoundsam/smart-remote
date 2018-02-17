@@ -9,6 +9,7 @@ int radioSpeedPin = 2;
 int radioChannelPin1 = 3;
 int radioChannelPin2 = 4;
 int radio_retries = 20;
+int radio_delay = 20;
 
 unsigned int counter;
 #define DHTTYPE DHT11 // DHT 11
@@ -52,14 +53,13 @@ void loop() {
   getDhtParams();
   
   if (radio.available()) {
-    
     radio.read(&code, sizeof(code));
     
     if (code == 105) {
       // Recived IR signal (starts with i)
       readIrSignal();
     } else if (code == 99) {
-      // Recived command (starts with i)
+      // Recived command (starts with c)
       readCommand();
     }
   }
@@ -115,9 +115,11 @@ void readCommand() {
   if (!timeout) {
     Serial.println(command);
 
+    // It's only test
     if (areEqual(command, "dht"))
       Serial.println("exec dht command");
     
+    // This delay is necessary
     delay(30);
     sendStatus();
     radio.startListening();
@@ -188,8 +190,8 @@ boolean sendSignal(int code) {
     if (radio.write(&code, sizeof(code))) {
       return true;
     }
-    delay(20);
-    Serial.print("f");
+
+    delay(radio_delay);
   }
 
   return false;
