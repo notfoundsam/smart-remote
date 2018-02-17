@@ -59,7 +59,7 @@ class Common():
         return ' '.join(data)
 
     def prepareCommand(self, command, radio):
-        return data = 'c%s %s\n' % (radio, command)
+        return 'c%s %s\n' % (radio, command)
 
 @Singleton
 class ArduinoDev(Common):
