@@ -3,7 +3,8 @@ import sys
 import functools
 from flask_socketio import emit
 from app import so
-from .remotes import *
+from .remotes import RemoteControl
+from .sensor import RadioSensor
 from flask_login import current_user
 from flask_socketio import disconnect
 from drivers import ir_reader
@@ -30,8 +31,7 @@ def handle_connect():
 @so.on('json', namespace='/remotes')
 @authenticated_only
 def handle_json(data):
-    # arduino.send()
-    # print(arduino, file=sys.stderr)
+    # Debug
     print('received json: ' + str(data), file=sys.stderr)
     
     rc = RemoteControl()
@@ -52,6 +52,15 @@ def handle_json(data):
 
         rc.removeButton(content)
         emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote', 'rc_id': content['rc_id'], 'rc_name': content['rc_name']}})
+
+    elif data['action'] == 'rc_button_edit':
+        content = data['content']
+
+        button = rc.getButton(content)
+        if button is not None:
+            emit('json', {'response': {'result': 'success', 'callback': 'rc_button_save', 'button': button, 'edit': True}})
+        else:
+            emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
 
     elif data['action'] == 'rc_refresh':
         remotes = rc.getRemotesList()
@@ -83,4 +92,16 @@ def handle_json(data):
         if rc.test(data['content']) != True:
             emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
 
-        
+@so.on('json', namespace='/radios')
+@authenticated_only
+def handle_json(data):
+
+    sensor = RadioSensor()
+
+    if data['action'] == 'radio_save':
+        if sensor.create(data['content']) == True:
+            emit('json', {'response': {'result': 'success', 'callback': 'radio_saved'}})
+
+    elif data['action'] == 'radios_refresh':
+        radios = sensor.getRadiosList()
+        emit('json', {'response': {'result': 'success', 'callback': 'radios_refresh', 'radios': radios}}, broadcast = True)

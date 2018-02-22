@@ -54,8 +54,20 @@ class Button(db.Model):
     timestamp = db.Column(db.DateTime)
     signal = db.Column(db.Text)
     remote_id = db.Column(db.Integer, db.ForeignKey('remote.id'))
-    radio = db.Column(db.Integer)
+    radio_id = db.Column(db.Integer, db.ForeignKey('radio.id'))
     type = db.Column(db.String(20))
 
     def __repr__(self):
         return '<Button %r>' % (self.identificator)
+
+class Radio(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(200))
+    enabled = db.Column(db.Boolean)
+    battery = db.Column(db.Boolean(False))
+    dht = db.Column(db.Boolean(False))
+    timestamp = db.Column(db.DateTime)
+    buttons = db.relationship('Button', backref = 'radio', lazy = 'dynamic')
+
+    def __repr__(self):
+        return '<Radio %r>' % (self.id)

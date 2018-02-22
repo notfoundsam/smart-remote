@@ -3,35 +3,43 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-IRsend irsend;
+
+// Radio setting
 RF24 radio(9, 10); // For nano pin 9 and 10
+uint64_t address = 0xAABBCCDD33LL;
 int radioSpeedPin = 2;
 int radioChannelPin1 = 3;
 int radioChannelPin2 = 4;
 int radio_retries = 20;
 int radio_delay = 20;
+byte radioSpeedState = 0; // 0 is RF24_250KBPS and 1 is RF24_1MBPS
 
-unsigned int counter;
+// IRremote setting
+IRsend irsend;
+unsigned char khz = 38;
+
+// DHT setting
 #define DHTTYPE DHT11 // DHT 11
 const byte dht_pin = 8;
 DHT dht(dht_pin, DHTTYPE);
+unsigned long started_waiting_at_dht = 0;               // Set up a timeout period, get the current microseconds
+float hum;
+float temp;
 
-// Radio Address
-uint64_t address = 0xAABBCCDD33LL;
-unsigned char khz = 38;
+// Battery setting
+unsigned long started_waiting_at_battery = 0;               // Set up a timeout period, get the current microseconds
+int bat_pin = A1;
+float max_v = 4.64; 
+float min_v = 2.5;
+float Vin = 0;
 
+// Program setting
 unsigned int code;
 unsigned long started_waiting_at;               // Set up a timeout period, get the current microseconds
 boolean timeout;
 
-unsigned long dth_timer;               // Set up a timeout period, get the current microseconds
-float hum;
-float temp;
-
-byte radioSpeedState = 0; // 0 is RF24_250KBPS and 1 is RF24_1MBPS
-
 void setup() {
-  counter = 0;
+  analogReference(INTERNAL);
   pinMode(radioSpeedPin, INPUT);
   Serial.begin(9600);
   radio.begin();
@@ -45,7 +53,6 @@ void setup() {
   radio.openWritingPipe(address);
   radio.openReadingPipe(1, address);
   radio.startListening();
-  dth_timer = micros();
 }
 
 void loop() {
@@ -73,7 +80,7 @@ void readIrSignal() {
   started_waiting_at = micros();
   timeout = true;
 
-  while (timeout == true && (micros() - started_waiting_at < 200000)) {
+  while (timeout == true && (micros() - started_waiting_at < 100000)) {
     if (radio.available()) {
       started_waiting_at = micros();
       radio.read(&signal, sizeof(signal));
@@ -115,13 +122,14 @@ void readCommand() {
   if (!timeout) {
     Serial.println(command);
 
-    // It's only test
-    if (areEqual(command, "dht"))
-      Serial.println("exec dht command");
-    
     // This delay is necessary
     delay(30);
-    sendStatus();
+    
+    if (areEqual(command, "status")) {
+      Serial.println("exec status command");
+      sendStatus();
+    }
+    
     radio.startListening();
   }
 }
@@ -148,7 +156,8 @@ void checkRadioSetting() {
 }
 
 void getDhtParams() {
-  if (micros() - started_waiting_at > 200000) {
+  // 10 seconds
+  if (micros() - started_waiting_at_dht > 10000000) {
     float h = dht.readHumidity();
     float t = dht.readTemperature();
 
@@ -161,11 +170,26 @@ void getDhtParams() {
   }
 }
 
+void getBatteryVoltage() {
+  // 20 seconds
+  if (micros() - started_waiting_at_battery > 20000000) {
+    float Vbat = (analogRead(bat_pin) * 1.1) / 1023;
+    float del = 0.0945;
+    Vin = Vbat / del;
+  }
+}
+
 void sendStatus() {
-  String responce = "h";
+  // Add DHT params
+  String responce = "hum ";
   responce += hum;
-  responce += "t";
+  responce += "temp ";
   responce += temp;
+
+  // Add Battery voltage
+  responce += ",bat ";
+  responce += Vin;
+
   int rsize = responce.length();
 
   radio.stopListening();
