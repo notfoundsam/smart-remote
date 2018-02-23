@@ -29,17 +29,18 @@ class RemoteControl:
         if rc is not None:
             if content['btn_id']:
                 btn = Button.query.filter_by(identificator = content['btn_id']).first()
+                print(btn, file=sys.stderr)
 
                 if btn is None:
                     return False
 
-                btn.name = content['btn_name'],
-                btn.order_hor = content['btn_order_hor'],
-                btn.order_ver = content['btn_order_ver'],
-                btn.color = content['btn_color'],
-                btn.signal = content['btn_signal'],
-                btn.radio = content['btn_radio'],
-                btn.type = content['btn_type'],
+                btn.name = content['btn_name']
+                btn.order_hor = content['btn_order_hor']
+                btn.order_ver = content['btn_order_ver']
+                btn.color = content['btn_color']
+                btn.signal = content['btn_signal']
+                btn.radio_id = content['btn_radio']
+                btn.type = content['btn_type']
                 btn.timestamp = datetime.utcnow()
             else:
                 btn = Button(identificator = btn_id,
@@ -49,12 +50,12 @@ class RemoteControl:
                             color = content['btn_color'],
                             signal = content['btn_signal'],
                             remote_id = rc.id,
-                            radio = content['btn_radio'],
+                            radio_id = content['btn_radio'],
                             type = content['btn_type'],
                             timestamp = datetime.utcnow())
 
                 db.session.add(btn)
-    
+            
             db.session.commit()
             print('create btn: %s' % btn_id, file=sys.stderr)
             return True

@@ -7,7 +7,7 @@ myApp.onPageInit('rc_button_save', function (page) {
         request.action = 'rc_button_save';
         request.content = {}
         request.content.rc_id = page.find('input[name=rc_id]').val();
-        // request.content.rc_name = page.find('input[name=rc_name]').val();
+        request.content.rc_name = page.find('input[name=rc_name]').val();
         request.content.btn_id = page.find('input[name=btn_id]').val();
         request.content.btn_type = page.find('input[name=btn_type]').val();
         request.content.btn_name = page.find('input[name=btn_name]').val();
