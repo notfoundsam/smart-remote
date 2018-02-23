@@ -44,19 +44,22 @@ class Singleton:
 
 class Common():
 
-    def prepareSignal(self, raw_signal, radio):
-        prepared_signal = []
-        prepared_signal.append('i%s' % radio)
+    def prepareIrSignal(self, raw_signal, radio):
+        data = []
+        data.append('i%s' % radio)
 
         for x in raw_signal.split(' '):
             if int(x) > 65000:
-                prepared_signal.append('65000')
+                data.append('65000')
             else:
-                prepared_signal.append(x)
+                data.append(x)
 
-        prepared_signal.append('\n')
+        data.append('\n')
 
-        return ' '.join(prepared_signal)
+        return ' '.join(data)
+
+    def prepareCommand(self, command, radio):
+        return 'c%s %s\n' % (radio, command)
 
 @Singleton
 class ArduinoDev(Common):
@@ -70,21 +73,19 @@ class ArduinoDev(Common):
     def close(self):
         print('Close /dev/ttyUSB0', file=sys.stderr)
 
-    def test(self):
-        print('IT IS TEST', file=sys.stderr)
+    def sendCommand(self, command):
+        data = self.prepareCommand(command, radio)
+        print('Command to send: %s' % data, file=sys.stderr)
 
     def sendIrSignal(self, raw_signal, radio):
-        signal = self.prepareSignal(raw_signal, radio)
-        print('Signal to send: %s' % signal, file=sys.stderr)
+        data = self.prepareIrSignal(raw_signal, radio)
+        print('Signal to send: %s' % data, file=sys.stderr)
 
         return True
 
 @Singleton
 class Arduino(Common):
     ser = None
-
-    def send(self):
-        print('SEND', file=sys.stderr)
 
     def close(self):
         print('Close /dev/ttyUSB0', file=sys.stderr)
@@ -95,7 +96,7 @@ class Arduino(Common):
             self.ser = serial.Serial()
             self.ser.baudrate = 500000
             self.ser.port = '/dev/ttyUSB0'
-            self.ser.timeout = 0.5
+            self.ser.timeout = 5
             self.ser.open()
 
             # Only after write sketch into Arduino
@@ -104,22 +105,30 @@ class Arduino(Common):
             self.ser.flushOutput()
             self.ser.write(b'connect')
             time.sleep(1)
+            print(repr(self.ser.readline()), file=sys.stderr)
             self.ser.flushInput()
-            self.ser.flushOutput()
+    
+    def send(self, data):
+        print(data, file=sys.stderr)
+        b_arr = bytearray(data.encode())
 
-    def sendIrSignal(self, raw_signal, radio):
-        print(self.ser, file=sys.stderr)
-        signal = self.prepareSignal(raw_signal, radio)
-        b_arr = bytearray(signal.encode())
-
+        self.ser.flushInput()
         self.ser.write(b_arr)
         self.ser.flush()
 
         response = self.ser.readline()
-        response = response.rstrip()
+        result = response.rstrip()
 
-        if response == 'OK':
-            return True
-        print(response, file=sys.stderr)
+        if result:
+            return result
 
         return False
+
+    def sendCommand(self, command):
+        data = self.prepareCommand(command, radio)
+        return self.send(data)
+
+    def sendIrSignal(self, raw_signal, radio):
+        data = self.prepareIrSignal(raw_signal, radio)
+        return self.send(data)
+        

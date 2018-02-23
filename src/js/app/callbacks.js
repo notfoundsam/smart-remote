@@ -82,19 +82,29 @@ var callbacks = {
         });
     },
     rc_button_save: function(response) {
-        var rc_id = $$('div.page[data-page=rc_buttons]').attr('data-rc-id');
-        var rc_name = $$('div.page[data-page=rc_buttons]').attr('data-rc-name');
-        myApp.hidePreloader();
+        if (response.edit) {
+            myApp.hideIndicator();
 
-        mainView.router.load({
-            url: 'static/rc_button_save.html',
-            context: {
-                signal: response.signal,
-                rc_id: rc_id,
-                rc_name: rc_name,
-                rc_button_type: 'ir'
-            }
-        });
+            mainView.router.load({
+                url: 'static/rc_button_save.html',
+                context: response.button
+            });
+        } else {
+            myApp.hidePreloader();
+
+            var rc_id = $$('div.page[data-page=rc_buttons]').attr('data-rc-id');
+            var rc_name = $$('div.page[data-page=rc_buttons]').attr('data-rc-name');
+
+            mainView.router.load({
+                url: 'static/rc_button_save.html',
+                context: {
+                    rc_id: rc_id,
+                    rc_name: rc_name,
+                    btn_signal: response.signal,
+                    btn_type: 'ir'
+                }
+            });
+        }
     },
     back_to_remote: function(response) {
         mainView.router.load({
@@ -111,5 +121,36 @@ var callbacks = {
             message: 'Signal didn\'t recive',
             hold: 3000
         });
-    }
+    },
+    radios_refresh: function(response) {
+        var radios = response.radios;
+        var page = $$('div.page[data-page=status]');
+
+        if (page.length && radios.length) {
+            var radios_area = $$('#radios_area');
+            radios_area.empty();
+
+            radios.forEach(function(element) {
+                var card = $$('<div class="card"></div>');
+                var card_header = $$('<div class="card-header"></div>');
+                var card_content = $$('<div class="card-content"></div>');
+                var card_content_inner = $$('<div class="card-content-inner row"></div>');
+                
+                card_header.append($$('<div></div>').text(element.name));
+
+                if (element.battery) {
+                    card_header.append($$('<div><i class="fa fa-battery-full" aria-hidden="true"></i></div>'));
+                }
+                if (element.dht) {
+                    card_content_inner.append($$('<div class="col-50"><i class="fa fa-thermometer-half" aria-hidden="true"></i> Temperature: --&#8451;</div>'));
+                    card_content_inner.append($$('<div class="col-50"><i class="fa fa-tint" aria-hidden="true"></i> Humidity: --%</div>'));
+                }
+
+                card_content.append(card_content_inner);
+                card.append(card_header);
+                card.append(card_content);
+                radios_area.append(card);
+            });
+        }
+    },
 };
