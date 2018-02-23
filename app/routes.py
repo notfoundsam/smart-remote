@@ -6,12 +6,8 @@ from flask import render_template, flash, redirect, session, url_for, request, \
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app, db, lm, so
 from .models import User
-# from gpio import driver
-from config import devices, status_code
+from config import status_code
 from threading import Lock
-# from flask_socketio import emit
-from threading import Lock
-
 
 @lm.user_loader
 def load_user(id):

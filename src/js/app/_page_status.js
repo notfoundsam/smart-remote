@@ -1,4 +1,10 @@
 myApp.onPageInit('status', function (page) {
+    console.log('OoooPage');
+    var request = {};
+
+    request.action = 'radios_refresh';
+    sendRequest(request, socket_radios);
+    
     $$('#rc_action_btn').on('click', function () {
         var buttons = [
             {
@@ -19,6 +25,14 @@ myApp.onPageInit('status', function (page) {
                 text: 'Remove Remote',
                 onClick: function () {
                     myApp.alert('Button2 clicked');
+                }
+            },
+            {
+                text: 'Add Radio',
+                onClick: function () {
+                    mainView.router.load({
+                        url: 'static/radio_create.html'
+                    });
                 }
             },
             {

@@ -1,7 +1,7 @@
 from __future__ import print_function
 import sys, os
 from .models import Remote, Button
-from app import so, db
+from app import db
 import uuid
 from datetime import datetime
 from run import arduino, lirc
@@ -27,18 +27,35 @@ class RemoteControl:
         rc = Remote.query.filter_by(identificator = content['rc_id']).first()
 
         if rc is not None:
-            btn = Button(identificator = btn_id,
-                        name = content['btn_name'],
-                        order_hor = content['btn_order_hor'],
-                        order_ver = content['btn_order_ver'],
-                        color = content['btn_color'],
-                        signal = content['signal'],
-                        remote_id = rc.id,
-                        radio = content['radio'],
-                        type = content['rc_button_type'],
-                        timestamp = datetime.utcnow())
+            if content['btn_id']:
+                btn = Button.query.filter_by(identificator = content['btn_id']).first()
+                print(btn, file=sys.stderr)
 
-            db.session.add(btn)
+                if btn is None:
+                    return False
+
+                btn.name = content['btn_name']
+                btn.order_hor = content['btn_order_hor']
+                btn.order_ver = content['btn_order_ver']
+                btn.color = content['btn_color']
+                btn.signal = content['btn_signal']
+                btn.radio_id = content['btn_radio']
+                btn.type = content['btn_type']
+                btn.timestamp = datetime.utcnow()
+            else:
+                btn = Button(identificator = btn_id,
+                            name = content['btn_name'],
+                            order_hor = content['btn_order_hor'],
+                            order_ver = content['btn_order_ver'],
+                            color = content['btn_color'],
+                            signal = content['btn_signal'],
+                            remote_id = rc.id,
+                            radio_id = content['btn_radio'],
+                            type = content['btn_type'],
+                            timestamp = datetime.utcnow())
+
+                db.session.add(btn)
+            
             db.session.commit()
             print('create btn: %s' % btn_id, file=sys.stderr)
             return True
@@ -51,6 +68,26 @@ class RemoteControl:
             db.session.delete(btn)
 
         db.session.commit()
+
+    def getButton(self, content):
+        btn_id = content['button']
+        button = Button.query.filter_by(identificator = btn_id).first()
+
+        if button is not None:
+            return {
+                'btn_id': button.identificator,
+                'btn_name': button.name,
+                'btn_order_hor': button.order_hor,
+                'btn_order_ver': button.order_ver,
+                'btn_color': button.color,
+                'btn_signal': button.signal,
+                'btn_radio': button.radio,
+                'btn_type': button.type,
+                'rc_id' : button.remote.identificator,
+                'rc_name' : button.remote.name
+            }
+
+        return False
 
     def getRemotesList(self):
         remotes = []
@@ -95,6 +132,8 @@ class RemoteControl:
                     return True
                 else:
                     return arduino.sendIrSignal(btn.signal, btn.radio)
+            elif btn.type == 'cmd':
+                return arduino.sendCommand(btn.signal, btn.radio)
 
     def test(self, content):
         if content['radio'] == 'lirc':

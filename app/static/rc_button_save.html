@@ -18,7 +18,8 @@
     <div class="page-content">
       <input type="hidden" name="rc_id" value="{{rc_id}}">
       <input type="hidden" name="rc_name" value="{{rc_name}}">
-      <input type="hidden" name="rc_button_type" value="{{rc_button_type}}">
+      <input type="hidden" name="btn_id" value="{{btn_id}}">
+      <input type="hidden" name="btn_type" value="{{btn_type}}">
       <div class="content-block-title">Remote settings</div>
       <div class="list-block">
         <ul>
@@ -28,7 +29,7 @@
               <div class="item-inner">
                 <div class="item-title floating-label">Button name</div>
                 <div class="item-input">
-                  <input type="text" name="btn_name" value="">
+                  <input type="text" name="btn_name" value="{{btn_name}}">
                 </div>
               </div>
             </div>
@@ -38,7 +39,7 @@
               <div class="item-inner">
                 <div class="item-title floating-label">Order vertical</div>
                 <div class="item-input">
-                  <input type="tel" name="btn_order_ver" value="">
+                  <input type="tel" name="btn_order_ver" value="{{btn_order_ver}}">
                 </div>
               </div>
             </div>
@@ -48,7 +49,7 @@
               <div class="item-inner">
                 <div class="item-title floating-label">Order horizontal</div>
                 <div class="item-input">
-                  <input type="tel" name="btn_order_hor" value="">
+                  <input type="tel" name="btn_order_hor" value="{{btn_order_hor}}">
                 </div>
               </div>
             </div>
@@ -63,15 +64,15 @@
             <a href="#" class="item-link smart-select">
               <!-- select -->
               <select name="btn_color">
-                <option value="color-blue" data-option-color="blue" selected>Blue</option>
-                <option value="color-green" data-option-color="green">Green</option>
-                <option value="color-red" data-option-color="red">Red</option>
-                <option value="color-orange" data-option-color="orange">Orange</option>
-                <option value="color-pink" data-option-color="pink">Pink</option>
-                <option value="color-purple" data-option-color="purple">Purple</option>
-                <option value="color-cyan" data-option-color="cyan">Cyan</option>
-                <option value="color-teal" data-option-color="teal">Teal</option>
-                <option value="color-indigo" data-option-color="indigo">Indigo</option>
+                <option value="color-blue" data-option-color="blue"{{#js_if "this.btn_color === 'color-blue'"}} selected{{/js_if}}>Blue</option>
+                <option value="color-green" data-option-color="green"{{#js_if "this.btn_color === 'color-green'"}} selected{{/js_if}}>Green</option>
+                <option value="color-red" data-option-color="red"{{#js_if "this.btn_color === 'color-red'"}} selected{{/js_if}}>Red</option>
+                <option value="color-orange" data-option-color="orange"{{#js_if "this.btn_color === 'color-orange'"}} selected{{/js_if}}>Orange</option>
+                <option value="color-pink" data-option-color="pink"{{#js_if "this.btn_color === 'color-pink'"}} selected{{/js_if}}>Pink</option>
+                <option value="color-purple" data-option-color="purple"{{#js_if "this.btn_color === 'color-purple'"}} selected{{/js_if}}>Purple</option>
+                <option value="color-cyan" data-option-color="cyan"{{#js_if "this.btn_color === 'color-cyan'"}} selected{{/js_if}}>Cyan</option>
+                <option value="color-teal" data-option-color="teal"{{#js_if "this.btn_color === 'color-teal'"}} selected{{/js_if}}>Teal</option>
+                <option value="color-indigo" data-option-color="indigo" {{#js_if "this.btn_color === 'color-indigo'"}} selected{{/js_if}}>Indigo</option>
               </select>
               <div class="item-content">
                 <div class="item-inner">
@@ -86,13 +87,13 @@
             <a href="#" class="item-link smart-select">
               <!-- select -->
               <select name="radio">
-                <option value="999" data-option-color="cyan" selected>Base Lirc</option>
-                <option value="0" data-option-color="blue" selected>Base Arduino</option>
-                <option value="1" data-option-color="green">Radio 1</option>
-                <option value="2" data-option-color="green">Radio 2</option>
-                <option value="3" data-option-color="green">Radio 3</option>
-                <option value="4" data-option-color="green">Radio 4</option>
-                <option value="5" data-option-color="green">Radio 5</option>
+                <option value="999" data-option-color="cyan"{{#js_if "this.radio === 999"}} selected{{/js_if}}>Base Lirc</option>
+                <option value="0" data-option-color="blue"{{#js_if "this.radio === 0"}} selected{{/js_if}}>Base Arduino</option>
+                <option value="1" data-option-color="green"{{#js_if "this.radio === 1"}} selected{{/js_if}}>Radio 1</option>
+                <option value="2" data-option-color="green"{{#js_if "this.radio === 2"}} selected{{/js_if}}>Radio 2</option>
+                <option value="3" data-option-color="green"{{#js_if "this.radio === 3"}} selected{{/js_if}}>Radio 3</option>
+                <option value="4" data-option-color="green"{{#js_if "this.radio === 4"}} selected{{/js_if}}>Radio 4</option>
+                <option value="5" data-option-color="green"{{#js_if "this.radio === 5"}} selected{{/js_if}}>Radio 5</option>
               </select>
               <div class="item-content">
                 <div class="item-inner">
@@ -114,7 +115,7 @@
       <div class="content-block-title">Receved signal</div>
       <div class="card">
         <div class="card-content">
-          <div class="card-content-inner" id="recived_signal">{{signal}}</div>
+          <div class="card-content-inner" id="btn_signal">{{btn_signal}}</div>
         </div>
       </div>
       <div class="list-block">
