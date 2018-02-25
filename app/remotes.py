@@ -36,7 +36,7 @@ class RemoteControl:
                 btn.order_ver = content['btn_order_ver']
                 btn.color = content['btn_color']
                 btn.signal = content['btn_signal']
-                btn.radio_id = content['btn_radio']
+                btn.radio_id = content['btn_radio_id']
                 btn.type = content['btn_type']
                 btn.timestamp = datetime.utcnow()
             else:
@@ -48,14 +48,14 @@ class RemoteControl:
                             color = content['btn_color'],
                             signal = content['btn_signal'],
                             remote_id = rc.id,
-                            radio_id = content['btn_radio'],
+                            radio_id = content['btn_radio_id'],
                             type = content['btn_type'],
                             timestamp = datetime.utcnow())
 
                 db.session.add(btn)
             
             db.session.commit()
-            print('create btn: %s' % btn_id, file=sys.stderr)
+
             return True
 
     def removeButton(self, content):
@@ -79,7 +79,7 @@ class RemoteControl:
                 'btn_order_ver': button.order_ver,
                 'btn_color': button.color,
                 'btn_signal': button.signal,
-                'btn_radio': button.radio,
+                'btn_radio': button.radio.id,
                 'btn_type': button.type,
                 'rc_id' : button.remote.identificator,
                 'rc_name' : button.remote.name
@@ -133,11 +133,11 @@ class RemoteControl:
                 return arduino.sendCommand(btn.signal, btn.radio_id)
 
     def test(self, content):
-        if content['radio_id'] == 'lirc':
+        if content['btn_radio_id'] == '999':
             lirc.regenerateLircCommands()
-            lirc.addTestSignal(content['signal'])
+            lirc.addTestSignal(content['btn_signal'])
             lirc.reloadLirc()
             lirc.sendTestSignal()
             return True
         else:
-            return arduino.sendIrSignal(content['signal'], content['radio_id'])
+            return arduino.sendIrSignal(content['btn_signal'], content['btn_radio_id'])

@@ -87,7 +87,10 @@ var callbacks = {
 
             mainView.router.load({
                 url: 'static/rc_button_save.html',
-                context: response.button
+                context: {
+                    button: response.button,
+                    radios: response.radios
+                }
             });
         } else {
             myApp.hidePreloader();
@@ -98,10 +101,13 @@ var callbacks = {
             mainView.router.load({
                 url: 'static/rc_button_save.html',
                 context: {
-                    rc_id: rc_id,
-                    rc_name: rc_name,
-                    btn_signal: response.signal,
-                    btn_type: 'ir'
+                    button: {
+                        rc_id: rc_id,
+                        rc_name: rc_name,
+                        btn_signal: response.signal,
+                        btn_type: 'ir',
+                    },
+                    radios: response.radios
                 }
             });
         }

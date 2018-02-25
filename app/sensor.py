@@ -31,3 +31,16 @@ class RadioSensor:
             radios.append(r)
 
         return radios
+
+    def getRadiosIdName(self):
+        radios = []
+
+        for radio in Radio.query.order_by(Radio.id).all():
+            r = {
+                'id': radio.id,
+                'name': radio.name,
+            }
+
+            radios.append(r)
+
+        return radios

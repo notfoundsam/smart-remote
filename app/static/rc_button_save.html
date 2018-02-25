@@ -16,10 +16,10 @@
     </div>
 
     <div class="page-content">
-      <input type="hidden" name="rc_id" value="{{rc_id}}">
-      <input type="hidden" name="rc_name" value="{{rc_name}}">
-      <input type="hidden" name="btn_id" value="{{btn_id}}">
-      <input type="hidden" name="btn_type" value="{{btn_type}}">
+      <input type="hidden" name="rc_id" value="{{button.rc_id}}">
+      <input type="hidden" name="rc_name" value="{{button.rc_name}}">
+      <input type="hidden" name="btn_id" value="{{button.btn_id}}">
+      <input type="hidden" name="btn_type" value="{{button.btn_type}}">
       <div class="content-block-title">Remote settings</div>
       <div class="list-block">
         <ul>
@@ -29,7 +29,7 @@
               <div class="item-inner">
                 <div class="item-title floating-label">Button name</div>
                 <div class="item-input">
-                  <input type="text" name="btn_name" value="{{btn_name}}">
+                  <input type="text" name="btn_name" value="{{button.btn_name}}">
                 </div>
               </div>
             </div>
@@ -39,7 +39,7 @@
               <div class="item-inner">
                 <div class="item-title floating-label">Order vertical</div>
                 <div class="item-input">
-                  <input type="tel" name="btn_order_ver" value="{{btn_order_ver}}">
+                  <input type="tel" name="btn_order_ver" value="{{button.btn_order_ver}}">
                 </div>
               </div>
             </div>
@@ -49,7 +49,7 @@
               <div class="item-inner">
                 <div class="item-title floating-label">Order horizontal</div>
                 <div class="item-input">
-                  <input type="tel" name="btn_order_hor" value="{{btn_order_hor}}">
+                  <input type="tel" name="btn_order_hor" value="{{button.btn_order_hor}}">
                 </div>
               </div>
             </div>
@@ -64,15 +64,15 @@
             <a href="#" class="item-link smart-select">
               <!-- select -->
               <select name="btn_color">
-                <option value="color-blue" data-option-color="blue"{{#js_if "this.btn_color === 'color-blue'"}} selected{{/js_if}}>Blue</option>
-                <option value="color-green" data-option-color="green"{{#js_if "this.btn_color === 'color-green'"}} selected{{/js_if}}>Green</option>
-                <option value="color-red" data-option-color="red"{{#js_if "this.btn_color === 'color-red'"}} selected{{/js_if}}>Red</option>
-                <option value="color-orange" data-option-color="orange"{{#js_if "this.btn_color === 'color-orange'"}} selected{{/js_if}}>Orange</option>
-                <option value="color-pink" data-option-color="pink"{{#js_if "this.btn_color === 'color-pink'"}} selected{{/js_if}}>Pink</option>
-                <option value="color-purple" data-option-color="purple"{{#js_if "this.btn_color === 'color-purple'"}} selected{{/js_if}}>Purple</option>
-                <option value="color-cyan" data-option-color="cyan"{{#js_if "this.btn_color === 'color-cyan'"}} selected{{/js_if}}>Cyan</option>
-                <option value="color-teal" data-option-color="teal"{{#js_if "this.btn_color === 'color-teal'"}} selected{{/js_if}}>Teal</option>
-                <option value="color-indigo" data-option-color="indigo" {{#js_if "this.btn_color === 'color-indigo'"}} selected{{/js_if}}>Indigo</option>
+                <option value="color-blue" data-option-color="blue"{{#js_if "this.button.btn_color === 'color-blue'"}} selected{{/js_if}}>Blue</option>
+                <option value="color-green" data-option-color="green"{{#js_if "this.button.btn_color === 'color-green'"}} selected{{/js_if}}>Green</option>
+                <option value="color-red" data-option-color="red"{{#js_if "this.button.btn_color === 'color-red'"}} selected{{/js_if}}>Red</option>
+                <option value="color-orange" data-option-color="orange"{{#js_if "this.button.btn_color === 'color-orange'"}} selected{{/js_if}}>Orange</option>
+                <option value="color-pink" data-option-color="pink"{{#js_if "this.button.btn_color === 'color-pink'"}} selected{{/js_if}}>Pink</option>
+                <option value="color-purple" data-option-color="purple"{{#js_if "this.button.btn_color === 'color-purple'"}} selected{{/js_if}}>Purple</option>
+                <option value="color-cyan" data-option-color="cyan"{{#js_if "this.button.btn_color === 'color-cyan'"}} selected{{/js_if}}>Cyan</option>
+                <option value="color-teal" data-option-color="teal"{{#js_if "this.button.btn_color === 'color-teal'"}} selected{{/js_if}}>Teal</option>
+                <option value="color-indigo" data-option-color="indigo" {{#js_if "this.button.btn_color === 'color-indigo'"}} selected{{/js_if}}>Indigo</option>
               </select>
               <div class="item-content">
                 <div class="item-inner">
@@ -86,14 +86,14 @@
             <!-- Additional "smart-select" class -->
             <a href="#" class="item-link smart-select">
               <!-- select -->
-              <select name="btn_radio">
-                <option value="999" data-option-color="cyan"{{#js_if "this.radio === 999"}} selected{{/js_if}}>Base Lirc</option>
-                <option value="0" data-option-color="blue"{{#js_if "this.radio === 0"}} selected{{/js_if}}>Base Arduino</option>
-                <option value="1" data-option-color="green"{{#js_if "this.radio === 1"}} selected{{/js_if}}>Radio 1</option>
-                <option value="2" data-option-color="green"{{#js_if "this.radio === 2"}} selected{{/js_if}}>Radio 2</option>
-                <option value="3" data-option-color="green"{{#js_if "this.radio === 3"}} selected{{/js_if}}>Radio 3</option>
-                <option value="4" data-option-color="green"{{#js_if "this.radio === 4"}} selected{{/js_if}}>Radio 4</option>
-                <option value="5" data-option-color="green"{{#js_if "this.radio === 5"}} selected{{/js_if}}>Radio 5</option>
+              <select name="btn_radio_id">
+                <option value="999" data-option-color="cyan"{{#js_if "this.button.btn_radio === 999"}} selected{{/js_if}}>Base Lirc</option>
+                <option value="0" data-option-color="blue"{{#js_if "this.button.btn_radio === 0"}} selected{{/js_if}}>Base Arduino</option>
+                <option value="1" data-option-color="green"{{#js_if "this.button.btn_radio === 1"}} selected{{/js_if}}>Radio 1</option>
+                <option value="2" data-option-color="green"{{#js_if "this.button.btn_radio === 2"}} selected{{/js_if}}>Radio 2</option>
+                <option value="3" data-option-color="green"{{#js_if "this.button.btn_radio === 3"}} selected{{/js_if}}>Radio 3</option>
+                <option value="4" data-option-color="green"{{#js_if "this.button.btn_radio === 4"}} selected{{/js_if}}>Radio 4</option>
+                <option value="5" data-option-color="green"{{#js_if "this.button.btn_radio === 5"}} selected{{/js_if}}>Radio 5</option>
               </select>
               <div class="item-content">
                 <div class="item-inner">
@@ -115,47 +115,50 @@
       <div class="content-block-title">Receved signal</div>
       <div class="card">
         <div class="card-content">
-          <div class="card-content-inner" id="btn_signal">{{btn_signal}}</div>
+          <div class="card-content-inner" id="btn_signal">{{button.btn_signal}}</div>
         </div>
       </div>
+
       <div class="list-block">
         <ul>
-          <!-- Single radio input -->
           <li>
             <label class="label-radio item-content">
               <!-- Checked by default -->
-              <input type="radio" name="radio" value="lirc" checked="checked">
+              <input type="radio" name="test_radio_id" value="999" checked>
               <div class="item-media">
                 <i class="icon icon-form-radio"></i>
               </div>
               <div class="item-inner">
-                <div class="item-title">Lirc</div>
-              </div>
-            </label>
-          </li>
-          <!-- Another radio input -->
-          <li>
-            <label class="label-radio item-content">
-              <input type="radio" name="radio" value="0">
-              <div class="item-media">
-                <i class="icon icon-form-radio"></i>
-              </div>
-              <div class="item-inner">
-                <div class="item-title">Local</div>
+                <div class="item-title">Base Lirc</div>
               </div>
             </label>
           </li>
           <li>
             <label class="label-radio item-content">
-              <input type="radio" name="radio" value="1">
+              <!-- Checked by default -->
+              <input type="radio" name="test_radio_id" value="0">
               <div class="item-media">
                 <i class="icon icon-form-radio"></i>
               </div>
               <div class="item-inner">
-                <div class="item-title">Radio 1</div>
+                <div class="item-title">Base Arduino</div>
               </div>
             </label>
           </li>
+          {{#each radios}}
+          <li>
+            <label class="label-radio item-content">
+              <!-- Checked by default -->
+              <input type="radio" name="test_radio_id" value="{{this.id}}">
+              <div class="item-media">
+                <i class="icon icon-form-radio"></i>
+              </div>
+              <div class="item-inner">
+                <div class="item-title">{{this.name}}</div>
+              </div>
+            </label>
+          </li>
+          {{/each}}
         </ul>
       </div>
       <div class="content-block">

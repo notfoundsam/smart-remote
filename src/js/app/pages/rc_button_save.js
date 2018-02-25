@@ -2,7 +2,7 @@ myApp.onPageInit('rc_button_save', function (page) {
     $$('#rc_button_save_btn').on('click', function () {
         var request = {};
         var page = $$(this).closest('.page-content');
-        var radio = page.find('select[name=btn_radio]').val()
+        var radio_id = page.find('select[name=btn_radio_id]').val()
 
         request.action = 'rc_button_save';
         request.content = {}
@@ -14,7 +14,7 @@ myApp.onPageInit('rc_button_save', function (page) {
         request.content.btn_order_ver = page.find('input[name=btn_order_ver]').val();
         request.content.btn_order_hor = page.find('input[name=btn_order_hor]').val();
         request.content.btn_color = page.find('select[name=btn_color]').val();
-        request.content.btn_radio = radio ? radio : 0;
+        request.content.btn_radio_id = radio_id ? radio_id : 0;
         request.content.btn_signal = page.find('#btn_signal').text();
 
         myApp.showIndicator();
@@ -27,8 +27,8 @@ myApp.onPageInit('rc_button_save', function (page) {
 
         request.action = 'test_signal';
         request.content = {}
-        request.content.radio = page.find('input[name=radio]:checked').val();
-        request.content.signal = page.find('#btn_signal').text();
+        request.content.btn_radio_id = page.find('input[name=test_radio_id]:checked').val();
+        request.content.btn_signal = page.find('#btn_signal').text();
 
         sendRequest(request, socket_remotes);
     });

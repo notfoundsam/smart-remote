@@ -73,9 +73,11 @@ class ArduinoDev(Common):
     def close(self):
         print('Close /dev/ttyUSB0', file=sys.stderr)
 
-    def sendCommand(self, command):
+    def sendCommand(self, command, radio):
         data = self.prepareCommand(command, radio)
         print('Command to send: %s' % data, file=sys.stderr)
+
+        return True
 
     def sendIrSignal(self, raw_signal, radio):
         data = self.prepareIrSignal(raw_signal, radio)
@@ -124,7 +126,7 @@ class Arduino(Common):
 
         return False
 
-    def sendCommand(self, command):
+    def sendCommand(self, command, radio):
         data = self.prepareCommand(command, radio)
         return self.send(data)
 

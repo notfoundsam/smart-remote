@@ -59,7 +59,9 @@ def handle_json(data):
 
         button = rc.getButton(content)
         if button is not None:
-            emit('json', {'response': {'result': 'success', 'callback': 'rc_button_save', 'button': button, 'edit': True}})
+            sensor = RadioSensor()
+            radios = sensor.getRadiosIdName()
+            emit('json', {'response': {'result': 'success', 'callback': 'rc_button_save', 'button': button, 'radios': radios, 'edit': True}})
         else:
             emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
 
@@ -76,7 +78,9 @@ def handle_json(data):
         signal = ir_reader.read_signal()
 
         if signal != False:
-            emit('json', {'response': {'result': 'success', 'callback': 'rc_button_save', 'signal': signal}})
+            sensor = RadioSensor()
+            radios = sensor.getRadiosIdName()
+            emit('json', {'response': {'result': 'success', 'callback': 'rc_button_save', 'signal': signal, 'radios': radios}})
         else:
             print('faild', file=sys.stderr)
             emit('json', {'response': {'result': 'success', 'callback': 'catch_failed'}})
