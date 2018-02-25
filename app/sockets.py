@@ -90,8 +90,13 @@ def handle_json(data):
         lirc.reloadLirc()
 
     elif data['action'] == 'rc_button_pushed':
-        if rc.execute(data['content']['btn_id']) != True:
-            emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
+        data = rc.execute(data['content']['btn_id'])
+
+        if data == False:
+            emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
+        else:
+            if data['error']:
+                emit('json', {'response': {'result': 'error', 'message': data['message']}})
 
     elif data['action'] == 'test_signal':
         if rc.test(data['content']) != True:

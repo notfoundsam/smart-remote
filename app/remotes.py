@@ -128,7 +128,16 @@ class RemoteControl:
                     lirc.sendLircCommand(btn.remote.identificator, btn.identificator)
                     return True
                 else:
-                    return arduino.sendIrSignal(btn.signal, btn.radio_id)
+                    response = arduino.sendIrSignal(btn.signal, btn.radio_id)
+                    data = response.split(':')
+
+                    if data[1] == 'FAIL':
+                        return {'error': True,'message': data[0]}
+                    elif data[1] == 'OK':
+                        return {'error': False,'message': data[0]}
+                    else:
+                        return False
+                    
             elif btn.type == 'cmd':
                 return arduino.sendCommand(btn.signal, btn.radio_id)
 
