@@ -85,6 +85,11 @@ var callbacks = {
         if (response.edit) {
             myApp.hideIndicator();
 
+            response.radios.forEach(function(el) {
+                if (response.button.btn_radio_id == el.id)
+                    el.btn_selected = true;
+            });
+
             mainView.router.load({
                 url: 'static/rc_button_save.html',
                 context: {
@@ -106,8 +111,10 @@ var callbacks = {
                         rc_name: rc_name,
                         btn_signal: response.signal,
                         btn_type: 'ir',
+                        btn_radio: 999
                     },
-                    radios: response.radios
+                    radios: response.radios,
+                    select: true
                 }
             });
         }

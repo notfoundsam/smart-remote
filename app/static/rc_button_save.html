@@ -19,7 +19,7 @@
       <input type="hidden" name="rc_id" value="{{button.rc_id}}">
       <input type="hidden" name="rc_name" value="{{button.rc_name}}">
       <input type="hidden" name="btn_id" value="{{button.btn_id}}">
-      <input type="hidden" name="btn_type" value="{{button.btn_type}}">
+      <!-- <input type="hidden" name="btn_type" value="{{button.btn_type}}"> -->
       <div class="content-block-title">Remote settings</div>
       <div class="list-block">
         <ul>
@@ -60,6 +60,35 @@
       <div class="list-block">
         <ul>
           <li>
+            <label class="label-radio item-content">
+              <!-- Checked by default -->
+              <input type="radio" name="btn_type" value="ir"{{#js_if "this.button.btn_type === 'ir'"}} checked{{/js_if}}>
+              <div class="item-media">
+                <i class="icon icon-form-radio"></i>
+              </div>
+              <div class="item-inner">
+                <div class="item-title">Infrared</div>
+              </div>
+            </label>
+          </li>
+          <li>
+            <label class="label-radio item-content">
+              <!-- Checked by default -->
+              <input type="radio" name="btn_type" value="cmd"{{#js_if "this.button.btn_type === 'cmd'"}} checked{{/js_if}}>
+              <div class="item-media">
+                <i class="icon icon-form-radio"></i>
+              </div>
+              <div class="item-inner">
+                <div class="item-title">Command</div>
+              </div>
+            </label>
+          </li>
+        </ul>
+      </div>
+
+      <div class="list-block">
+        <ul>
+          <li>
             <!-- Additional "smart-select" class -->
             <a href="#" class="item-link smart-select">
               <!-- select -->
@@ -89,11 +118,9 @@
               <select name="btn_radio_id">
                 <option value="999" data-option-color="cyan"{{#js_if "this.button.btn_radio === 999"}} selected{{/js_if}}>Base Lirc</option>
                 <option value="0" data-option-color="blue"{{#js_if "this.button.btn_radio === 0"}} selected{{/js_if}}>Base Arduino</option>
-                <option value="1" data-option-color="green"{{#js_if "this.button.btn_radio === 1"}} selected{{/js_if}}>Radio 1</option>
-                <option value="2" data-option-color="green"{{#js_if "this.button.btn_radio === 2"}} selected{{/js_if}}>Radio 2</option>
-                <option value="3" data-option-color="green"{{#js_if "this.button.btn_radio === 3"}} selected{{/js_if}}>Radio 3</option>
-                <option value="4" data-option-color="green"{{#js_if "this.button.btn_radio === 4"}} selected{{/js_if}}>Radio 4</option>
-                <option value="5" data-option-color="green"{{#js_if "this.button.btn_radio === 5"}} selected{{/js_if}}>Radio 5</option>
+                {{#each radios}}
+                <option value="{{this.id}}" data-option-color="green"{{#js_if "this.btn_selected"}} selected{{/js_if}}>{{this.name}}</option>
+                {{/each}}
               </select>
               <div class="item-content">
                 <div class="item-inner">

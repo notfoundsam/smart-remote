@@ -79,7 +79,7 @@ class RemoteControl:
                 'btn_order_ver': button.order_ver,
                 'btn_color': button.color,
                 'btn_signal': button.signal,
-                'btn_radio': button.radio.id,
+                'btn_radio_id': button.radio_id,
                 'btn_type': button.type,
                 'rc_id' : button.remote.identificator,
                 'rc_name' : button.remote.name
