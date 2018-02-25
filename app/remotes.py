@@ -21,9 +21,6 @@ class RemoteControl:
         return True
 
     def createButton(self, content):
-        btn_id = "BTN_" + str(uuid.uuid4()).replace('-', '_')
-        print(content['rc_id'], file=sys.stderr)
-
         rc = Remote.query.filter_by(identificator = content['rc_id']).first()
 
         if rc is not None:
@@ -43,6 +40,7 @@ class RemoteControl:
                 btn.type = content['btn_type']
                 btn.timestamp = datetime.utcnow()
             else:
+                btn_id = "BTN_" + str(uuid.uuid4()).replace('-', '_')
                 btn = Button(identificator = btn_id,
                             name = content['btn_name'],
                             order_hor = content['btn_order_hor'],
@@ -124,23 +122,22 @@ class RemoteControl:
 
     def execute(self, btn_id):
         btn = Button.query.filter_by(identificator = btn_id).first()
-
         if btn is not None:
             if btn.type == 'ir':
-                if btn.radio == 999:
+                if btn.radio_id == 999:
                     lirc.sendLircCommand(btn.remote.identificator, btn.identificator)
                     return True
                 else:
-                    return arduino.sendIrSignal(btn.signal, btn.radio)
+                    return arduino.sendIrSignal(btn.signal, btn.radio_id)
             elif btn.type == 'cmd':
-                return arduino.sendCommand(btn.signal, btn.radio)
+                return arduino.sendCommand(btn.signal, btn.radio_id)
 
     def test(self, content):
-        if content['radio'] == 'lirc':
+        if content['radio_id'] == 'lirc':
             lirc.regenerateLircCommands()
             lirc.addTestSignal(content['signal'])
             lirc.reloadLirc()
             lirc.sendTestSignal()
             return True
         else:
-            return arduino.sendIrSignal(content['signal'], content['radio'])
+            return arduino.sendIrSignal(content['signal'], content['radio_id'])
