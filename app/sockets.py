@@ -92,11 +92,12 @@ def handle_json(data):
     elif data['action'] == 'rc_button_pushed':
         data = rc.execute(data['content']['btn_id'])
 
-        if data == False:
-            emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
-        else:
-            if data['error']:
-                emit('json', {'response': {'result': 'error', 'message': data['message']}})
+        if data != True:
+            if data == False:
+                emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
+            else:
+                if data['error']:
+                    emit('json', {'response': {'result': 'error', 'message': data['message']}})
 
     elif data['action'] == 'test_signal':
         data = rc.test(data['content'])
