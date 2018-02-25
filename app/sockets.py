@@ -99,8 +99,14 @@ def handle_json(data):
                 emit('json', {'response': {'result': 'error', 'message': data['message']}})
 
     elif data['action'] == 'test_signal':
-        if rc.test(data['content']) != True:
-            emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
+        data = rc.test(data['content'])
+
+        if data != True:
+            if data == False:
+                emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
+            else:
+                if data['error']:
+                    emit('json', {'response': {'result': 'error', 'message': data['message']}})
 
 @so.on('json', namespace='/radios')
 @authenticated_only
@@ -109,8 +115,22 @@ def handle_json(data):
     sensor = RadioSensor()
 
     if data['action'] == 'radio_save':
-        if sensor.create(data['content']) == True:
-            emit('json', {'response': {'result': 'success', 'callback': 'radio_saved'}})
+        if sensor.create(data['content']) != True:
+            emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
+        else:
+            radios = sensor.getRadiosList()
+            emit('json', {'response': {'result': 'success', 'callback': 'radios_refresh', 'radios': radios}}, broadcast = True)
+    
+    elif data['action'] == 'radio_edit':
+        radio = sensor.getRadio(data['content'])
+        if radio != False:
+            emit('json', {'response': {'result': 'success', 'callback': 'radio_edit', 'radio': radio}})
+
+    elif data['action'] == 'radio_remove':
+        content = data['content']
+        sensor.remove(content)
+        radios = sensor.getRadiosList()
+        emit('json', {'response': {'result': 'success', 'callback': 'radios_refresh', 'radios': radios}}, broadcast = True)
 
     elif data['action'] == 'radios_refresh':
         radios = sensor.getRadiosList()

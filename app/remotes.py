@@ -26,7 +26,6 @@ class RemoteControl:
         if rc is not None:
             if content['btn_id']:
                 btn = Button.query.filter_by(identificator = content['btn_id']).first()
-                print(btn, file=sys.stderr)
 
                 if btn is None:
                     return False
@@ -137,7 +136,7 @@ class RemoteControl:
                         return {'error': False,'message': data[0]}
                     else:
                         return False
-                    
+
             elif btn.type == 'cmd':
                 return arduino.sendCommand(btn.signal, btn.radio_id)
 
@@ -147,6 +146,7 @@ class RemoteControl:
             lirc.addTestSignal(content['btn_signal'])
             lirc.reloadLirc()
             lirc.sendTestSignal()
+            
             return True
         else:
             return arduino.sendIrSignal(content['btn_signal'], content['btn_radio_id'])

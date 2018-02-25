@@ -16,7 +16,7 @@
     </div>
 
     <div class="page-content">
-
+      <input type="hidden" name="radio" value="{{radio.id}}">
       <div class="content-block-title">Radio settings</div>
       <div class="list-block">
         <ul>
@@ -26,7 +26,27 @@
               <div class="item-inner">
                 <div class="item-title floating-label">Radio name</div>
                 <div class="item-input">
-                  <input type="text" name="radio_name" value="">
+                  <input type="text" name="radio_name" value="{{radio.name}}">
+                </div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="item-content">
+              <div class="item-inner">
+                <div class="item-title floating-label">Radio sensor number</div>
+                <div class="item-input">
+                  <input type="tel" name="radio_id" value="{{radio.radio_id}}">
+                </div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="item-content">
+              <div class="item-inner">
+                <div class="item-title floating-label">Order</div>
+                <div class="item-input">
+                  <input type="tel" name="radio_order" value="{{radio.order}}">
                 </div>
               </div>
             </div>
@@ -41,7 +61,7 @@
           <li>
             <label class="label-checkbox item-content">
               <!-- Checked by default -->
-              <input type="checkbox" name="radio_battery" value="1">
+              <input type="checkbox" name="radio_battery" value="1"{{#js_if "this.radio.battery === true"}} checked{{/js_if}}>
               <div class="item-media">
                 <i class="icon icon-form-checkbox"></i>
               </div>
@@ -53,7 +73,7 @@
           <li>
             <label class="label-checkbox item-content">
               <!-- Checked by default -->
-              <input type="checkbox" name="radio_dht" value="1">
+              <input type="checkbox" name="radio_dht" value="1"{{#js_if "this.radio.dht === true"}} checked{{/js_if}}>
               <div class="item-media">
                 <i class="icon icon-form-checkbox"></i>
               </div>

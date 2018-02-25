@@ -7,15 +7,41 @@ from run import arduino, lirc
 
 class RadioSensor:
     def create(self, content):
-        radio = Radio(name = content['radio_name'],
-                        enabled = True,
-                        battery = content['radio_battery'],
-                        dht = content['radio_dht'],
-                        timestamp = datetime.utcnow())
+        if content['radio']:
+            radio = Radio.query.filter_by(id = content['radio']).first()
 
-        db.session.add(radio)
+            if radio is None:
+                return False
+
+            radio.name = content['radio_name']
+            radio.radio_id = content['radio_id']
+            # radio.enabled = content['enabled']
+            radio.order = content['radio_order']
+            radio.battery = content['radio_battery']
+            radio.dht = content['radio_dht']
+            radio.timestamp = datetime.utcnow()
+        else:
+            radio = Radio(name = content['radio_name'],
+                            radio_id = content['radio_id'],
+                            enabled = True,
+                            order = content['radio_order'],
+                            battery = content['radio_battery'],
+                            dht = content['radio_dht'],
+                            timestamp = datetime.utcnow())
+
+            db.session.add(radio)
+
         db.session.commit()
+        
         return True
+
+    def remove(self, content):
+        radio = Radio.query.filter_by(id = content['radio']).first()
+
+        if radio is not None:
+            db.session.delete(radio)
+
+        db.session.commit()
 
     def getRadiosList(self):
         radios = []
@@ -23,6 +49,7 @@ class RadioSensor:
         for radio in Radio.query.order_by(Radio.id).all():
             r = {
                 'id': radio.id,
+                'radio_id': radio.radio_id,
                 'name': radio.name,
                 'battery': radio.battery,
                 'dht': radio.dht,
@@ -44,3 +71,20 @@ class RadioSensor:
             radios.append(r)
 
         return radios
+
+    def getRadio(self, content):
+        id = content['id']
+        radio = Radio.query.filter_by(id = id).first()
+        print(radio, file=sys.stderr)
+
+        if radio is not None:
+            return {
+                'id': radio.id,
+                'name': radio.name,
+                'radio_id': radio.radio_id,
+                'order': radio.order,
+                'battery': radio.battery,
+                'dht': radio.dht,
+            }
+
+        return False

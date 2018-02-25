@@ -5,48 +5,6 @@
     background-color: #fff0f0;
 }
 
-.bidding-card {
-    margin: 5px;
-}
-.bidding-card .card-header {
-    font-size: 90%;
-    padding: 4px 10px;
-}
-.bidding-card .card-footer {
-    padding: 4px 10px;
-    min-height: 40px;
-}
-.bidding-inner {
-    display: flex;
-    justify-content: space-between;
-}
-.bidding-card .card-content-inner {
-    padding: 4px 16px;
-}
-.bidding-card .bidding-images {
-    padding: 10px 10px 0;
-    overflow-x: scroll;
-}
-.bidding-images img {
-    width: 100%;
-}
-.bidding-images > div {
-    font-size: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex: 0 0 30%;
-}
-.bid-error {
-    background-color: #5f0000;
-}
-.bid-success {
-    background-color: #065f00;
-}
-.menu-list {
-    margin: 0;
-}
-
 .size-22 { font-size: 22px }
 .size-25 { font-size: 25px }
 .size-29 { font-size: 29px }

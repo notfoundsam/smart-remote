@@ -25,11 +25,8 @@ $$.ajax({
     type: 'POST',
     success: function (data) {
         var d_obj = JSON.parse(data);
-        console.log(d_obj);
         
         if (d_obj.status_code == 100 || d_obj.status_code == 20) {
-            var radios = d_obj.radios ? d_obj.radios : [];
-            console.log("d_obj");
             mainView.router.load({
                 url: 'static/status.html',
             });

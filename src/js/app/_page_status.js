@@ -1,5 +1,4 @@
 myApp.onPageInit('status', function (page) {
-    console.log('OoooPage');
     var request = {};
 
     request.action = 'radios_refresh';
@@ -31,7 +30,10 @@ myApp.onPageInit('status', function (page) {
                 text: 'Add Radio',
                 onClick: function () {
                     mainView.router.load({
-                        url: 'static/radio_create.html'
+                        url: 'static/radio_create.html',
+                        context: {
+                            radio: {}
+                        }
                     });
                 }
             },

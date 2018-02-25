@@ -29,8 +29,8 @@ float temp;
 // Battery setting
 unsigned long started_waiting_at_battery = 0;               // Set up a timeout period, get the current microseconds
 int bat_pin = A1;
-float max_v = 4.64; 
-float min_v = 2.5;
+// float max_v = 4.1;
+// float min_v = 2.5;
 float Vin = 0;
 
 // Program setting

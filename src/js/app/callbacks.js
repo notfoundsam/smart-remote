@@ -138,18 +138,18 @@ var callbacks = {
     radios_refresh: function(response) {
         var radios = response.radios;
         var page = $$('div.page[data-page=status]');
-
+        var radios_area = $$('#radios_area');
+        radios_area.empty();
+        
         if (page.length && radios.length) {
-            var radios_area = $$('#radios_area');
-            radios_area.empty();
-
             radios.forEach(function(element) {
                 var card = $$('<div class="card"></div>');
                 var card_header = $$('<div class="card-header"></div>');
                 var card_content = $$('<div class="card-content"></div>');
                 var card_content_inner = $$('<div class="card-content-inner row"></div>');
+                var card_footer = $$('<div class="card-footer"><a href="#" class="radio-edit-btn" data-id="' + element.id + '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</a><a href="#" class="radio-remove-btn" data-id="' + element.id + '"><i class="fa fa-trash-o" aria-hidden="true"></i> Remove</a></div>');
                 
-                card_header.append($$('<div></div>').text(element.name));
+                card_header.append($$('<div></div>').text(element.name + ' (radio number: ' +  element.radio_id + ')'));
 
                 if (element.battery) {
                     card_header.append($$('<div><i class="fa fa-battery-full" aria-hidden="true"></i></div>'));
@@ -162,8 +162,38 @@ var callbacks = {
                 card_content.append(card_content_inner);
                 card.append(card_header);
                 card.append(card_content);
+                card.append(card_footer);
                 radios_area.append(card);
             });
+
+            $$('.radio-edit-btn').on('click', function () {
+                var request = {};
+
+                request.action = 'radio_edit';
+                request.content = {}
+                request.content.id = $$(this).attr('data-id');
+                sendRequest(request, socket_radios);
+            });
+
+            $$('.radio-remove-btn').on('click', function () {
+                var request = {};
+
+                request.action = 'radio_remove';
+                request.content = {}
+                request.content.radio = $$(this).attr('data-id');
+                sendRequest(request, socket_radios);
+            });
         }
+    },
+    radio_edit: function(response) {
+        var radios = response.radios;
+        var page = $$('div.page[data-page=status]');
+
+        mainView.router.load({
+            url: 'static/radio_create.html',
+            context: {
+                radio: response.radio
+            }
+        });
     },
 };
