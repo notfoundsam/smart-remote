@@ -119,7 +119,7 @@
                 <option value="999" data-option-color="cyan"{{#js_if "this.button.btn_radio === 999"}} selected{{/js_if}}>Base Lirc</option>
                 <option value="0" data-option-color="blue"{{#js_if "this.button.btn_radio === 0"}} selected{{/js_if}}>Base Arduino</option>
                 {{#each radios}}
-                <option value="{{this.id}}" data-option-color="green"{{#js_if "this.btn_selected"}} selected{{/js_if}}>{{this.name}}</option>
+                <option value="{{this.radio_id}}" data-option-color="green"{{#js_if "this.btn_selected"}} selected{{/js_if}}>{{this.name}}</option>
                 {{/each}}
               </select>
               <div class="item-content">
