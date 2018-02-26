@@ -55,7 +55,7 @@ void loop() {
 
 void readSerial() {
   unsigned short code;
-  byte portSignal[1000];
+  byte portSignal[3000];
   timeout = true;
   started_waiting_at = micros();
   
