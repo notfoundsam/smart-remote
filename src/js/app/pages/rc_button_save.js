@@ -27,8 +27,8 @@ myApp.onPageInit('rc_button_save', function (page) {
 
         request.action = 'test_signal';
         request.content = {}
-        request.content.btn_radio_id = page.find('input[name=test_radio_id]:checked').val();
-        request.content.btn_signal = page.find('#btn_signal').text();
+        request.content.radio_id = page.find('input[name=test_radio_id]:checked').val();
+        request.content.signal = page.find('#btn_signal').text();
 
         sendRequest(request, socket_remotes);
     });

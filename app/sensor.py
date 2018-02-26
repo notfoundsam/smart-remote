@@ -65,6 +65,7 @@ class RadioSensor:
         for radio in Radio.query.order_by(Radio.id).all():
             r = {
                 'id': radio.id,
+                'radio_id': radio.radio_id,
                 'name': radio.name,
             }
 

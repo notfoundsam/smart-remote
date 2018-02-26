@@ -113,8 +113,7 @@ var callbacks = {
                         btn_type: 'ir',
                         btn_radio: 999
                     },
-                    radios: response.radios,
-                    select: true
+                    radios: response.radios
                 }
             });
         }
