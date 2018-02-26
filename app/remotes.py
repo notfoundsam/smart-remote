@@ -149,7 +149,7 @@ class RemoteControl:
             
             return True
         else:
-            response = arduino.sendIrSignal(btn.signal, btn.radio_id)
+            response = arduino.sendIrSignal(content['signal'], content['radio_id'])
             data = response.split(':')
 
             if data[1] == 'FAIL':

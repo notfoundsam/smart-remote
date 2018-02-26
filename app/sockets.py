@@ -96,8 +96,8 @@ def handle_json(data):
             if data == False:
                 emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
             else:
-                if data.error:
-                    emit('json', {'response': {'result': 'error', 'message': data.message}})
+                if data['error']:
+                    emit('json', {'response': {'result': 'error', 'message': data['message']}})
 
     elif data['action'] == 'test_signal':
         data = rc.test(data['content'])
@@ -106,8 +106,8 @@ def handle_json(data):
             if data == False:
                 emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
             else:
-                if data.error:
-                    emit('json', {'response': {'result': 'error', 'message': data.message}})
+                if data['error']:
+                    emit('json', {'response': {'result': 'error', 'message': data['message']}})
 
 @so.on('json', namespace='/radios')
 @authenticated_only

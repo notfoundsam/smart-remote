@@ -77,13 +77,13 @@ class ArduinoDev(Common):
         data = self.prepareCommand(command, radio)
         print('Command to send: %s' % data, file=sys.stderr)
 
-        return True
+        return ":OK"
 
     def sendIrSignal(self, raw_signal, radio):
         data = self.prepareIrSignal(raw_signal, radio)
         print('Signal to send: %s' % data, file=sys.stderr)
 
-        return True
+        return ":OK"
 
 @Singleton
 class Arduino(Common):
