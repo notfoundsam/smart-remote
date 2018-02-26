@@ -141,9 +141,9 @@ class RemoteControl:
                 return arduino.sendCommand(btn.signal, btn.radio_id)
 
     def test(self, content):
-        if content['btn_radio_id'] == '999':
+        if content['radio_id'] == '999':
             lirc.regenerateLircCommands()
-            lirc.addTestSignal(content['btn_signal'])
+            lirc.addTestSignal(content['signal'])
             lirc.reloadLirc()
             lirc.sendTestSignal()
             
