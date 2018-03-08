@@ -1,5 +1,5 @@
 from __future__ import print_function
-import sys
+import sys, Queue
 import functools
 from flask_socketio import emit
 from app import so
@@ -7,8 +7,9 @@ from .remotes import RemoteControl
 from .sensor import RadioSensor
 from flask_login import current_user
 from flask_socketio import disconnect
-from drivers import ir_reader
+from drivers import ir_reader, priority_queue
 from run import lirc
+from threading import Lock
 
 def authenticated_only(f):
     @functools.wraps(f)
@@ -19,14 +20,33 @@ def authenticated_only(f):
             return f(*args, **kwargs)
     return wrapped
 
-@so.on('connect', namespace='/remotes')
-def handle_connect():
-    pass
-    # global thread
-    # with thread_lock:
-    #     if thread is None:
-    #         thread = so.start_background_task(target=background_thread)
-    # emit('json', {'data': 'Connected', 'count': 0})
+# thread = None
+# thread_lock = Lock()
+
+# def background_thread():
+#     """Example of how to send server generated events to clients."""
+
+#     q = Queue.PriorityQueue()
+#     q.put(priority_queue.ArduinoQueue(5, 'Proficient5'))
+#     q.put(priority_queue.ArduinoQueue(3, 'Proficient3'))
+#     q.put(priority_queue.ArduinoQueue(1, 'Proficient1'))
+#     count = 0
+#     while not q.empty():
+#         el = q.get()
+#         el.run()
+#         so.sleep(2)
+        # count += 1
+        # print(count, file=sys.stderr)
+
+
+# @so.on('connect', namespace='/remotes')
+# def handle_connect():
+#     pass
+#     global thread
+#     with thread_lock:
+#         if thread is None:
+#             thread = so.start_background_task(target=background_thread)
+#     emit('json', {'data': 'Connected', 'count': 0})
 
 @so.on('json', namespace='/remotes')
 @authenticated_only
@@ -92,22 +112,22 @@ def handle_json(data):
     elif data['action'] == 'rc_button_pushed':
         data = rc.execute(data['content']['btn_id'])
 
-        if data != True:
-            if data == False:
-                emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
-            else:
-                if data['error']:
-                    emit('json', {'response': {'result': 'error', 'message': data['message']}})
+        # if data != True:
+        #     if data == False:
+        #         emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
+        #     else:
+        #         if data['error']:
+        #             emit('json', {'response': {'result': 'error', 'message': data['message']}})
 
     elif data['action'] == 'test_signal':
         data = rc.test(data['content'])
 
-        if data != True:
-            if data == False:
-                emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
-            else:
-                if data['error']:
-                    emit('json', {'response': {'result': 'error', 'message': data['message']}})
+        # if data != True:
+        #     if data == False:
+        #         emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
+        #     else:
+        #         if data['error']:
+        #             emit('json', {'response': {'result': 'error', 'message': data['message']}})
 
 @so.on('json', namespace='/radios')
 @authenticated_only

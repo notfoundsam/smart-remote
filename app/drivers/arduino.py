@@ -3,6 +3,8 @@ import serial
 import time
 import array
 import os, sys
+import threading, Queue
+import requests
 
 class Singleton:
     """
@@ -43,6 +45,17 @@ class Singleton:
         return isinstance(inst, self._decorated)
 
 class Common():
+    ser = None
+    queue = None
+    starter = None
+
+    def startQueue(self):
+        self.queue = ArduinoQueue(self.ser)
+        self.queue.start()
+    
+    def activateQueueStarter(self):
+        self.starter = ArduinoQueueStarter()
+        self.starter.start()
 
     def prepareIrSignal(self, raw_signal, radio):
         data = []
@@ -61,33 +74,26 @@ class Common():
     def prepareCommand(self, command, radio):
         return 'c%s %s\n' % (radio, command)
 
+    def sendCommand(self, command, radio):
+        self.send(self.prepareCommand(command, radio), radio)
+
+    def sendIrSignal(self, raw_signal, radio):
+        self.send(self.prepareIrSignal(raw_signal, radio), radio)
+
 @Singleton
 class ArduinoDev(Common):
-    ser = None
 
     def connect(self):
         if self.ser is None:
             self.ser = True
             print('Connect to /dev/ttyUSB0', file=sys.stderr)
+            self.activateQueueStarter()
 
-    def close(self):
-        print('Close /dev/ttyUSB0', file=sys.stderr)
-
-    def sendCommand(self, command, radio):
-        data = self.prepareCommand(command, radio)
-        print('Command to send: %s' % data, file=sys.stderr)
-
-        return ":OK"
-
-    def sendIrSignal(self, raw_signal, radio):
-        data = self.prepareIrSignal(raw_signal, radio)
-        print('Signal to send: %s' % data, file=sys.stderr)
-
-        return ":OK"
+    def send(self, data, radio):
+        self.queue.putItem(ArduinoQueueItemDev(self.ser, data, radio, 1))
 
 @Singleton
 class Arduino(Common):
-    ser = None
 
     def close(self):
         print('Close /dev/ttyUSB0', file=sys.stderr)
@@ -109,9 +115,53 @@ class Arduino(Common):
             time.sleep(1)
             print(repr(self.ser.readline()), file=sys.stderr)
             self.ser.flushInput()
+            self.activateQueueStarter()
     
     def send(self, data):
+        self.queue.putItem(ArduinoQueueItem(self.ser, data, radio, 1))
+
+class ArduinoQueue(threading.Thread):
+
+    def __init__(self, ser):
+        threading.Thread.__init__(self)
+        self.ser = ser
+        self.workQueue = Queue.PriorityQueue()
+
+    def run(self):
+        while True:
+            if not self.workQueue.empty():
+                queue_item = self.workQueue.get()
+                queue_item.run()
+            else:
+                time.sleep(0.05)
+
+    def putItem(self, item):
+        self.workQueue.put(item)
+
+class ArduinoQueueStarter(threading.Thread):
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        time.sleep(2)
+        r = requests.get('http://127.0.0.1:5000/')
+        print('Send first request', file=sys.stderr)
+
+class ArduinoQueueItem():
+
+    def __init__(self, ser, data, radio, priority):
+        self.ser = ser
+        self.data = data
+        self.radio = radio
+        self.priority = priority
+
+    def __cmp__(self, other):
+        return cmp(self.priority, other.priority)
+
+    def run(self):
         print(data, file=sys.stderr)
+
         b_arr = bytearray(data.encode())
 
         self.ser.flushInput()
@@ -119,18 +169,20 @@ class Arduino(Common):
         self.ser.flush()
 
         response = self.ser.readline()
-        result = response.rstrip()
+        response = response.rstrip()
 
-        if result:
-            return result
+        data = response.split(':')
 
-        return False
+        if data[1] == 'FAIL':
+            return {'error': True,'message': data[0]}
+        elif data[1] == 'OK':
+            return {'error': False,'message': data[0]}
+        else:
+            emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
 
-    def sendCommand(self, command, radio):
-        data = self.prepareCommand(command, radio)
-        return self.send(data)
+class ArduinoQueueItemDev(ArduinoQueueItem):
 
-    def sendIrSignal(self, raw_signal, radio):
-        data = self.prepareIrSignal(raw_signal, radio)
-        return self.send(data)
-        
+    def run(self):
+        # emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
+        print('Data to send: %s' % self.data, file=sys.stderr)
+
