@@ -10,6 +10,7 @@ from flask_socketio import disconnect
 from drivers import ir_reader, priority_queue
 from run import lirc
 from threading import Lock
+from flask import request
 
 def authenticated_only(f):
     @functools.wraps(f)
@@ -39,14 +40,11 @@ def authenticated_only(f):
         # print(count, file=sys.stderr)
 
 
-# @so.on('connect', namespace='/remotes')
-# def handle_connect():
-#     pass
-#     global thread
-#     with thread_lock:
-#         if thread is None:
-#             thread = so.start_background_task(target=background_thread)
-#     emit('json', {'data': 'Connected', 'count': 0})
+@so.on('connect', namespace='/remotes')
+def handle_connect():
+    id = request.sid
+    print("%s connected" % id, file=sys.stderr)
+    emit('json', {'data': 'Connected', 'count': 0})
 
 @so.on('json', namespace='/remotes')
 @authenticated_only
@@ -54,7 +52,7 @@ def handle_json(data):
     # Debug
     print('received json: ' + str(data), file=sys.stderr)
     
-    rc = RemoteControl()
+    rc = RemoteControl(request.sid)
     
     if data['action'] == 'rc_save':
         if rc.create(data['content']) == True:
@@ -112,22 +110,8 @@ def handle_json(data):
     elif data['action'] == 'rc_button_pushed':
         data = rc.execute(data['content']['btn_id'])
 
-        # if data != True:
-        #     if data == False:
-        #         emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
-        #     else:
-        #         if data['error']:
-        #             emit('json', {'response': {'result': 'error', 'message': data['message']}})
-
     elif data['action'] == 'test_signal':
         data = rc.test(data['content'])
-
-        # if data != True:
-        #     if data == False:
-        #         emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
-        #     else:
-        #         if data['error']:
-        #             emit('json', {'response': {'result': 'error', 'message': data['message']}})
 
 @so.on('json', namespace='/radios')
 @authenticated_only

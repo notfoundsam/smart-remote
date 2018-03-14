@@ -7,6 +7,10 @@ from datetime import datetime
 from run import arduino, lirc
 
 class RemoteControl:
+
+    def __init__(self, sid):
+        self.sid = sid
+
     def create(self, content):
         rc_id = "RC_" + str(uuid.uuid4()).replace('-', '_')
         remote = Remote(identificator = rc_id,
@@ -18,6 +22,7 @@ class RemoteControl:
 
         db.session.add(remote)
         db.session.commit()
+
         return True
 
     def createButton(self, content):
@@ -127,18 +132,10 @@ class RemoteControl:
                     lirc.sendLircCommand(btn.remote.identificator, btn.identificator)
                     return True
                 else:
-                    response = arduino.sendIrSignal(btn.signal, btn.radio_id)
-                    # data = response.split(':')
-
-                    # if data[1] == 'FAIL':
-                    #     return {'error': True,'message': data[0]}
-                    # elif data[1] == 'OK':
-                    #     return {'error': False,'message': data[0]}
-                    # else:
-                    #     return False
+                    response = arduino.sendIrSignal(btn.signal, btn.radio_id, self.sid)
 
             elif btn.type == 'cmd':
-                return arduino.sendCommand(btn.signal, btn.radio_id)
+                return arduino.sendCommand(btn.signal, btn.radio_id, self.sid)
 
     def test(self, content):
         if content['radio_id'] == '999':
@@ -150,11 +147,3 @@ class RemoteControl:
             return True
         else:
             response = arduino.sendIrSignal(content['signal'], content['radio_id'])
-            # data = response.split(':')
-
-            # if data[1] == 'FAIL':
-            #     return {'error': True,'message': data[0]}
-            # elif data[1] == 'OK':
-            #     return {'error': False,'message': data[0]}
-            # else:
-            #     return False

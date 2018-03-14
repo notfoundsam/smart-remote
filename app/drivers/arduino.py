@@ -5,6 +5,7 @@ import array
 import os, sys
 import threading, Queue
 import requests
+from app import so
 
 class Singleton:
     """
@@ -44,7 +45,8 @@ class Singleton:
     def __instancecheck__(self, inst):
         return isinstance(inst, self._decorated)
 
-class Common():
+@Singleton
+class Arduino():
     ser = None
     queue = None
     starter = None
@@ -74,34 +76,21 @@ class Common():
     def prepareCommand(self, command, radio):
         return 'c%s %s\n' % (radio, command)
 
-    def sendCommand(self, command, radio):
-        self.send(self.prepareCommand(command, radio), radio)
+    def sendCommand(self, command, radio, sid):
+        self.queue.putItem(ArduinoQueueItem(self.ser, self.prepareCommand(command, radio), radio, sid, 1))
 
-    def sendIrSignal(self, raw_signal, radio):
-        self.send(self.prepareIrSignal(raw_signal, radio), radio)
+    def sendIrSignal(self, raw_signal, radio, sid):
+        self.queue.putItem(ArduinoQueueItem(self.ser, self.prepareIrSignal(raw_signal, radio), radio, sid, 1))
 
-@Singleton
-class ArduinoDev(Common):
-
-    def connect(self):
-        if self.ser is None:
-            self.ser = True
-            print('Connect to /dev/ttyUSB0', file=sys.stderr)
-            self.activateQueueStarter()
-
-    def send(self, data, radio):
-        self.queue.putItem(ArduinoQueueItemDev(self.ser, data, radio, 1))
-
-@Singleton
-class Arduino(Common):
-
-    def close(self):
-        print('Close /dev/ttyUSB0', file=sys.stderr)
-
-    def connect(self):
+    def connect(self, env = ''):
         if self.ser is None:
             print('Connect to /dev/ttyUSB0', file=sys.stderr)
-            self.ser = serial.Serial()
+
+            if env == 'dev':
+                self.ser = SerialDev()
+            else:
+                self.ser = serial.Serial()
+                
             self.ser.baudrate = 500000
             self.ser.port = '/dev/ttyUSB0'
             self.ser.timeout = 5
@@ -116,9 +105,6 @@ class Arduino(Common):
             print(repr(self.ser.readline()), file=sys.stderr)
             self.ser.flushInput()
             self.activateQueueStarter()
-    
-    def send(self, data):
-        self.queue.putItem(ArduinoQueueItem(self.ser, data, radio, 1))
 
 class ArduinoQueue(threading.Thread):
 
@@ -150,19 +136,18 @@ class ArduinoQueueStarter(threading.Thread):
 
 class ArduinoQueueItem():
 
-    def __init__(self, ser, data, radio, priority):
+    def __init__(self, ser, data, radio, sid, priority):
         self.ser = ser
         self.data = data
         self.radio = radio
+        self.sid = sid
         self.priority = priority
 
     def __cmp__(self, other):
         return cmp(self.priority, other.priority)
 
     def run(self):
-        print(data, file=sys.stderr)
-
-        b_arr = bytearray(data.encode())
+        b_arr = bytearray(self.data.encode())
 
         self.ser.flushInput()
         self.ser.write(b_arr)
@@ -174,15 +159,29 @@ class ArduinoQueueItem():
         data = response.split(':')
 
         if data[1] == 'FAIL':
-            return {'error': True,'message': data[0]}
+            so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
         elif data[1] == 'OK':
-            return {'error': False,'message': data[0]}
+            so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
         else:
-            emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
+            so.emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}}, namespace='/remotes', room=self.sid)
 
-class ArduinoQueueItemDev(ArduinoQueueItem):
+class SerialDev():
+    
+    def open(self):
+        print('SERIAL DEV: Connect to /dev/ttyUSB0', file=sys.stderr)
 
-    def run(self):
-        # emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}})
-        print('Data to send: %s' % self.data, file=sys.stderr)
+    def flushInput(self):
+        print('SERIAL DEV: flushInput', file=sys.stderr)
 
+    def flushOutput(self):
+        print('SERIAL DEV: flushOutput', file=sys.stderr)
+
+    def flush(self):
+        print('SERIAL DEV: flush', file=sys.stderr)
+
+    def write(self, data):
+        print('SERIAL DEV: Recieved bytearray', file=sys.stderr)
+        print(data, file=sys.stderr)
+
+    def readline(self):
+        return "pppp:OK\n"
