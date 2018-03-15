@@ -7,7 +7,7 @@ from .remotes import RemoteControl
 from .sensor import RadioSensor
 from flask_login import current_user
 from flask_socketio import disconnect
-from drivers import ir_reader, priority_queue
+from drivers import ir_reader
 from run import lirc
 from threading import Lock
 from flask import request
