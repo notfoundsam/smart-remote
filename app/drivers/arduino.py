@@ -59,28 +59,8 @@ class Arduino():
         self.starter = ArduinoQueueStarter()
         self.starter.start()
 
-    def prepareIrSignal(self, raw_signal, radio):
-        data = []
-        data.append('i%s' % radio)
-
-        for x in raw_signal.split(' '):
-            if int(x) > 65000:
-                data.append('65000')
-            else:
-                data.append(x)
-
-        data.append('\n')
-
-        return ' '.join(data)
-
-    def prepareCommand(self, command, radio):
-        return 'c%s %s\n' % (radio, command)
-
-    def sendCommand(self, command, radio, sid):
-        self.queue.putItem(ArduinoQueueItem(self.ser, self.prepareCommand(command, radio), radio, sid, 1))
-
-    def sendIrSignal(self, raw_signal, radio, sid):
-        self.queue.putItem(ArduinoQueueItem(self.ser, self.prepareIrSignal(raw_signal, radio), radio, sid, 1))
+    def send(self, btn, sid):
+        self.queue.putItem(ArduinoQueueItem(self.ser, btn, sid, 1))
 
     def connect(self, env = ''):
         if self.ser is None:
@@ -136,18 +116,40 @@ class ArduinoQueueStarter(threading.Thread):
 
 class ArduinoQueueItem():
 
-    def __init__(self, ser, data, radio, sid, priority):
+    def __init__(self, ser, btn, sid, priority):
+        self.signal = ''
         self.ser = ser
-        self.data = data
-        self.radio = radio
+        self.btn = btn
         self.sid = sid
         self.priority = priority
 
     def __cmp__(self, other):
         return cmp(self.priority, other.priority)
 
+    def prepareIrSignal(self):
+        data = []
+        data.append('i%s' % self.btn.radio_id)
+
+        for x in self.btn.signal.split(' '):
+            if int(x) > 65000:
+                data.append('65000')
+            else:
+                data.append(x)
+
+        data.append('\n')
+
+        self.signal = ' '.join(data)
+
+    def prepareCommand(self):
+        self.signal = 'c%s %s\n' % (self.btn.radio_id, self.btn.signal)
+
     def run(self):
-        b_arr = bytearray(self.data.encode())
+        if self.btn.type == 'ir':
+            self.prepareIrSignal()
+        elif btn.type == 'cmd':
+            self.prepareCommand()
+
+        b_arr = bytearray(self.signal.encode())
 
         self.ser.flushInput()
         self.ser.write(b_arr)
@@ -184,4 +186,4 @@ class SerialDev():
         print(data, file=sys.stderr)
 
     def readline(self):
-        return "pppp:OK\n"
+        return "temp 20:OK\n"

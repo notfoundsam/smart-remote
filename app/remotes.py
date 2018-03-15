@@ -126,16 +126,13 @@ class RemoteControl:
 
     def execute(self, btn_id):
         btn = Button.query.filter_by(identificator = btn_id).first()
+        
         if btn is not None:
-            if btn.type == 'ir':
-                if btn.radio_id == 999:
-                    lirc.sendLircCommand(btn.remote.identificator, btn.identificator)
-                    return True
-                else:
-                    response = arduino.sendIrSignal(btn.signal, btn.radio_id, self.sid)
-
-            elif btn.type == 'cmd':
-                return arduino.sendCommand(btn.signal, btn.radio_id, self.sid)
+            if btn.radio_id == 999:
+                lirc.sendLircCommand(btn.remote.identificator, btn.identificator)
+                return True
+            else:
+                arduino.send(btn, self.sid)
 
     def test(self, content):
         if content['radio_id'] == '999':
