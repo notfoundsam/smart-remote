@@ -89,6 +89,26 @@ void readIrSignal() {
       if (signal == 10) {
         irsend.sendRaw(irSignal, index, khz);
         Serial.println("signal sent");
+        
+        delay(30);
+        radio.stopListening();
+
+        String responce = "ok";
+        int rsize = responce.length();
+        
+        for (int i = 0; i < rsize; i++) {
+          if (responce[i] == 0)
+            break;
+
+          if (!sendSignal(responce[i])) {
+            return;
+          }
+        }
+
+        sendSignal(10);
+        delay(30);
+        radio.startListening();
+        
         return;
       } else {
         irSignal[index] = signal;
@@ -131,6 +151,7 @@ void readCommand() {
       sendStatus();
     }
     
+    delay(30);
     radio.startListening();
   }
 }
@@ -175,11 +196,6 @@ void getBatteryVoltage() {
   // 20 seconds
   if (started_waiting_at_battery == 0 || micros() - started_waiting_at_battery > 20000000) {
     Vin = (analogRead(bat_pin) * 1.1) / 1023;
-    // float del = 0.078;
-    // Vin = Vbat / del;
-
-    // Serial.println(Vbat);
-    // Serial.println(Vin);
     started_waiting_at_battery = micros();
   }
 }

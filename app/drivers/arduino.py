@@ -99,8 +99,10 @@ class ArduinoQueue(threading.Thread):
     def run(self):
         while True:
             if not self.workQueue.empty():
+                print('get new item', file=sys.stderr)
                 queue_item = self.workQueue.get()
                 queue_item.run()
+                print('run over', file=sys.stderr)
             else:
                 time.sleep(0.05)
 
@@ -147,6 +149,7 @@ class ArduinoQueueItem():
         self.signal = 'c%s %s\n' % (self.btn.radio_id, self.btn.signal)
 
     def run(self):
+        print('btn start', file=sys.stderr)
         if self.btn.type == 'ir':
             self.prepareIrSignal()
         elif btn.type == 'cmd':
@@ -164,6 +167,7 @@ class ArduinoQueueItem():
         response = response.rstrip()
 
         data = response.split(':')
+        print('btn end', file=sys.stderr)
 
         if data[1] == 'FAIL':
             so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
@@ -184,6 +188,7 @@ class ArduinoQueueRadio():
         return cmp(self.priority, other.priority)
     
     def run(self):
+        print('status start', file=sys.stderr)
         self.signal = 'c%s %s\n' % (self.radio.radio_id, 'status')
 
         b_arr = bytearray(self.signal.encode())
@@ -198,6 +203,7 @@ class ArduinoQueueRadio():
         response = response.rstrip()
 
         data = response.split(':')
+        print('status end', file=sys.stderr)
 
         if data[1] == 'FAIL':
             so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')

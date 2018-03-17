@@ -147,8 +147,12 @@ void irSignal(byte *signal) {
       strIndex = 0;
     } else if (b == 10) {
       if (sendSignal(10)) {
-        isSucces = true;
-        return;
+        delay(30);
+        setReadingPipe(signal[1]);
+        radio.startListening();
+        // FIX ME
+        radio.flush_rx();
+        waitResponce();
       } else {
         Serial.print("RADIO IR SIGNAL LAST");
       }
