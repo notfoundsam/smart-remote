@@ -3,9 +3,10 @@ import sys, os
 from .models import Radio
 from app import db
 from datetime import datetime
-from run import arduino, lirc
+from run import arduino
+import threading, time
 
-class RadioSensor:
+class RadioSensor():
     def create(self, content):
         if content['radio']:
             radio = Radio.query.filter_by(id = content['radio']).first()
@@ -89,3 +90,15 @@ class RadioSensor:
             }
 
         return False
+
+class StateChecker(threading.Thread):
+    
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        while True:
+            time.sleep(2)
+
+            for radio in Radio.query.order_by(Radio.id).all():
+                arduino.status(radio)

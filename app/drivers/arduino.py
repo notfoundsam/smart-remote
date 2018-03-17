@@ -62,6 +62,9 @@ class Arduino():
     def send(self, btn, sid):
         self.queue.putItem(ArduinoQueueItem(self.ser, btn, sid, 1))
 
+    def status(self, radio):
+        self.queue.putItem(ArduinoQueueRadio(self.ser, radio, 5))
+
     def connect(self, env = ''):
         if self.ser is None:
             print('Connect to /dev/ttyUSB0', file=sys.stderr)
@@ -166,6 +169,38 @@ class ArduinoQueueItem():
             so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
         else:
             so.emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}}, namespace='/remotes', room=self.sid)
+
+class ArduinoQueueRadio():
+
+    def __init__(self, ser, radio, priority):
+        self.signal = ''
+        self.ser = ser
+        self.radio = radio
+        self.priority = priority
+
+    def __cmp__(self, other):
+        return cmp(self.priority, other.priority)
+    
+    def run(self):
+        self.signal = 'c%s %s\n' % (self.radio.radio_id, 'status')
+
+        b_arr = bytearray(self.signal.encode())
+
+        self.ser.flushInput()
+        self.ser.write(b_arr)
+        self.ser.flush()
+
+        response = self.ser.readline()
+        response = response.rstrip()
+
+        data = response.split(':')
+
+        if data[1] == 'FAIL':
+            so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')
+        elif data[1] == 'OK':
+            so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')
+        else:
+            so.emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}}, namespace='/radios')
 
 class SerialDev():
     
