@@ -159,6 +159,8 @@ class ArduinoQueueItem():
         self.ser.flush()
 
         response = self.ser.readline()
+        self.ser.flushInput()
+        self.ser.flushOutput()
         response = response.rstrip()
 
         data = response.split(':')
@@ -191,6 +193,8 @@ class ArduinoQueueRadio():
         self.ser.flush()
 
         response = self.ser.readline()
+        self.ser.flushInput()
+        self.ser.flushOutput()
         response = response.rstrip()
 
         data = response.split(':')
