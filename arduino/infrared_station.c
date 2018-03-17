@@ -58,6 +58,7 @@ void setup() {
 void loop() {
   checkRadioSetting();
   getDhtParams();
+  getBatteryVoltage();
   
   if (radio.available()) {
     radio.read(&code, sizeof(code));
@@ -157,7 +158,7 @@ void checkRadioSetting() {
 
 void getDhtParams() {
   // 10 seconds
-  if (micros() - started_waiting_at_dht > 10000000) {
+  if (started_waiting_at_dht == 0 || micros() - started_waiting_at_dht > 10000000) {
     float h = dht.readHumidity();
     float t = dht.readTemperature();
 
@@ -172,10 +173,14 @@ void getDhtParams() {
 
 void getBatteryVoltage() {
   // 20 seconds
-  if (micros() - started_waiting_at_battery > 20000000) {
-    float Vbat = (analogRead(bat_pin) * 1.1) / 1023;
-    float del = 0.0945;
-    Vin = Vbat / del;
+  if (started_waiting_at_battery == 0 || micros() - started_waiting_at_battery > 20000000) {
+    Vin = (analogRead(bat_pin) * 1.1) / 1023;
+    // float del = 0.078;
+    // Vin = Vbat / del;
+
+    // Serial.println(Vbat);
+    // Serial.println(Vin);
+    started_waiting_at_battery = micros();
   }
 }
 

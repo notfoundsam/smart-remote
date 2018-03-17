@@ -198,9 +198,13 @@ class ArduinoQueueRadio():
         if data[1] == 'FAIL':
             so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')
         elif data[1] == 'OK':
-            so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')
+            self.getStatus(data[0])
         else:
             so.emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}}, namespace='/radios')
+
+    def getStatus(self, data):
+
+        so.emit('json', {'response': {'result': 'error', 'message': data}}, namespace='/radios')
 
 class SerialDev():
     

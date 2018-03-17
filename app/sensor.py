@@ -98,7 +98,7 @@ class StateChecker(threading.Thread):
 
     def run(self):
         while True:
-            time.sleep(2)
+            time.sleep(5)
 
             for radio in Radio.query.order_by(Radio.id).all():
                 arduino.status(radio)
