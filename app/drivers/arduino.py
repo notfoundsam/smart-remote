@@ -99,10 +99,10 @@ class ArduinoQueue(threading.Thread):
     def run(self):
         while True:
             if not self.workQueue.empty():
-                print('get new item', file=sys.stderr)
+                # print('get new item', file=sys.stderr)
                 queue_item = self.workQueue.get()
                 queue_item.run()
-                print('run over', file=sys.stderr)
+                # print('run over', file=sys.stderr)
             else:
                 time.sleep(0.05)
 
@@ -188,22 +188,22 @@ class ArduinoQueueRadio():
         return cmp(self.priority, other.priority)
     
     def run(self):
-        print('status start', file=sys.stderr)
+        # print('status start', file=sys.stderr)
         self.signal = 'c%s %s\n' % (self.radio.radio_id, 'status')
 
         b_arr = bytearray(self.signal.encode())
 
-        self.ser.flushInput()
+        # self.ser.flushInput()
         self.ser.write(b_arr)
         self.ser.flush()
 
         response = self.ser.readline()
-        self.ser.flushInput()
-        self.ser.flushOutput()
+        # self.ser.flushInput()
+        # self.ser.flushOutput()
+        print(repr(response), file=sys.stderr)
         response = response.rstrip()
-
         data = response.split(':')
-        print('status end', file=sys.stderr)
+        # print('status end', file=sys.stderr)
 
         if data[1] == 'FAIL':
             so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')

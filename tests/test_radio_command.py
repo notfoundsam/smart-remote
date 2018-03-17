@@ -2,7 +2,7 @@ import serial
 import time
 import array
 
-command = "dht"
+command = "status"
 radio = '3'
 
 success = 0
@@ -51,7 +51,7 @@ try:
         if data[0]:
                 print(data[0])
 
-        time.sleep(3)
+        time.sleep(0.2)
 
 except KeyboardInterrupt:
     ser.flushInput()
