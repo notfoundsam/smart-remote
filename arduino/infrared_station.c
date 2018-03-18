@@ -10,8 +10,8 @@ uint64_t address = 0xAABBCCDD33LL;
 int radioSpeedPin = 2;
 int radioChannelPin1 = 3;
 int radioChannelPin2 = 4;
-int radio_retries = 20;
-int radio_delay = 20;
+int radio_retries = 1;
+int radio_delay = 10;
 byte radioSpeedState = 0; // 0 is RF24_250KBPS and 1 is RF24_1MBPS
 
 // IRremote setting
@@ -34,14 +34,15 @@ int bat_pin = A1;
 float Vin = 0;
 
 // Program setting
-unsigned int code;
+byte code;
 unsigned long started_waiting_at;               // Set up a timeout period, get the current microseconds
 boolean timeout;
+int index = 0;
 
 void setup() {
   analogReference(INTERNAL);
   pinMode(radioSpeedPin, INPUT);
-  Serial.begin(9600);
+  Serial.begin(500000);
   radio.begin();
   delay(1000);
   radio.powerUp();
@@ -49,8 +50,9 @@ void setup() {
   radio.setRetries(15,15);
   radio.setDataRate(RF24_250KBPS);      // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);        // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
-  radio.setAutoAck(1);
-  radio.openWritingPipe(address);
+  // radio.setAutoAck(1);
+  // radio.setPayloadSize(1);
+  radio.openWritingPipe(0xAABBCCDD55LL);
   radio.openReadingPipe(1, address);
   radio.startListening();
 }
@@ -59,101 +61,135 @@ void loop() {
   checkRadioSetting();
   getDhtParams();
   getBatteryVoltage();
-  
+
   if (radio.available()) {
-    radio.read(&code, sizeof(code));
-    
-    if (code == 105) {
-      // Recived IR signal (starts with i)
-      readIrSignal();
-    } else if (code == 99) {
-      // Recived command (starts with c)
-      readCommand();
-    }
+    readRadio();
+    radio.flush_rx();
   }
 }
 
-void readIrSignal() {
-  // buffer with 800 elements doesn't work
-  unsigned int irSignal[700];
-  unsigned int index = 0;
-  unsigned int signal;
-  started_waiting_at = micros();
+void readRadio() {
+  byte code;
   timeout = true;
+  index = 0;
+  byte signal[3000];
+  started_waiting_at = micros();
 
-  while (timeout == true && (micros() - started_waiting_at < 100000)) {
+  // set timeout to 50 ms
+  while (timeout == true && (micros() - started_waiting_at < 500000)) {
     if (radio.available()) {
       started_waiting_at = micros();
-      radio.read(&signal, sizeof(signal));
 
-      if (signal == 10) {
-        irsend.sendRaw(irSignal, index, khz);
-        Serial.println("signal sent");
-        
-        delay(30);
-        radio.stopListening();
+      
+      radio.read(&code, sizeof(code));
+      signal[index] = code;
+      Serial.println(signal[index]);
+      index++;
 
-        String responce = "ok";
-        int rsize = responce.length();
-        
-        for (int i = 0; i < rsize; i++) {
-          if (responce[i] == 0)
-            break;
-
-          if (!sendSignal(responce[i])) {
-            return;
-          }
-        }
-
-        sendSignal(10);
-        delay(30);
-        radio.startListening();
-        
-        return;
-      } else {
-        irSignal[index] = signal;
-        index++;
-      }
-    }
-  }
-}
-
-void readCommand() {
-  char command[20] = {0};
-  unsigned int index = 0;
-  unsigned int signal;
-  started_waiting_at = micros();
-  timeout = true;
-
-  while (timeout == true && (micros() - started_waiting_at < 200000)) {
-    if (radio.available()) {
-      started_waiting_at = micros();
-      radio.read(&signal, sizeof(signal));
-
-      if (signal == 10) {
+      if (code == 10) {
         timeout = false;
         break;
-      } else {
-        command[index] = signal;
-        index++;
       }
     }
   }
 
   if (!timeout) {
-    Serial.println(command);
+    radio.stopListening();
+
+    // If recive IR signal (it starts with i)
+    if (signal[0] == 105) {
+      sendIrSignal(signal);
+    }
+    // If recive comand (it starts with c)
+    else if (signal[0] == 99) {
+      sendCommand(signal);
+    }
 
     // This delay is necessary
-    delay(30);
+    // delay(30);
     
-    if (areEqual(command, "status")) {
-      Serial.println("exec status command");
-      sendStatus();
-    }
+    
     
     delay(30);
     radio.startListening();
+  } else {
+    Serial.println("recieve timeout");
   }
+}
+
+void sendIrSignal(byte signal[]) {
+  byte b;
+  char buffer[20];
+  byte buffer_index = 0;
+  unsigned int raw_signal[700];
+  int raw_index = 0;
+  
+  for (int i = 2; i < index; i++) {
+    b = signal[i];
+    
+    if (b > 47 && b < 58) {
+      buffer[buffer_index] = b;
+      buffer_index++;
+    } else if (b == 32) {
+      raw_signal[raw_index] = atoi(buffer);
+      raw_index++;
+
+      memset(buffer, 0, sizeof(buffer));
+      buffer_index = 0;
+    } else if (b == 10) {
+      irsend.sendRaw(raw_signal, raw_index, khz);
+
+      String responce = "ok\n";
+      int rsize = responce.length();
+      
+      for (int i = 0; i < rsize; i++) {
+        if (responce[i] == 0)
+          break;
+
+        if (!sendSignal(responce[i])) {
+          Serial.println("sendIrSignal failed");
+          return;
+        }
+      }
+
+      // delay(30);
+      // radio.startListening();
+    }
+  }
+}
+
+void sendCommand(byte signal[]) {
+  byte b;
+  String buffer = "";
+  int buffer_index = 0;
+
+  for (int i = 2; i < index; i++) {
+    b = signal[i];
+
+    if (b == 10) {
+      break;
+    } else {
+      buffer += b;
+      // char c = b;
+      // buffer[buffer_index] = c;
+      // buffer_index++;
+    }
+  }
+
+  // This delay is necessary
+  delay(10);
+  
+  // Serial.println(buffer_index);
+  
+  if (areEqual(buffer, "status")) {
+    Serial.println("exec status command");
+    sendStatus();
+  } else {
+    Serial.println("unsupportedCommand");
+    unsupportedCommand();
+  }
+  
+  // radio.startListening();
 }
 
 void checkRadioSetting() {
@@ -204,33 +240,49 @@ void sendStatus() {
   // Add DHT params
   String responce = "hum ";
   responce += hum;
-  responce += "temp ";
+  responce += ",temp ";
   responce += temp;
 
   // Add Battery voltage
   responce += ",bat ";
   responce += Vin;
+  responce += "\n";
 
   int rsize = responce.length();
 
-  radio.stopListening();
+  // radio.stopListening();
 
   for (int i = 0; i < rsize; i++) {
     if (responce[i] == 0)
       break;
 
     if (!sendSignal(responce[i])) {
+      Serial.println("sendStatus failed");
       return;
     }
   }
   // Debug
   Serial.println(responce);
-  
-  if (!sendSignal(10))
-    return;
 }
 
-boolean sendSignal(int code) {
+void unsupportedCommand() {
+  // Add DHT params
+  String responce = "unsupported command\n";
+
+  int rsize = responce.length();
+
+  for (int i = 0; i < rsize; i++) {
+    if (responce[i] == 0)
+      break;
+
+    if (!sendSignal(responce[i])) {
+      Serial.println("unsupportedCommand failed");
+      return;
+    }
+  }
+}
+
+boolean sendSignal(byte code) {
   for (int i = 0; i < radio_retries; i++) {
     if (radio.write(&code, sizeof(code))) {
       return true;
@@ -242,13 +294,23 @@ boolean sendSignal(int code) {
   return false;
 }
 
-boolean areEqual(char s1[], char s2[]) {
-  if (strlen(s1) != strlen(s2))
+boolean areEqual(String s1, String s2) {
+  int s1_l = s1.length();
+  int s2_l = s2.length();
+  Serial.println(s1);
+  Serial.println(s2);
+  if (s1_l != s2_l) {
+    Serial.println("length");
     return false; // They must be different
+  }
 
-  for (int i = 0; i < strlen(s1); i++) {
-    if (s1[i] != s2[i])
+  for (int i = 0; i < s1_l; i++) {
+    if (s1[i] != s2[i]) {
+      Serial.println("pos");
+      Serial.println(s1[i]);
+      Serial.println(s2[i]);
       return false;  // They are different
+    }
   }
 
   return true;  // They must be the same

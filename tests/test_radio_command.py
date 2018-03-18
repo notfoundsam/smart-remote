@@ -12,7 +12,7 @@ error = 0
 ser = serial.Serial()
 ser.baudrate = 500000
 ser.port = '/dev/ttyUSB0'
-ser.timeout = 100
+ser.timeout = 10
 ser.open()
 
 # Only after writing sketch into Arduino
@@ -51,7 +51,9 @@ try:
         if data[0]:
                 print(data[0])
 
-        time.sleep(0.2)
+        # last = ser.readline()
+        # print(repr(last))
+        time.sleep(1)
 
 except KeyboardInterrupt:
     ser.flushInput()
