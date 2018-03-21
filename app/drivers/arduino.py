@@ -83,10 +83,7 @@ class Arduino():
             time.sleep(2)
             self.ser.flushInput()
             self.ser.flushOutput()
-            self.ser.write(b'connect')
-            time.sleep(1)
             print(repr(self.ser.readline()), file=sys.stderr)
-            self.ser.flushInput()
             self.activateQueueStarter()
 
 class ArduinoQueue(threading.Thread):
@@ -123,6 +120,7 @@ class ArduinoQueueItem():
 
     def __init__(self, ser, btn, sid, priority):
         self.signal = ''
+        self.buffer = 30
         self.ser = ser
         self.btn = btn
         self.sid = sid
@@ -149,22 +147,30 @@ class ArduinoQueueItem():
         self.signal = 'c%s %s\n' % (self.btn.radio_id, self.btn.signal)
 
     def run(self):
+        self.ser.flushInput()
+        self.ser.flushOutput()
+
         print('btn start', file=sys.stderr)
+
         if self.btn.type == 'ir':
             self.prepareIrSignal()
         elif btn.type == 'cmd':
             self.prepareCommand()
 
-        b_arr = bytearray(self.signal.encode())
+        partial_signal = [self.signal[i:i+self.buffer] for i in range(0, len(self.signal), self.buffer)]
+        
+        response = ""
 
-        self.ser.flushInput()
-        self.ser.write(b_arr)
-        self.ser.flush()
+        for part in partial_signal:
+            b_arr = bytearray(part.encode())
+            self.ser.write(b_arr)
+            self.ser.flush()
 
-        response = self.ser.readline()
-        self.ser.flushInput()
-        self.ser.flushOutput()
-        response = response.rstrip()
+            response = self.ser.readline()
+            response = response.rstrip()
+
+            if response != 'next':
+                break;
 
         data = response.split(':')
         print('btn end', file=sys.stderr)
@@ -180,6 +186,7 @@ class ArduinoQueueRadio():
 
     def __init__(self, ser, radio, priority):
         self.signal = ''
+        self.buffer = 30
         self.ser = ser
         self.radio = radio
         self.priority = priority
@@ -188,22 +195,28 @@ class ArduinoQueueRadio():
         return cmp(self.priority, other.priority)
     
     def run(self):
-        # print('status start', file=sys.stderr)
+        self.ser.flushInput()
+        self.ser.flushOutput()
+
         self.signal = 'c%s %s\n' % (self.radio.radio_id, 'status')
 
-        b_arr = bytearray(self.signal.encode())
+        partial_signal = [self.signal[i:i+self.buffer] for i in range(0, len(self.signal), self.buffer)]
+        
+        response = ""
 
-        # self.ser.flushInput()
-        self.ser.write(b_arr)
-        self.ser.flush()
+        for part in partial_signal:
+            b_arr = bytearray(part.encode())
+            self.ser.write(b_arr)
+            self.ser.flush()
 
-        response = self.ser.readline()
-        # self.ser.flushInput()
-        # self.ser.flushOutput()
-        print(repr(response), file=sys.stderr)
-        response = response.rstrip()
+            response = self.ser.readline()
+            response = response.rstrip()
+
+            if response != 'next':
+                break;
+
         data = response.split(':')
-        # print('status end', file=sys.stderr)
+        print(repr(response), file=sys.stderr)
 
         if data[1] == 'FAIL':
             so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')

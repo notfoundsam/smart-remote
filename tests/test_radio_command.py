@@ -19,21 +19,30 @@ ser.open()
 time.sleep(2)
 ser.flushInput()
 ser.flushOutput()
-ser.write(b'connect')
-time.sleep(1)
 print(repr(ser.readline()))
-ser.flushInput()
 
 signal = 'c%s %s\n' % (radio, command)
 
+n = 30
+partial_signal = [signal[i:i+n] for i in range(0, len(signal), n)]
+
 try:
     while True:
+        ser.flushInput()
+        ser.flushOutput()
         print "-----------------"
-        b_arr = bytearray(signal)
-        ser.write(b_arr)
-        ser.flush()
-        
-        response_in = ser.readline()
+
+        response_in = ""
+
+        for part in partial_signal:
+            b_arr = bytearray(part)
+            ser.write(b_arr)
+            ser.flush()
+
+            response_in = ser.readline()
+
+            if response_in.rstrip() != 'next':
+                break;
 
         response = response_in.rstrip()
 
@@ -51,9 +60,7 @@ try:
         if data[0]:
                 print(data[0])
 
-        # last = ser.readline()
-        # print(repr(last))
-        time.sleep(1)
+        time.sleep(3)
 
 except KeyboardInterrupt:
     ser.flushInput()
