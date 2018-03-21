@@ -25,7 +25,7 @@ void setup() {
   radio.powerUp();
   radio.setChannel(75);
   radio.setRetries(15,15);
-  radio.setDataRate(RF24_1MBPS);     // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
+  radio.setDataRate(RF24_2MBPS);     // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);       // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
   radio.startListening();
   Serial.print("Loaded\n");

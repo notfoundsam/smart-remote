@@ -42,7 +42,7 @@ void setup() {
   radio.powerUp();
   radio.setChannel(75);                 // (0 - 127)
   radio.setRetries(15,15);
-  radio.setDataRate(RF24_250KBPS);      // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
+  radio.setDataRate(RF24_1MBPS);      // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);        // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
   radio.openWritingPipe(address);
   radio.openReadingPipe(1, address);
@@ -84,7 +84,6 @@ boolean readIrSignal() {
   byte buffer_index = 0;
   unsigned int raw_signal[500];
   int raw_index = 0;
-  boolean first_space = true;
   unsigned long started_waiting_at = micros();
 
   // set timeout to 500ms
@@ -97,14 +96,10 @@ boolean readIrSignal() {
         buffer[buffer_index] = b;
         buffer_index++;
       } else if (b == 32) {
-        if (first_space) {
-          first_space = false;
-        } else {
-          raw_signal[raw_index] = atoi(buffer);
-          raw_index++;
-          memset(buffer, 0, sizeof(buffer));
-          buffer_index = 0;
-        }
+        raw_signal[raw_index] = atoi(buffer);
+        raw_index++;
+        memset(buffer, 0, sizeof(buffer));
+        buffer_index = 0;
       } else if (b == 10) {
         irsend.sendRaw(raw_signal, raw_index, khz);
         return true;
@@ -144,9 +139,7 @@ void readCommand() {
       started_waiting_at = micros();
       radio.read(&b, sizeof(b));
       
-      if (b == 32) {
-        continue;
-      } else if (b == 10) {
+      if (b == 10) {
         timeout = false;
         break;
       } else {
@@ -187,12 +180,16 @@ void checkRadioSetting() {
   {
     if (currentSpeed == 0) {
       radioSpeedState = 0;
-      Serial.println("RF24_250KBPS");
-      radio.setDataRate(RF24_250KBPS);
-    } else {
-      radioSpeedState = 1;
+      // Serial.println("RF24_250KBPS");
+      // radio.setDataRate(RF24_250KBPS);
       Serial.println("RF24_1MBPS");
       radio.setDataRate(RF24_1MBPS);
+    } else {
+      radioSpeedState = 1;
+      // Serial.println("RF24_1MBPS");
+      // radio.setDataRate(RF24_1MBPS);
+      Serial.println("RF24_2MBPS");
+      radio.setDataRate(RF24_2MBPS);
     }
   }
 }
