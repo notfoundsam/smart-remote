@@ -82,7 +82,7 @@ boolean readIrSignal() {
   int index = 0;
   char buffer[20];
   byte buffer_index = 0;
-  unsigned int raw_signal[500];
+  unsigned int raw_signal[400];
   int raw_index = 0;
   unsigned long started_waiting_at = micros();
 
