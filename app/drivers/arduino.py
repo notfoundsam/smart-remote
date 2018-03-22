@@ -226,8 +226,21 @@ class ArduinoQueueRadio():
             so.emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}}, namespace='/radios')
 
     def getStatus(self, data):
+        sensors_data = dict(s.split(' ') for s in data.split(','))
+        sensors = {}
 
-        so.emit('json', {'response': {'result': 'error', 'message': data}}, namespace='/radios')
+        if self.radio.dht == 1:
+            if 'hum' in sensors_data:
+                sensors['hum'] = sensors_data['hum']
+  
+            if 'temp' in sensors_data:
+                sensors['temp'] = sensors_data['temp']
+
+        if self.radio.battery == 1:
+            if 'bat' in sensors_data:
+                sensors['bat'] = sensors_data['bat']
+
+        so.emit('json', {'response': {'result': 'success', 'callback': 'radio_sensor_refresh', 'rid': self.radio.id, 'sensors': sensors}}, namespace='/radios')
 
 class SerialDev():
     
@@ -248,4 +261,4 @@ class SerialDev():
         print(data, file=sys.stderr)
 
     def readline(self):
-        return "temp 20:OK\n"
+        return "temp 20.00,hum 45.00,bat 0.18:OK\n"
