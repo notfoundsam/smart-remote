@@ -58,10 +58,10 @@ void readSerial() {
   boolean timeout = true;
   unsigned long started_waiting_at = micros();
   
-  // Set timeout to 500ms
-  while (micros() - started_waiting_at < 500000) {
+  // Set timeout to 50ms
+  while (micros() - started_waiting_at < 50000) {
     if (Serial.available() > 0) {
-      started_waiting_at = micros();
+      // started_waiting_at = micros();
       buffer_counter++;
       b = Serial.read();
 
@@ -77,6 +77,7 @@ void readSerial() {
             Serial.print("RADIO TRANSMIT SIGNAL 1");
             return;
           }
+          started_waiting_at = micros();
         } else {
           buffer[buffer_index] = b;
           buffer_index++;
@@ -89,6 +90,8 @@ void readSerial() {
         Serial.print("RADIO TRANSMIT SIGNAL 2");
         return;
       }
+
+      started_waiting_at = micros();
 
       if (b == 10) {
         timeout = false;
