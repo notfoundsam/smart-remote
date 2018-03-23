@@ -34,7 +34,7 @@ void setup() {
 void loop() {
   if (Serial.available() > 0) {
     isSucces = false;
-    radio.stopListening();
+    // radio.stopListening();
 
     readSerial();
     if (isSucces) {
@@ -68,8 +68,10 @@ void readSerial() {
       if (buffer_on) {
         if (buffer_index == 2) {
           buffer_on = false;
-
+          radio.stopListening();
+          delay(10);
           setWritingPipe(buffer[1]);
+          delay(10);
 
           if (!sendSignal(buffer[0])) {
             Serial.print("RADIO TRANSMIT SIGNAL 1");
