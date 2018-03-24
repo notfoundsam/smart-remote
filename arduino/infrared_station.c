@@ -55,11 +55,11 @@ void loop() {
   getBatteryVoltage();
 
   if (radio.available()) {
-    byte code;
+    byte code[32];
     radio.read(&code, sizeof(code));
 
     // If recive IR signal (it starts with i)
-    if (code == 105) {
+    if (code[0] == 105) {
       if (readIrSignal()) {
         radio.stopListening();
         responseSuccess();
@@ -69,8 +69,8 @@ void loop() {
       }
     }
     // If recive comand (it starts with c)
-    else if (code == 99) {
-      readCommand();
+    else if (code[0] == 99) {
+      readCommand(code);
     }
     // radio.flush_rx();
     // radio.flush_tx();
@@ -126,7 +126,14 @@ void responseSuccess() {
   }
 }
 
-void readCommand() {
+void readCommand(byte *code) {
+
+  for (int i = 0; i < 32; ++i)
+  {
+    Serial.println(code[i]);
+  }
+  return;
+  
   byte b;
   boolean timeout = true;
   char buffer[100] = "";
