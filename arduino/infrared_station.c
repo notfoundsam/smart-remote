@@ -10,8 +10,8 @@ uint64_t address = 0xAABBCCDD33LL;
 int radioSpeedPin = 2;
 int radioChannelPin1 = 3;
 int radioChannelPin2 = 4;
-int radio_retries = 1;
-int radio_delay = 15;
+int radio_retries = 15;
+int radio_delay = 100;
 byte radioSpeedState = 0; // 0 is RF24_250KBPS and 1 is RF24_1MBPS
 
 // IRremote setting
@@ -41,10 +41,13 @@ void setup() {
   delay(1000);
   radio.powerUp();
   radio.setChannel(75);                 // (0 - 127)
-  radio.setRetries(15,15);
+  radio.setRetries(2,15);
+  radio.setPayloadSize(1);
+  radio.setCRCLength(RF24_CRC_8);
   radio.setDataRate(RF24_1MBPS);      // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);        // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
-  radio.openWritingPipe(address);
+  // radio.openWritingPipe(address);
+  radio.openWritingPipe(0xAABBCCDD55LL);
   radio.openReadingPipe(1, address);
   radio.startListening();
 }
@@ -55,22 +58,24 @@ void loop() {
   getBatteryVoltage();
 
   if (radio.available()) {
-    byte code[32];
+    byte code;
     radio.read(&code, sizeof(code));
 
+    // Serial.println(code);
+
     // If recive IR signal (it starts with i)
-    if (code[0] == 105) {
+    if (code == 105) {
       if (readIrSignal()) {
         radio.stopListening();
         responseSuccess();
         radio.startListening();
       } else {
-        Serial.println("recieve timeout");
+        // Serial.println("recieve timeout");
       }
     }
     // If recive comand (it starts with c)
-    else if (code[0] == 99) {
-      readCommand(code);
+    else if (code == 99) {
+      readCommand();
     }
     // radio.flush_rx();
     // radio.flush_tx();
@@ -80,9 +85,9 @@ void loop() {
 boolean readIrSignal() {
   byte b;
   int index = 0;
-  char buffer[20];
+  char buffer[5];
   byte buffer_index = 0;
-  unsigned int raw_signal[400];
+  unsigned int raw_signal[300];
   int raw_index = 0;
   unsigned long started_waiting_at = micros();
 
@@ -92,11 +97,14 @@ boolean readIrSignal() {
       started_waiting_at = micros();
       radio.read(&b, sizeof(b));
 
+      // Serial.println(b);
+
       if (b > 47 && b < 58) {
         buffer[buffer_index] = b;
         buffer_index++;
       } else if (b == 32) {
         raw_signal[raw_index] = atoi(buffer);
+        // Serial.println(raw_signal[raw_index]);
         raw_index++;
         memset(buffer, 0, sizeof(buffer));
         buffer_index = 0;
@@ -120,20 +128,13 @@ void responseSuccess() {
       break;
 
     if (!sendSignal(responce[i])) {
-      Serial.println("sendIrSignal failed");
+      // Serial.println("sendIrSignal failed");
       return;
     }
   }
 }
 
-void readCommand(byte *code) {
-
-  for (int i = 0; i < 32; ++i)
-  {
-    Serial.println(code[i]);
-  }
-  return;
-  
+void readCommand() {
   byte b;
   boolean timeout = true;
   char buffer[100] = "";
@@ -141,17 +142,13 @@ void readCommand(byte *code) {
   unsigned long started_waiting_at = micros();
 
   // set timeout to 50ms
-  while (micros() - started_waiting_at < 500000) {
+  while (micros() - started_waiting_at < 50000) {
     if (radio.available()) {
       started_waiting_at = micros();
       radio.read(&b, sizeof(b));
-      
-      if (buffer_index == 99) {
-        Serial.println("buffer overflow");
-        break;
-      }
-      Serial.println(b);
 
+      // Serial.println(b);
+      
       if (b == 10) {
         timeout = false;
         break;
@@ -168,17 +165,17 @@ void readCommand(byte *code) {
     radio.stopListening();
 
     if (strcmp(buffer, "status") == 0) {
-      Serial.println("exec status command");
-      // sendStatus();
+      // Serial.println("exec status command");
+      sendStatus();
     } else {
-      Serial.println("unsupportedCommand");
-      Serial.println(buffer);
-      // unsupportedCommand();
+      // Serial.println("unsupportedCommand");
+      // Serial.println(buffer);
+      unsupportedCommand();
     }
 
     radio.startListening();
   } else {
-    Serial.println("recieve timeout");
+    // Serial.println("recieve timeout");
   }
 }
 
@@ -195,13 +192,13 @@ void checkRadioSetting() {
       radioSpeedState = 0;
       // Serial.println("RF24_250KBPS");
       // radio.setDataRate(RF24_250KBPS);
-      Serial.println("RF24_1MBPS");
+      // Serial.println("RF24_1MBPS");
       radio.setDataRate(RF24_1MBPS);
     } else {
       radioSpeedState = 1;
       // Serial.println("RF24_1MBPS");
       // radio.setDataRate(RF24_1MBPS);
-      Serial.println("RF24_2MBPS");
+      // Serial.println("RF24_2MBPS");
       radio.setDataRate(RF24_2MBPS);
     }
   }
@@ -250,12 +247,12 @@ void sendStatus() {
       break;
 
     if (!sendSignal(responce[i])) {
-      Serial.println("sendStatus failed");
+      // Serial.println("sendStatus failed");
       return;
     }
   }
   // Debug
-  Serial.println(responce);
+  // Serial.println(responce);
 }
 
 void unsupportedCommand() {
@@ -268,7 +265,7 @@ void unsupportedCommand() {
       break;
 
     if (!sendSignal(responce[i])) {
-      Serial.println("unsupportedCommand failed");
+      // Serial.println("unsupportedCommand failed");
       return;
     }
   }
