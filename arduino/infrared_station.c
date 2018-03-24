@@ -10,7 +10,7 @@ uint64_t address = 0xAABBCCDD33LL;
 int radioSpeedPin = 2;
 int radioChannelPin1 = 3;
 int radioChannelPin2 = 4;
-int radio_retries = 10;
+int radio_retries = 1;
 int radio_delay = 15;
 byte radioSpeedState = 0; // 0 is RF24_250KBPS and 1 is RF24_1MBPS
 
@@ -134,11 +134,17 @@ void readCommand() {
   unsigned long started_waiting_at = micros();
 
   // set timeout to 50ms
-  while (micros() - started_waiting_at < 50000) {
+  while (micros() - started_waiting_at < 500000) {
     if (radio.available()) {
       started_waiting_at = micros();
       radio.read(&b, sizeof(b));
       
+      if (buffer_index == 99) {
+        Serial.println("buffer overflow");
+        break;
+      }
+      Serial.println(b);
+
       if (b == 10) {
         timeout = false;
         break;
@@ -156,11 +162,11 @@ void readCommand() {
 
     if (strcmp(buffer, "status") == 0) {
       Serial.println("exec status command");
-      sendStatus();
+      // sendStatus();
     } else {
       Serial.println("unsupportedCommand");
       Serial.println(buffer);
-      unsupportedCommand();
+      // unsupportedCommand();
     }
 
     radio.startListening();
