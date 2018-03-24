@@ -74,7 +74,7 @@ try:
         if data[0]:
                 print(data[0])
 
-        time.sleep(3)
+        time.sleep(0.5)
 
 except KeyboardInterrupt:
     ser.flushInput()
