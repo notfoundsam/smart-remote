@@ -172,10 +172,10 @@ class ArduinoQueueItem():
             if response != 'next':
                 break;
 
-            response_in = ""
+            response = ""
         
-        if response_in == "":
-            response_in = ser.readline()
+        if response == "":
+            response = ser.readline()
 
         data = response.split(':')
         # print('btn end', file=sys.stderr)
@@ -220,10 +220,10 @@ class ArduinoQueueRadio():
             if response != 'next':
                 break;
 
-                response_in = ""
+                response = ""
         
-        if response_in == "":
-            response_in = ser.readline()
+        if response == "":
+            response = ser.readline()
 
         data = response.split(':')
         print(repr(response), file=sys.stderr)
