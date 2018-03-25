@@ -61,7 +61,7 @@ void loop() {
     byte code;
     radio.read(&code, sizeof(code));
 
-    // Serial.println(code);
+    Serial.println(code);
 
     // If recive IR signal (it starts with i)
     if (code == 105) {
@@ -147,7 +147,7 @@ void readCommand() {
       started_waiting_at = micros();
       radio.read(&b, sizeof(b));
 
-      // Serial.println(b);
+      Serial.println(b);
       
       if (b == 10) {
         timeout = false;
@@ -175,7 +175,7 @@ void readCommand() {
 
     radio.startListening();
   } else {
-    // Serial.println("recieve timeout");
+    Serial.println("recieve timeout");
   }
 }
 
