@@ -141,8 +141,8 @@ void readCommand() {
   int buffer_index = 0;
   unsigned long started_waiting_at = micros();
 
-  // set timeout to 50ms
-  while (micros() - started_waiting_at < 50000) {
+  // set timeout to 500ms
+  while (micros() - started_waiting_at < 500000) {
     if (radio.available()) {
       started_waiting_at = micros();
       radio.read(&b, sizeof(b));

@@ -14,14 +14,14 @@ error = 0
 ser = serial.Serial()
 ser.baudrate = 500000
 ser.port = '/dev/ttyUSB0'
-ser.timeout = 100
+ser.timeout = 10
 ser.open()
 
 # Only after writing sketch into Arduino
-time.sleep(2)
+print(repr(ser.readline()))
+# time.sleep(2)
 ser.flushInput()
 ser.flushOutput()
-print(repr(ser.readline()))
 
 prepared_signal = []
 prepared_signal.append('i%s' % radio)
@@ -37,7 +37,7 @@ prepared_signal.append('\n')
 
 signal = ' '.join(prepared_signal)
 
-n = 30
+n = 32
 partial_signal = [signal[i:i+n] for i in range(0, len(signal), n)]
 
 try:
@@ -54,16 +54,24 @@ try:
             ser.flush()
 
             response_in = ser.readline()
+            # print(repr(response_in))
 
             if response_in.rstrip() != 'next':
                 break;
+            response_in = ""
+        
+        if response_in == "":
+            response_in = ser.readline()
+        
+        print("-----------")
+        print(repr(response_in))
         
         response = response_in.rstrip()
 
         data = response.split(':')
-
         if data[1] == 'FAIL':
             fail += 1
+            time.sleep(5)
         elif data[1] == 'OK':
             success += 1
         else:

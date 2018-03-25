@@ -16,14 +16,14 @@ ser.timeout = 10
 ser.open()
 
 # Only after writing sketch into Arduino
-time.sleep(2)
+# print(repr(ser.readline()))
+# time.sleep(2)
 ser.flushInput()
 ser.flushOutput()
-print(repr(ser.readline()))
 
 signal = 'c%s %s\n' % (radio, command)
 
-n = 30
+n = 32
 partial_signal = [signal[i:i+n] for i in range(0, len(signal), n)]
 
 try:
@@ -44,12 +44,18 @@ try:
             if response_in.rstrip() != 'next':
                 break;
 
+            response_in = ""
+        
+        if response_in == "":
+            response_in = ser.readline()
+        
         response = response_in.rstrip()
 
         data = response.split(':')
-
+        print(repr(response_in))
         if data[1] == 'FAIL':
             fail += 1
+            time.sleep(5)
         elif data[1] == 'OK':
             success += 1
         else:

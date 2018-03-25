@@ -80,10 +80,10 @@ class Arduino():
             self.ser.open()
 
             # Only after write sketch into Arduino
-            time.sleep(2)
+            # time.sleep(2)
             self.ser.flushInput()
             self.ser.flushOutput()
-            print(repr(self.ser.readline()), file=sys.stderr)
+            # print(repr(self.ser.readline()), file=sys.stderr)
             self.activateQueueStarter()
 
 class ArduinoQueue(threading.Thread):
@@ -150,7 +150,7 @@ class ArduinoQueueItem():
         self.ser.flushInput()
         self.ser.flushOutput()
 
-        print('btn start', file=sys.stderr)
+        # print('btn start', file=sys.stderr)
 
         if self.btn.type == 'ir':
             self.prepareIrSignal()
@@ -172,8 +172,13 @@ class ArduinoQueueItem():
             if response != 'next':
                 break;
 
+            response_in = ""
+        
+        if response_in == "":
+            response_in = ser.readline()
+
         data = response.split(':')
-        print('btn end', file=sys.stderr)
+        # print('btn end', file=sys.stderr)
 
         if data[1] == 'FAIL':
             so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
@@ -214,6 +219,11 @@ class ArduinoQueueRadio():
 
             if response != 'next':
                 break;
+
+                response_in = ""
+        
+        if response_in == "":
+            response_in = ser.readline()
 
         data = response.split(':')
         print(repr(response), file=sys.stderr)
