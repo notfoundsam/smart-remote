@@ -220,7 +220,7 @@ class ArduinoQueueRadio():
             if response != 'next':
                 break;
 
-                response = ""
+            response = ""
         
         if response == "":
             response = ser.readline()
