@@ -46,8 +46,8 @@ void setup() {
   radio.setCRCLength(RF24_CRC_8);
   radio.setDataRate(RF24_1MBPS);      // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);        // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
-  // radio.openWritingPipe(address);
-  radio.openWritingPipe(0xAABBCCDD55LL);
+  radio.openWritingPipe(address);
+  // radio.openWritingPipe(0xAABBCCDD55LL);
   radio.openReadingPipe(1, address);
   radio.startListening();
 }
@@ -205,6 +205,7 @@ void checkRadioSetting() {
 }
 
 void getDhtParams() {
+  delay(10);
   // 10 seconds
   if (started_waiting_at_dht == 0 || micros() - started_waiting_at_dht > 10000000) {
     float h = dht.readHumidity();
@@ -220,10 +221,12 @@ void getDhtParams() {
 }
 
 void getBatteryVoltage() {
-  // 10 seconds
-  if (started_waiting_at_battery == 0 || micros() - started_waiting_at_battery > 10000000) {
+  delay(10);
+  // 8 seconds
+  if (started_waiting_at_battery == 0 || micros() - started_waiting_at_battery > 8000000) {
     // Vin = analogRead(bat_pin);
-    Vin = (analogRead(bat_pin) * 1.1) / 1023;
+    Vin = ((analogRead(bat_pin) * 1.1) / 1023) / 0.0911;
+
     started_waiting_at_battery = micros();
   }
 }

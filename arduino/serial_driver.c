@@ -58,7 +58,7 @@ void radioSetup() {
   radio.setCRCLength(RF24_CRC_8);
   radio.setDataRate(RF24_2MBPS);     // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);       // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
-  radio.openReadingPipe(2,0xAABBCCDD55LL);
+  // radio.openReadingPipe(2,0xAABBCCDD55LL);
   radio.startListening();
 }
 
@@ -88,9 +88,6 @@ void readSerial() {
 
           if (!sendSignal(buffer[0])) {
             serialFlush();
-            Serial.print(buffer[0]);
-            Serial.print("-");
-            Serial.print(buffer[1]);
             Serial.print("RADIO TRANSMIT SIGNAL 1");
             radio_fail++;
             return;
@@ -106,8 +103,6 @@ void readSerial() {
 
       if (!sendSignal(b)) {
         serialFlush();
-        Serial.print("=");
-        Serial.print(b);
         Serial.print("RADIO TRANSMIT SIGNAL 2");
         radio_fail++;
         return;
@@ -133,7 +128,7 @@ void readSerial() {
     Serial.print("SERIAL READ TIMEOUT");
     return;
   } else {
-    // setReadingPipe(buffer[1]);
+    setReadingPipe(buffer[1]);
     // radio.startListening();
     waitForResponce();
     // isSucces = true;
@@ -207,7 +202,7 @@ void waitForResponce() {
   // Wait 2s seconds for responce
   while (micros() - responce_started_at < 2000000) {
     if (radio.available(&pipe)) {
-      if (pipe == 2) {
+      if (pipe == 1) {
         responce_started_at = micros();
         radio.read(&signal, sizeof(signal));
 

@@ -80,7 +80,7 @@ class Arduino():
             self.ser.open()
 
             # Only after write sketch into Arduino
-            # time.sleep(2)
+            time.sleep(2)
             self.ser.flushInput()
             self.ser.flushOutput()
             # print(repr(self.ser.readline()), file=sys.stderr)

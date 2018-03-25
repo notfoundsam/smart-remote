@@ -17,7 +17,7 @@ ser.open()
 
 # Only after writing sketch into Arduino
 # print(repr(ser.readline()))
-# time.sleep(2)
+time.sleep(2)
 ser.flushInput()
 ser.flushOutput()
 
@@ -63,8 +63,13 @@ try:
             print(repr(response_in))
 
         print "Success: %d Fail: %d Error: %d" % (success, fail, error)
+
         if data[0]:
-                print(data[0])
+            print(data[0])
+            sensors_data = dict(s.split(' ') for s in data[0].split(','))
+            if 'bat' in sensors_data:
+                bat = float(sensors_data['bat'])
+                print(bat)
 
         time.sleep(0.5)
 
