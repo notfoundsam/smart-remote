@@ -2,9 +2,9 @@
 <html>
   <head>
     <!-- Required meta tags-->
+    <meta http-equiv="Cache-Control" content="max-age=0">
     <meta charset="utf-8">
-     <meta http-equiv="Cache-Control" content="max-age=0">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <!-- Color theme for statusbar -->
     <meta name="theme-color" content="#2196f3">
@@ -14,83 +14,114 @@
     <link rel="stylesheet" href="{{ url_for('.static', filename = 'css/app.min.css') }}">
   </head>
   <body>
+    <div id="app">
+      <!-- Statusbar overlay -->
+      <div class="statusbar"></div>
 
-    <div class="panel-overlay"></div>
- 
-    <!-- Left panel -->
-    <div class="panel panel-left panel-cover">
-      <div class="navbar">
-        <div class="navbar-inner">
-          <div class="center" id="username">Username</div>
+      <div class="panel panel-left panel-cover">
+        <div class="navbar no-shadow">
+          <div class="navbar-inner">
+            <div class="title" id="username">Username</div>
+          </div>
+        </div>
+        <div class="list" id="remotes">
+          <ul></ul>
+        </div>
+        <div class="list">
+          <ul>
+            <li>
+              <a href="#" class="item-link item-content panel-close" id="logout">
+                <div class="item-media"><i class="fa fa-lightbulb-o size-25" aria-hidden="true"></i></div>
+                <div class="item-inner">
+                  <div class="item-title">Logout</div>
+                </div>
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
 
-      <div class="list-block menu-list" id="remotes">
-        <ul></ul>
-      </div>
-      <div class="list-block menu-list">
-        <ul>
-          <li>
-            <a id="logout" href="#" class="item-link item-content close-panel">
-              <div class="item-media"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></div>
-              <div class="item-inner">
-                <div class="item-title">Logout</div>
-              </div>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <!-- Views -->
-    <div class="views">
       <!-- Your main view, should have "view-main" class -->
       <div class="view view-main">
-        <!-- Pages container, because we use fixed navbar and toolbar, it has additional appropriate classes-->
-        <div class="pages navbar-fixed">
-          <!-- Page, "data-page" contains page name -->
-          <div data-page="index" class="page">
- 
-          </div>
-        </div>
-      </div>
-    </div>
+        <!-- Initial Page, "data-name" contains page name -->
+        <div data-name="index" class="page">
 
-    <!-- Login screen -->
-    <div class="login-screen">
-      <div class="view">
-        <div data-page="login" class="page">
-          <div class="page-content login-screen-content">
-            <div class="login-screen-title">Your Smart Remote</div>
-            <form>
-              <div class="list-block">
-                <ul>
-                  <li class="item-content">
-                    <div class="item-inner">
-                      <div class="item-title label">Username</div>
-                      <div class="item-input">
-                        <input type="text" name="username" placeholder="Your username">
-                      </div>
-                    </div>
-                  </li>
-                  <li class="item-content">
-                    <div class="item-inner">
-                      <div class="item-title label">Password</div>
-                      <div class="item-input">
-                        <input type="password" name="password" placeholder="Your password">
-                      </div>
-                    </div>
-                  </li>
-                </ul>
+          <div class="navbar">
+            <div class="navbar-inner sliding">
+              
+              <div class="title">Smart pionts</div>
+              <div class="right">
+                <a href="#" data-panel="left" class="link panel-open"><i class="fa fa-bars size-22" aria-hidden="true"></i></a>
               </div>
-              <div class="list-block">
-                <ul>
-                  <li><a id="login" href="#" class="item-link list-button">Sign In</a></li>
-                </ul>
+            </div>
+          </div>
+
+          
+          <!-- Fixed Toolbar -->
+          <div class="toolbar toolbar-bottom-md">
+            <div class="toolbar-inner">
+              <a href="#" class="link" id="lirc_update_btn"><i class="fa fa-cogs size-22" aria-hidden="true"></i></a>
+              <a href="#" class="link" id="rc_action_btn"><i class="fa fa-plus size-22" aria-hidden="true"></i></a>
+            </div>
+          </div>
+
+          <div class="page-content">
+            <div class="card">
+              <div class="card-header">
+                <div>Base</div>
+                <div><i class="fa fa-battery-full" aria-hidden="true"></i></div>
               </div>
-            </form>
+              <div class="card-content card-content-padding">
+                <div class="row">
+                  <div class="col-50"><i class="fa fa-thermometer-half" aria-hidden="true"></i> Temperature: 20.00&#8451;</div>
+                  <div class="col-50"><i class="fa fa-tint" aria-hidden="true"></i> Humidity: 60%</div>
+                </div>
+              </div>
+            </div>
+
+            <div id="radios_area"></div>
+
           </div>
         </div>
       </div>
+
+      <div class="login-screen">
+        <div class="view">
+          <div class="page">
+            <div class="page-content login-screen-content">
+              <div class="login-screen-title">Smart Login</div>
+              <form>
+                <div class="list">
+                  <ul>
+                    <li class="item-content item-input">
+                      <div class="item-inner">
+                        <div class="item-title item-label">Username</div>
+                        <div class="item-input-wrap">
+                          <input type="text" name="username" placeholder="Your username">
+                        </div>
+                      </div>
+                    </li>
+                    <li class="item-content item-input">
+                      <div class="item-inner">
+                        <div class="item-title item-label">Password</div>
+                        <div class="item-input-wrap">
+                          <input type="password" name="password" placeholder="Your password">
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <div class="list">
+                  <ul>
+                    <li><a id="login" class="item-link list-button" href="#">Sign In</a></li>
+                  </ul>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
     <!-- <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script> -->
     <script type="text/javascript" src="{{ url_for('.static', filename = 'js/app.min.js') }}"></script>

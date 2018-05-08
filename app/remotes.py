@@ -124,6 +124,14 @@ class RemoteControl:
 
         return buttons
 
+    def getRemoteName(self, rc_id):
+        rc = Remote.query.filter_by(identificator = rc_id).first()
+
+        if rc is not None:
+            return rc.name
+
+        return ''
+
     def execute(self, btn_id):
         btn = Button.query.filter_by(identificator = btn_id).first()
         

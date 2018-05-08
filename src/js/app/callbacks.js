@@ -4,14 +4,14 @@
 var callbacks = {
     rc_buttons_refresh: function(response) {
         var buttons = response.buttons;
-        var page = $$('div.page[data-page=rc_buttons]');
+        var page = $$('div.page[data-name=rc]');
 
         if (page.length && buttons.length) {
             var button_area = $$('#buttons_area');
 
             var row = 0;
 
-            var content_block = $$('<div class="content-block"></div>');
+            var content_block = $$('<div class="block"></div>');
             var buttons_row = null;
 
             buttons.forEach(function(element) {
@@ -21,14 +21,14 @@ var callbacks = {
                     if (buttons_row)
                         content_block.append(buttons_row);
 
-                    buttons_row = $$('<p class="buttons-row"></p>');
+                    buttons_row = $$('<p class="row"></p>');
                 }
 
-                var anchor = $$('<a href="#" class="button button-raised button-fill"></a>');
-                anchor.addClass(element.color);
-                anchor.attr('data-btn-id', element.identificator);
-                anchor.text(element.name);
-                anchor.on('click', function (e) {
+                var button = $$('<button class="col button button-raised button-fill"></button>');
+                button.addClass(element.color);
+                button.attr('data-btn-id', element.identificator);
+                button.text(element.name);
+                button.on('click', function (e) {
                     var data = $$(this).dataset();
                     var request = {};
 
@@ -38,13 +38,18 @@ var callbacks = {
                     sendRequest(request, socket_remotes);
                 });
 
-                buttons_row.append(anchor);
+                buttons_row.append(button);
             });
 
             content_block.append(buttons_row);
             button_area.append(content_block);
         }
-        myApp.hideIndicator();
+
+        if (response.rc_name) {
+            page.find('.navbar .title').text(response.rc_name);
+        }
+
+        myApp.preloader.hide();
     },
     rc_refresh: function(response) {
         var remotes = response.remotes;
@@ -53,26 +58,28 @@ var callbacks = {
 
         remotes.forEach(function(element) {
             var li = $$('<li>');
-            var anchor = $$('<a href="#" class="item-link item-content close-panel"></a>');
+            var anchor = $$('<a href="/rc/' + element.identificator + '" class="item-link item-content panel-close"></a>');
             var icon = $$('<div class="item-media"><i class="' + element.icon + ' size-25" aria-hidden="true"></i></div>');
             var inner = $$('<div class="item-inner"></div>');
             var title = $$('<div class="item-title"></div>').text(element.name);
 
-            anchor.attr('data-id', element.identificator);
-            anchor.attr('data-title', element.name);
+            // anchor.attr('data-id', element.identificator);
+            // anchor.attr('data-title', element.name);
 
-            anchor.on('click', function (e) {
-                var data = $$(this).dataset();
-                mainView.router.load({
-                    url: 'static/rc_buttons.html',
-                    reload: (mainView.url == 'static/rc_buttons.html'),
-                    ignoreCache: true,
-                    context: {
-                        title: data.title,
-                        rc_id: data.id
-                    }
-                });
-            });
+            // anchor.on('click', function (e) {
+            //     // var data = $$(this).dataset();
+            //     // mainView.router.load({
+            //     //     // template: '<p>aaaaa</p>'
+            //     //     path: '/buttons',
+            //     //     // templateUrl: 'static/rc_buttons.html',
+            //     //     // reload: (mainView.url == 'static/rc_buttons.html'),
+            //     //     // ignoreCache: true,
+            //     //     // context: {
+            //     //     //     title: data.title,
+            //     //     //     rc_id: data.id
+            //     //     // }
+            //     // });
+            // });
 
             inner.append(title);
             anchor.append(icon);
@@ -136,7 +143,7 @@ var callbacks = {
     },
     radios_refresh: function(response) {
         var radios = response.radios;
-        var page = $$('div.page[data-page=status]');
+        var page = $$('div.page[data-name=index]');
         var radios_area = $$('#radios_area');
         radios_area.empty();
         
@@ -144,8 +151,8 @@ var callbacks = {
             radios.forEach(function(element) {
                 var card = $$('<div class="card" id="rid_' + element.id + '"></div>');
                 var card_header = $$('<div class="card-header"></div>');
-                var card_content = $$('<div class="card-content"></div>');
-                var card_content_inner = $$('<div class="card-content-inner row"></div>');
+                var card_content = $$('<div class="card-content card-content-padding"></div>');
+                var card_content_inner = $$('<div class="row"></div>');
                 var card_footer = $$('<div class="card-footer"><a href="#" class="radio-edit-btn" data-id="' + element.id + '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</a><a href="#" class="radio-remove-btn" data-id="' + element.id + '"><i class="fa fa-trash-o" aria-hidden="true"></i> Remove</a></div>');
                 
                 card_header.append($$('<div></div>').text(element.name + ' (radio number: ' +  element.radio_id + ')'));
@@ -198,7 +205,7 @@ var callbacks = {
     radio_sensor_refresh: function(response) {
         var rid = response.rid;
         // var sensors = response.sensors;
-        var page = $$('div.page[data-page=status]');
+        var page = $$('div.page[data-name=index]');
 
         if (page.length) {
             var radio = $$('#rid_' + rid);

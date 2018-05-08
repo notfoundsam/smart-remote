@@ -87,10 +87,11 @@ def handle_json(data):
         remotes = rc.getRemotesList()
         emit('json', {'response': {'result': 'success', 'callback': 'rc_refresh', 'remotes': remotes}}, broadcast = True)
     
-    elif data['action'] == 'rc_buttons_refresh':
+    elif data['action'] == 'get_rc_buttons':
         content = data['content']
+        rc_name = rc.getRemoteName(content['rc_id'])
         buttons = rc.getRemoteButtons(content['rc_id'])
-        emit('json', {'response': {'result': 'success', 'callback': 'rc_buttons_refresh', 'buttons': buttons}})
+        emit('json', {'response': {'result': 'success', 'callback': 'rc_buttons_refresh', 'rc_name': rc_name, 'buttons': buttons}})
 
     elif data['action'] == 'catch_signal':
         signal = ir_reader.read_signal()

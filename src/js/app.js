@@ -1,7 +1,7 @@
 /*
  * Third party
  */
-//= ../../bower_components/Framework7/dist/js/framework7.js
+//= ../../bower_components/framework7/dist/js/framework7.js
 //= ../../bower_components/socket.io-client/dist/socket.io.js
 
 /*

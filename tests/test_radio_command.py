@@ -66,10 +66,10 @@ try:
 
         if data[0]:
             print(data[0])
-            sensors_data = dict(s.split(' ') for s in data[0].split(','))
-            if 'bat' in sensors_data:
-                bat = float(sensors_data['bat'])
-                print(bat)
+            # sensors_data = dict(s.split(' ') for s in data[0].split(','))
+            # if 'bat' in sensors_data:
+            #     bat = float(sensors_data['bat'])
+            #     print(bat)
 
         time.sleep(0.5)
 

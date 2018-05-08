@@ -44,7 +44,7 @@ void setup() {
   radio.setRetries(2,15);
   radio.setPayloadSize(1);
   radio.setCRCLength(RF24_CRC_8);
-  radio.setDataRate(RF24_1MBPS);      // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
+  radio.setDataRate(RF24_2MBPS);      // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);        // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
   radio.openWritingPipe(address);
   // radio.openWritingPipe(0xAABBCCDD55LL);
