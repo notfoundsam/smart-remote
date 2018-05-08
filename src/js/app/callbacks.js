@@ -58,7 +58,7 @@ var callbacks = {
 
         remotes.forEach(function(element) {
             var li = $$('<li>');
-            var anchor = $$('<a href="/rc/' + element.identificator + '" class="item-link item-content panel-close"></a>');
+            var anchor = $$('<a href="/rc/' + element.identificator + '" class="item-link item-content panel-close" data-ignore-cache="true"></a>');
             var icon = $$('<div class="item-media"><i class="' + element.icon + ' size-25" aria-hidden="true"></i></div>');
             var inner = $$('<div class="item-inner"></div>');
             var title = $$('<div class="item-title"></div>').text(element.name);
