@@ -1,11 +1,7 @@
 // Initialize app
-var myApp = new Framework7({
+var app = new Framework7({
   //Tell Framework7 to compile templates on app init
-  // template7Pages: true,
-  // material: true,
   root: '#app',
-  // domCache: false,
-  // cache: false
   panel: {
     swipe: 'right',
     leftBreakpoint: 768,
@@ -13,12 +9,15 @@ var myApp = new Framework7({
   },
   routes: [
     {
+      path: '/radios/',
+      url: './static/radios.html',
+    },
+    {
+      name: 'rc',
       path: '/rc/:rc_id',
       templateUrl: './static/rc.html',
       on: {
         pageInit: function (e, page) {
-          // console.log(e);
-          // console.log(page.$el.attr('data-rc-id'));
           var rc_id = page.$el.attr('data-rc-id');
           var request = {};
 
@@ -27,33 +26,14 @@ var myApp = new Framework7({
           request.content.rc_id = rc_id;
 
           sendRequest(request, socket_remotes);
-          myApp.preloader.show();
+          app.preloader.show();
+        },
+        pageAfterIn: function (e, page) {
+          $$('#rc_action_sheet').on('click', function () {
+            rc_action_sheet.open();
+          });
         },
       },
-      // options: {
-      //   context: {
-      //     title: 'Component Page',
-      //   },
-      // },
-      // data: function () {
-      //   return {
-      //     title: 'Component Page',
-      //     names: ['John', 'Vladimir', 'Timo'],
-      //   }
-      // },
-    },
-    {
-      name: 'about',
-      path: '/about/:rc_id',
-      url: './static/about.html',
-      on: {
-        pageAfterIn: function (e, page) {
-          // do something after page gets into the view
-        },
-        pageInit: function (e, page) {
-          console.log('init');
-        },
-      }
     },
   ],
 });
@@ -65,31 +45,27 @@ var socket_remotes = null;
 var socket_radios = null;
 
 // Add view
-var mainView = myApp.views.create('.view-main', {
-  // Because we want to use dynamic navbar, we need to enable it for this view:
-  // dynamicNavbar: true
-  // domCache: true
+var mainView = app.views.create('.view-main', {
+  // url: '/'
 });
 
-var loginScreen = myApp.loginScreen.create({
+var loginScreen = app.loginScreen.create({
   el: '.login-screen',
   // animate: true
 });
 
-myApp.request({
+app.request({
   url: '/api/v1.0/login',
   method: 'POST',
   success: function (data) {
     var d_obj = JSON.parse(data);
 
     if (d_obj.status_code == 100 || d_obj.status_code == 20) {
-      // mainView.router.load({
-      //   url: 'static/status.html',
-      // });
+      mainView.router.navigate('/radios/');
 
       activateConnection();
     } else {
-      myApp.addNotification({
+      app.addNotification({
         message: 'Programm error',
         hold: 3000
       });

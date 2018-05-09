@@ -49,7 +49,7 @@ var callbacks = {
             page.find('.navbar .title').text(response.rc_name);
         }
 
-        myApp.preloader.hide();
+        app.preloader.hide();
     },
     rc_refresh: function(response) {
         var remotes = response.remotes;
@@ -58,28 +58,21 @@ var callbacks = {
 
         remotes.forEach(function(element) {
             var li = $$('<li>');
-            var anchor = $$('<a href="/rc/' + element.identificator + '" class="item-link item-content panel-close" data-ignore-cache="true"></a>');
+            var anchor = $$('<a href="#" class="item-link item-content panel-close" data-ignore-cache="true"></a>');
             var icon = $$('<div class="item-media"><i class="' + element.icon + ' size-25" aria-hidden="true"></i></div>');
             var inner = $$('<div class="item-inner"></div>');
             var title = $$('<div class="item-title"></div>').text(element.name);
 
-            // anchor.attr('data-id', element.identificator);
-            // anchor.attr('data-title', element.name);
-
-            // anchor.on('click', function (e) {
-            //     // var data = $$(this).dataset();
-            //     // mainView.router.load({
-            //     //     // template: '<p>aaaaa</p>'
-            //     //     path: '/buttons',
-            //     //     // templateUrl: 'static/rc_buttons.html',
-            //     //     // reload: (mainView.url == 'static/rc_buttons.html'),
-            //     //     // ignoreCache: true,
-            //     //     // context: {
-            //     //     //     title: data.title,
-            //     //     //     rc_id: data.id
-            //     //     // }
-            //     // });
-            // });
+            anchor.on('click', function (e) {
+                mainView.router.navigate('/rc/' + element.identificator, {
+                    reloadCurrent : (mainView.router.currentRoute.name == 'rc'),
+                    // ignoreCache: true,
+                    // context: {
+                    //     title: data.title,
+                    //     rc_id: data.id
+                    // }
+                });
+            });
 
             inner.append(title);
             anchor.append(icon);
@@ -90,7 +83,7 @@ var callbacks = {
     },
     rc_button_save: function(response) {
         if (response.edit) {
-            myApp.hideIndicator();
+            app.hideIndicator();
 
             response.radios.forEach(function(el) {
                 if (response.button.btn_radio_id == el.id)
@@ -105,7 +98,7 @@ var callbacks = {
                 }
             });
         } else {
-            myApp.hidePreloader();
+            app.dialog.close();
 
             var rc_id = $$('div.page[data-page=rc_buttons]').attr('data-rc-id');
             var rc_name = $$('div.page[data-page=rc_buttons]').attr('data-rc-name');
@@ -135,15 +128,15 @@ var callbacks = {
         });
     },
     catch_failed: function(response) {
-        myApp.hidePreloader();
-        myApp.addNotification({
+        app.dialog.close();
+        app.addNotification({
             message: 'Signal didn\'t recive',
             hold: 3000
         });
     },
     radios_refresh: function(response) {
         var radios = response.radios;
-        var page = $$('div.page[data-name=index]');
+        var page = $$('div.page[data-name=radios]');
         var radios_area = $$('#radios_area');
         radios_area.empty();
         

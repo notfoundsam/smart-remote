@@ -12,11 +12,13 @@
 //= app/common.js
 //= app/callbacks.js
 
+//= app/_action_sheets.js
+/*
 //= app/pages/rc_create.js
 //= app/pages/rc_buttons.js
 //= app/pages/rc_button_save.js
 //= app/pages/rc_button_list.js
 
 //= app/pages/radio_create.js
-
 //= app/_page_status.js
+*/

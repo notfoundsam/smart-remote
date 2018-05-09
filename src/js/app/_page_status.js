@@ -1,4 +1,4 @@
-myApp.on('pageInit', function (page) {
+app.on('pageInit', function (page) {
     if (page == 'status') {
         
         var request = {};
@@ -19,13 +19,13 @@ myApp.on('pageInit', function (page) {
                 {
                     text: 'Sort Remote',
                     onClick: function () {
-                        myApp.alert('Button2 clicked');
+                        app.alert('Button2 clicked');
                     }
                 },
                 {
                     text: 'Remove Remote',
                     onClick: function () {
-                        myApp.alert('Button2 clicked');
+                        app.alert('Button2 clicked');
                     }
                 },
                 {
@@ -43,11 +43,11 @@ myApp.on('pageInit', function (page) {
                     text: 'Cancel',
                     color: 'red',
                     onClick: function () {
-                        myApp.alert('Cancel clicked');
+                        app.alert('Cancel clicked');
                     }
                 },
             ];
-            myApp.actions(buttons);
+            app.actions(buttons);
         });
 
         $$('#lirc_update_btn').on('click', function () {
