@@ -44,7 +44,7 @@ function sendRequest(request, socket) {
         console.log(request);
         socket.emit('json', request);
     } else {
-        myApp.addNotification({
+        app.addNotification({
             message: 'No socket connection',
             hold: 3000
         });
@@ -56,12 +56,12 @@ function parseResponse(response) {
         runCallback(response.callback, response);
     }
     else if (response.result == 'error') {
-        myApp.addNotification({
+        app.addNotification({
             message: response.message,
             hold: 3000
         });
     } else {
-        myApp.addNotification({
+        app.addNotification({
             message: 'No socket connection',
             hold: 3000
         });

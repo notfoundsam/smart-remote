@@ -3,11 +3,11 @@ $$('#login').on('click', function() {
     var password = $$('input[name=password]').val();
 
     if (!username || !password) {
-        myApp.dialog.alert('Enter both username and password', 'Input error');
+        app.dialog.alert('Enter both username and password', 'Input error');
         return;
     }
 
-    myApp.request({
+    app.request({
         url: '/api/v1.0/login',
         type: 'POST',
         data: {
@@ -30,7 +30,7 @@ $$('#login').on('click', function() {
                     loginScreen.close();
                     break;
                 case 30:
-                    myApp.dialog.alert('Login or password incorect', 'Login error');
+                    app.dialog.alert('Login or password incorect', 'Login error');
                     break;
             }
         }
@@ -38,7 +38,7 @@ $$('#login').on('click', function() {
 });
 
 $$('#logout').on('click', function() {
-    myApp.request({
+    app.request({
         url: '/api/v1.0/logout',
         type: 'POST',
         success: function (data) {
@@ -48,7 +48,7 @@ $$('#logout').on('click', function() {
                     loginScreen.open();
                     break;
                 default:
-                    myApp.dialog.alert('Refresh the page', 'Logout error');
+                    app.dialog.alert('Refresh the page', 'Logout error');
                     break;
             }
         }
