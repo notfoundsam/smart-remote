@@ -141,3 +141,8 @@ def handle_json(data):
     elif data['action'] == 'radios_refresh':
         radios = sensor.getRadiosList()
         emit('json', {'response': {'result': 'success', 'callback': 'radios_refresh', 'radios': radios}}, broadcast = True)
+
+    elif data['action'] == 'get_radio_options':
+        radios = sensor.getRadiosIdName()
+        if radios != False:
+            emit('json', {'response': {'result': 'success', 'callback': 'set_radio_options', 'radios': radios}})

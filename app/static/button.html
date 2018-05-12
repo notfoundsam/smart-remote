@@ -1,0 +1,180 @@
+<div data-name="button" class="page">
+
+  <div class="navbar">
+    <div class="navbar-inner sliding">
+      <div class="left">
+        <a class="link back">
+          <i class="icon icon-back"></i>
+          <span class="ios-only">Back</span>
+        </a>
+      </div>
+      <div class="title">Button setting</div>
+      <div class="right">
+        <a href="#" data-panel="left" class="link panel-open"><i class="fa fa-bars size-22" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <input type="hidden" name="rc_id" value="{{button.rc_id}}">
+    <input type="hidden" name="rc_name" value="{{button.rc_name}}">
+    <input type="hidden" name="btn_id" value="{{button.btn_id}}">
+
+    <div class="list no-hairlines-md">
+      <ul>
+        <li class="item-content item-input">
+          <div class="item-inner">
+            <div class="item-title item-label">Button name</div>
+            <div class="item-input-wrap">
+              <input type="text" name="btn_name" value="{{button.btn_name}}" placeholder="Button name">
+              <span class="input-clear-button"></span>
+            </div>
+          </div>
+        </li>
+        <li class="item-content item-input">
+          <div class="item-inner">
+            <div class="item-title item-label">Order vertical</div>
+            <div class="item-input-wrap">
+              <input type="tel" name="btn_order_ver" value="{{button.btn_order_ver}}" placeholder="Order vertical">
+              <span class="input-clear-button"></span>
+            </div>
+          </div>
+        </li>
+        <li class="item-content item-input">
+          <div class="item-inner">
+            <div class="item-title item-label">Order horizontal</div>
+            <div class="item-input-wrap">
+              <input type="tel" name="btn_order_hor" value="{{button.btn_order_hor}}" placeholder="Order horizontal">
+              <span class="input-clear-button"></span>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="list">
+      <ul>
+        <li>
+          <a class="item-link smart-select smart-select-init">
+            <select name="btn_color">
+              <option value="color-blue" data-option-color="blue"{{#js_if "this.button.btn_color === 'color-blue'"}} selected{{/js_if}}>Blue</option>
+              <option value="color-green" data-option-color="green"{{#js_if "this.button.btn_color === 'color-green'"}} selected{{/js_if}}>Green</option>
+              <option value="color-red" data-option-color="red"{{#js_if "this.button.btn_color === 'color-red'"}} selected{{/js_if}}>Red</option>
+              <option value="color-orange" data-option-color="orange"{{#js_if "this.button.btn_color === 'color-orange'"}} selected{{/js_if}}>Orange</option>
+              <option value="color-pink" data-option-color="pink"{{#js_if "this.button.btn_color === 'color-pink'"}} selected{{/js_if}}>Pink</option>
+              <option value="color-purple" data-option-color="purple"{{#js_if "this.button.btn_color === 'color-purple'"}} selected{{/js_if}}>Purple</option>
+              <option value="color-cyan" data-option-color="cyan"{{#js_if "this.button.btn_color === 'color-cyan'"}} selected{{/js_if}}>Cyan</option>
+              <option value="color-teal" data-option-color="teal"{{#js_if "this.button.btn_color === 'color-teal'"}} selected{{/js_if}}>Teal</option>
+              <option value="color-indigo" data-option-color="indigo"{{#js_if "this.button.btn_color === 'color-indigo'"}} selected{{/js_if}}>Indigo</option>
+            </select>
+            <div class="item-content">
+              <div class="item-inner">
+                <div class="item-title">Choose color</div>
+              </div>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="item-link smart-select smart-select-init">
+            <select name="btn_radio_id">
+              <option value="999" >Base Lirc</option>
+              <option value="0" selected>Base Arduino</option>
+            </select>
+            <div class="item-content">
+              <div class="item-inner">
+                <div class="item-title">Choose radio</div>
+              </div>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="list">
+      <ul>
+        <li>
+          <label class="item-radio item-content">
+            <input type="radio" name="btn_type" value="ir"{{#js_if "this.button.btn_type === 'ir'"}} checked{{/js_if}}>
+            <i class="icon icon-radio"></i>
+            <div class="item-inner">
+              <div class="item-title">Infrared</div>
+            </div>
+          </label>
+        </li>
+        <li>
+          <label class="item-radio item-content">
+            <input type="radio" name="btn_type" value="cmd"{{#js_if "this.button.btn_type === 'cmd'"}} checked{{/js_if}}>
+            <i class="icon icon-radio"></i>
+            <div class="item-inner">
+              <div class="item-title">Command</div>
+            </div>
+          </label>
+        </li>
+      </ul>
+    </div>
+
+    <div class="block-title">Receved signal</div>
+    <div class="card">
+      <div class="card-content card-content-padding" id="btn_signal">{{button.btn_signal}}</div>
+    </div>
+
+    <div class="list no-hairlines-md">
+      <ul>
+        <li class="item-content item-input">
+          <div class="item-inner">
+            <div class="item-title item-label">Command</div>
+            <div class="item-input-wrap">
+              <input type="text" name="command" value="{{button.signal}}" placeholder="Enter command">
+              <span class="input-clear-button"></span>
+            </div>
+          </div>
+        </li>
+    </div>
+
+    <div class="block">
+      <p class="row">
+        <a href="#" class="col button button-raised button-fill color-blue" id="rc_button_save_btn">Save</a>
+      </p>
+    </div>
+
+    <div class="list">
+      <ul>
+        <li>
+          <label class="item-radio item-content">
+            <input type="radio" name="test_radio_id" value="999" checked>
+            <i class="icon icon-radio"></i>
+            <div class="item-inner">
+              <div class="item-title">Base Lirc</div>
+            </div>
+          </label>
+        </li>
+        <li>
+          <label class="item-radio item-content">
+            <input type="radio" name="test_radio_id" value="0">
+            <i class="icon icon-radio"></i>
+            <div class="item-inner">
+              <div class="item-title">Base Arduino</div>
+            </div>
+          </label>
+        </li>
+        {{#each radios}}
+        <li>
+          <label class="item-radio item-content">
+            <input type="radio" name="test_radio_id" value="{{this.radio_id}}">
+            <i class="icon icon-radio"></i>
+            <div class="item-inner">
+              <div class="item-title">{{this.name}}</div>
+            </div>
+          </label>
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+
+    <div class="block">
+      <p class="row">
+        <a href="#" class="col button button-raised button-fill color-blue" id="test_signal_btn">Test signal</a>
+      </p>
+    </div>
+  </div>
+</div>

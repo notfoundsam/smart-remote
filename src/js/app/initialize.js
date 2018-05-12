@@ -35,6 +35,23 @@ var app = new Framework7({
         },
       },
     },
+    {
+      name: 'button',
+      path: '/button/',
+      templateUrl: './static/button.html',
+      on: {
+        pageInit: function (e, page) {
+          var request = {};
+          request.action = 'get_radio_options';
+          sendRequest(request, socket_radios);
+        },
+        pageAfterIn: function (e, page) {
+          // $$('#rc_action_sheet').on('click', function () {
+          //   rc_action_sheet.open();
+          // });
+        },
+      },
+    },
   ],
 });
 
@@ -66,7 +83,7 @@ app.request({
       activateConnection();
     } else {
       var notif = app.notification.create({
-        icon: '<i class="icon demo-icon">7</i>',
+        icon: '<i class="fa fa-bell-o" aria-hidden="true"></i>',
         title: 'Application',
         titleRightText: 'now',
         subtitle: 'This is a subtitle',

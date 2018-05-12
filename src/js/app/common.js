@@ -42,7 +42,7 @@ function sendRequest(request, socket) {
     socket.emit('json', request);
   } else {
     var notif = app.notification.create({
-      icon: '<i class="icon demo-icon">7</i>',
+      icon: '<i class="fa fa-bell-o" aria-hidden="true"></i>',
       title: 'Socket',
       titleRightText: 'now',
       subtitle: 'This is a subtitle',
@@ -60,7 +60,7 @@ function parseResponse(response) {
   }
   else if (response.result == 'error') {
     var notif = app.notification.create({
-      icon: '<i class="icon demo-icon">7</i>',
+      icon: '<i class="fa fa-bell-o" aria-hidden="true"></i>',
       title: 'Socket',
       titleRightText: 'now',
       subtitle: 'This is a subtitle',
@@ -71,7 +71,7 @@ function parseResponse(response) {
     notif.open();
   } else {
     var notif = app.notification.create({
-      icon: '<i class="icon demo-icon">7</i>',
+      icon: '<i class="fa fa-bell-o" aria-hidden="true"></i>',
       title: 'Socket',
       titleRightText: 'now',
       subtitle: 'This is a subtitle',

@@ -1,12 +1,21 @@
 var rc_action_sheet = app.actions.create({
   buttons: [
     {
-      text: 'Catch IR signal',
+      text: 'Add button',
       onClick: function () {
-        var request = {};
-        request.action = 'catch_signal';
-        app.dialog.preloader('Waiting for signal');
-        sendRequest(request, socket_remotes);
+
+        mainView.router.navigate('/button/', {
+          context: {
+            button: {
+              rc_id: $$('div.page[data-name=rc]').attr('data-rc-id'),
+              btn_type: 'ir'
+            }
+          }
+        });
+        // var request = {};
+        // request.action = 'catch_signal';
+        // app.dialog.preloader('Waiting for signal');
+        // sendRequest(request, socket_remotes);
       }
     },
     {

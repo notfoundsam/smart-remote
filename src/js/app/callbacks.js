@@ -81,6 +81,40 @@ var callbacks = {
             menu.append(li);
         });
     },
+    set_radio_options: function(response) {
+        var radios = response.radios;
+        var page = $$('div.page[data-name=button]');
+        var radio_options = $$('select[name=btn_radio_id]');
+        
+        if (page.length && radios.length) {
+            radios.forEach(function(element) {
+                var option = $$('<option value="' + element.radio_id + '">' + element.name + '</option>');
+                radio_options.append(option);
+                // var card = $$('<div class="card" id="rid_' + element.id + '"></div>');
+                // var card_header = $$('<div class="card-header"></div>');
+                // var card_content = $$('<div class="card-content card-content-padding"></div>');
+                // var card_content_inner = $$('<div class="row"></div>');
+                // var card_footer = $$('<div class="card-footer"><a href="#" class="radio-edit-btn" data-id="' + element.id + '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</a><a href="#" class="radio-remove-btn" data-id="' + element.id + '"><i class="fa fa-trash-o" aria-hidden="true"></i> Remove</a></div>');
+                
+                // card_header.append($$('<div></div>').text(element.name + ' (radio number: ' + element.radio_id + ')'));
+
+                // if (element.battery) {
+                //     card_header.append($$('<div class="sensor-bat"><i class="fa fa-battery-full" aria-hidden="true"></i></div>'));
+                // }
+                // if (element.dht) {
+                //     card_content_inner.append($$('<div class="col-50"><i class="fa fa-thermometer-half" aria-hidden="true"></i> Temperature: <span class="sensor-temp">--</span>&#8451;</div>'));
+                //     card_content_inner.append($$('<div class="col-50"><i class="fa fa-tint" aria-hidden="true"></i> Humidity: <span class="sensor-hum">--</span>%</div>'));
+                // }
+
+                // card_content.append(card_content_inner);
+                // card.append(card_header);
+                // card.append(card_content);
+                // card.append(card_footer);
+                // radios_area.append(card);
+            });
+        }
+        
+    },
     rc_button_save: function(response) {
         if (response.edit) {
             app.hideIndicator();
@@ -148,7 +182,7 @@ var callbacks = {
                 var card_content_inner = $$('<div class="row"></div>');
                 var card_footer = $$('<div class="card-footer"><a href="#" class="radio-edit-btn" data-id="' + element.id + '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</a><a href="#" class="radio-remove-btn" data-id="' + element.id + '"><i class="fa fa-trash-o" aria-hidden="true"></i> Remove</a></div>');
                 
-                card_header.append($$('<div></div>').text(element.name + ' (radio number: ' +  element.radio_id + ')'));
+                card_header.append($$('<div></div>').text(element.name + ' (radio number: ' + element.radio_id + ')'));
 
                 if (element.battery) {
                     card_header.append($$('<div class="sensor-bat"><i class="fa fa-battery-full" aria-hidden="true"></i></div>'));
