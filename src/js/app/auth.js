@@ -23,6 +23,7 @@ $$('#login').on('click', function() {
                     // mainView.router.load({
                     //     url: 'static/status.html'
                     // });
+                    mainView.router.navigate('/radios/');
                     activateConnection();
                     loginScreen.close();
                     break;

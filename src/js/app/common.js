@@ -41,7 +41,7 @@ function sendRequest(request, socket) {
     console.log(request);
     socket.emit('json', request);
   } else {
-    app.notification.create({
+    var notif = app.notification.create({
       icon: '<i class="icon demo-icon">7</i>',
       title: 'Socket',
       titleRightText: 'now',
@@ -50,6 +50,7 @@ function sendRequest(request, socket) {
       closeTimeout: 3000,
       closeButton: true,
     });
+    notif.open();
   }
 }
 
@@ -58,7 +59,7 @@ function parseResponse(response) {
     runCallback(response.callback, response);
   }
   else if (response.result == 'error') {
-    app.notification.create({
+    var notif = app.notification.create({
       icon: '<i class="icon demo-icon">7</i>',
       title: 'Socket',
       titleRightText: 'now',
@@ -67,8 +68,9 @@ function parseResponse(response) {
       closeTimeout: 3000,
       closeButton: true,
     });
+    notif.open();
   } else {
-    app.notification.create({
+    var notif = app.notification.create({
       icon: '<i class="icon demo-icon">7</i>',
       title: 'Socket',
       titleRightText: 'now',
@@ -77,6 +79,7 @@ function parseResponse(response) {
       closeTimeout: 3000,
       closeButton: true,
     });
+    notif.open();
   }
 }
 

@@ -65,7 +65,7 @@ app.request({
 
       activateConnection();
     } else {
-      app.notification.create({
+      var notif = app.notification.create({
         icon: '<i class="icon demo-icon">7</i>',
         title: 'Application',
         titleRightText: 'now',
@@ -74,6 +74,7 @@ app.request({
         closeTimeout: 3000,
         closeButton: true,
       });
+      notif.open();
     }
   },
   statusCode: {
