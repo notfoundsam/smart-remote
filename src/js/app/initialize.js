@@ -65,9 +65,14 @@ app.request({
 
       activateConnection();
     } else {
-      app.addNotification({
-        message: 'Programm error',
-        hold: 3000
+      app.notification.create({
+        icon: '<i class="icon demo-icon">7</i>',
+        title: 'Application',
+        titleRightText: 'now',
+        subtitle: 'This is a subtitle',
+        text: 'Programm error',
+        closeTimeout: 3000,
+        closeButton: true,
       });
     }
   },
