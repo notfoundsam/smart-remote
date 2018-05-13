@@ -1,0 +1,74 @@
+<div data-name="button_list" class="page">
+
+  <div class="navbar">
+    <div class="navbar-inner sliding">
+      <div class="left">
+        <a class="link back">
+          <i class="icon icon-back"></i>
+          <span class="ios-only">Back</span>
+        </a>
+      </div>
+      {{#if remove}}
+        <div class="title">Remove buttons</div>
+      {{else}}
+        <div class="title">Edit buttons</div>
+      {{/if}}
+      <div class="right">
+        <a href="#" data-panel="left" class="link panel-open"><i class="fa fa-bars size-22" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-content">
+  {{#if buttons}}
+    <input type="hidden" name="rc_id" value="{{rc_id}}">
+    <input type="hidden" name="rc_name" value="{{rc_name}}">
+    {{#if remove}}
+      <div class="block-title">Select to remove</div>
+    {{else}}
+      <div class="block-title">Select to edit</div>
+    {{/if}}
+    
+    <div class="list">
+      <ul>
+        {{#if remove}}
+          {{#each buttons}}
+          <li>
+            <label class="item-checkbox item-content">
+              <input type="checkbox" name="button" value="{{this.id}}">
+              <i class="icon icon-checkbox"></i>
+              <div class="item-inner">
+                <div class="item-title">{{this.name}}</div>
+              </div>
+            </label>
+          </li>
+          {{/each}}
+        {{else}}
+          {{#each buttons}}
+          <li>
+            <label class="item-radio item-content">
+              <input type="radio" name="button" value="{{this.id}}">
+              <i class="icon icon-radio"></i>
+              <div class="item-inner">
+                <div class="item-title">{{this.name}}</div>
+              </div>
+            </label>
+          </li>
+          {{/each}}
+        {{/if}}
+      </ul>
+    </div>
+
+    <div class="block">
+      <p class="row">
+        {{#if remove}}
+          <a href="#" class="col button button-raised button-fill color-blue" id="buttons_remove_btn">Remove</a>
+        {{else}}
+          <a href="#" class="col button button-raised button-fill color-blue" id="button_edit_btn">Edit</a>
+        {{/if}}
+      </p>
+    </div>
+  {{/if}}
+
+  </div>
+</div>

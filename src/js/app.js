@@ -7,6 +7,7 @@
 /*
  * Custom scripts
  */
+//= app/routes.js
 //= app/initialize.js
 //= app/auth.js
 //= app/common.js

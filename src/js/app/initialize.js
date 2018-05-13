@@ -7,55 +7,7 @@ var app = new Framework7({
     leftBreakpoint: 768,
     rightBreakpoint: 1440,
   },
-  routes: [
-    {
-      path: '/radios/',
-      url: './static/radios.html',
-    },
-    {
-      name: 'rc',
-      path: '/rc/:rc_id',
-      templateUrl: './static/rc.html',
-      on: {
-        pageInit: function (e, page) {
-          var rc_id = page.$el.attr('data-rc-id');
-          var request = {};
-
-          request.action = 'get_rc_buttons';
-          request.content = {}
-          request.content.rc_id = rc_id;
-
-          sendRequest(request, socket_remotes);
-          app.preloader.show();
-        },
-        pageAfterIn: function (e, page) {
-          $$('#rc_action_sheet').on('click', function () {
-            rc_action_sheet.open();
-          });
-        },
-      },
-    },
-    {
-      name: 'button',
-      path: '/button/',
-      templateUrl: './static/button.html',
-      on: {
-        pageInit: function (e, page) {
-          var request = {};
-          request.action = 'get_radio_options';
-          sendRequest(request, socket_radios);
-        },
-        pageAfterIn: function (e, page) {
-          $$('#catch_ir_signal_btn').on('click', function () {
-            var request = {};
-            request.action = 'catch_ir_signal';
-            app.dialog.preloader('Waiting for signal');
-            sendRequest(request, socket_remotes);
-          });
-        },
-      },
-    },
-  ],
+  routes: app_routes,
 });
 
 // If we need to use custom DOM library, let's save it to $$ variable:

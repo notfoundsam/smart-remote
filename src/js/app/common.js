@@ -18,14 +18,9 @@ function activateConnection() {
   }
 
   if (socket_radios == null) {
-
     socket_radios = io.connect('http://' + document.domain + ':' + location.port + '/radios');
     socket_radios.on('connect', function() {
       console.log('connected to radios');
-      var request = {};
-
-      request.action = 'radios_refresh';
-      sendRequest(request, socket_radios);
     });
     socket_radios.on('json', function(data) {
       console.log(data);

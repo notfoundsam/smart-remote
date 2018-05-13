@@ -81,31 +81,31 @@ var callbacks = {
             menu.append(li);
         });
     },
-    set_radio_options: function(response) {
-        var radios = response.radios;
-        var page = $$('div.page[data-name=button]');
-        var radio_options = $$('select[name=btn_radio_id]');
-        var test_radio_list = $$('#test_radio_list ul');
+    // set_radio_options: function(response) {
+    //     var radios = response.radios;
+    //     var page = $$('div.page[data-name=button]');
+    //     var radio_options = $$('select[name=btn_radio_id]');
+    //     var test_radio_list = $$('#test_radio_list ul');
         
-        if (page.length && radios.length) {
-            radios.forEach(function(element) {
-                var option = $$('<option value="' + element.radio_id + '">' + element.name + '</option>');
-                radio_options.append(option);
+    //     if (page.length && radios.length) {
+    //         radios.forEach(function(element) {
+    //             var option = $$('<option value="' + element.radio_id + '">' + element.name + '</option>');
+    //             radio_options.append(option);
 
-                var li = $$('<li></li>');
-                var label = $$('<label class="item-radio item-content"></label>');
-                var input = $$('<input type="radio" name="test_radio_id" value="' + element.radio_id + '">');
-                var icon = $$('<i class="icon icon-radio"></i>');
-                var item_inner = $$('<div class="item-inner"></div>').append($$('<div class="item-title">' + element.name + '</div>'));
+    //             var li = $$('<li></li>');
+    //             var label = $$('<label class="item-radio item-content"></label>');
+    //             var input = $$('<input type="radio" name="test_radio_id" value="' + element.radio_id + '">');
+    //             var icon = $$('<i class="icon icon-radio"></i>');
+    //             var item_inner = $$('<div class="item-inner"></div>').append($$('<div class="item-title">' + element.name + '</div>'));
                 
-                label.append(input);
-                label.append(icon);
-                label.append(item_inner);
-                li.append(label);
-                test_radio_list.append(li);
-            });
-        }
-    },
+    //             label.append(input);
+    //             label.append(icon);
+    //             label.append(item_inner);
+    //             li.append(label);
+    //             test_radio_list.append(li);
+    //         });
+    //     }
+    // },
     ir_signal: function(response) {
         var page = $$('div.page[data-name=button]');
 
@@ -113,6 +113,7 @@ var callbacks = {
             app.dialog.close();
 
             if (response.signal) {
+                page.find('input[name=button_signal]').val(response.signal);
                 page.find('#ir_signal').text(response.signal);
             } else {
                 var notif = app.notification.create({
@@ -127,57 +128,47 @@ var callbacks = {
                 notif.open();
             }
         }
-        // if (response.edit) {
-        //     app.hideIndicator();
-
-        //     response.radios.forEach(function(el) {
-        //         if (response.button.btn_radio_id == el.id)
-        //             el.btn_selected = true;
-        //     });
-
-        //     mainView.router.load({
-        //         url: 'static/rc_button_save.html',
-        //         context: {
-        //             button: response.button,
-        //             radios: response.radios
-        //         }
-        //     });
-        // } else {
-        //     app.dialog.close();
-
-        //     var rc_id = $$('div.page[data-page=rc_buttons]').attr('data-rc-id');
-        //     var rc_name = $$('div.page[data-page=rc_buttons]').attr('data-rc-name');
-
-        //     mainView.router.load({
-        //         url: 'static/rc_button_save.html',
-        //         context: {
-        //             button: {
-        //                 rc_id: rc_id,
-        //                 rc_name: rc_name,
-        //                 btn_signal: response.signal,
-        //                 btn_type: 'ir',
-        //                 btn_radio: 999
-        //             },
-        //             radios: response.radios
-        //         }
-        //     });
-        // }
     },
-    back_to_remote: function(response) {
-        mainView.router.load({
-            url: 'static/rc_buttons.html',
-            context: {
-                title: response.rc_name,
-                rc_id: response.rc_id
-            }
-        });
+    button_edit: function(response) {
+        if (response.edit) {
+            response.radios.forEach(function(el) {
+                if (response.button.btn_radio_id == el.id)
+                    el.btn_selected = true;
+            });
+
+            mainView.router.navigate('/button/', {
+                context: {
+                    button: response.button,
+                    radios: response.radios
+                }
+            });
+        } else {
+            app.dialog.close();
+
+            var rc_id = $$('div.page[data-page=rc_buttons]').attr('data-rc-id');
+            var rc_name = $$('div.page[data-page=rc_buttons]').attr('data-rc-name');
+
+            mainView.router.load({
+                url: 'static/rc_button_save.html',
+                context: {
+                    button: {
+                        rc_id: rc_id,
+                        rc_name: rc_name,
+                        btn_signal: response.signal,
+                        btn_type: 'ir',
+                        btn_radio: 999
+                    },
+                    radios: response.radios
+                }
+            });
+        }
+
+        app.preloader.hide();
+        // mainView.router.navigate('/rc/' + response.rc_id);
     },
-    catch_failed: function(response) {
-        app.dialog.close();
-        app.addNotification({
-            message: 'Signal didn\'t recive',
-            hold: 3000
-        });
+    button_saved: function(response) {
+        app.preloader.hide();
+        mainView.router.navigate('/rc/' + response.rc_id);
     },
     radios_refresh: function(response) {
         var radios = response.radios;
