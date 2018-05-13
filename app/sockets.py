@@ -93,16 +93,9 @@ def handle_json(data):
         buttons = rc.getRemoteButtons(content['rc_id'])
         emit('json', {'response': {'result': 'success', 'callback': 'rc_buttons_refresh', 'rc_name': rc_name, 'buttons': buttons}})
 
-    elif data['action'] == 'catch_signal':
+    elif data['action'] == 'catch_ir_signal':
         signal = ir_reader.read_signal()
-
-        if signal != False:
-            sensor = RadioSensor()
-            radios = sensor.getRadiosIdName()
-            emit('json', {'response': {'result': 'success', 'callback': 'rc_button_save', 'signal': signal, 'radios': radios}})
-        else:
-            print('faild', file=sys.stderr)
-            emit('json', {'response': {'result': 'success', 'callback': 'catch_failed'}})
+        emit('json', {'response': {'result': 'success', 'callback': 'ir_signal', 'signal': signal}})
 
     elif data['action'] == 'lirc_update':
         lirc.regenerateLircCommands()

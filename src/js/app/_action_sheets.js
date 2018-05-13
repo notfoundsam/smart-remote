@@ -12,10 +12,6 @@ var rc_action_sheet = app.actions.create({
             }
           }
         });
-        // var request = {};
-        // request.action = 'catch_signal';
-        // app.dialog.preloader('Waiting for signal');
-        // sendRequest(request, socket_remotes);
       }
     },
     {

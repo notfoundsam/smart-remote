@@ -46,9 +46,12 @@ var app = new Framework7({
           sendRequest(request, socket_radios);
         },
         pageAfterIn: function (e, page) {
-          // $$('#rc_action_sheet').on('click', function () {
-          //   rc_action_sheet.open();
-          // });
+          $$('#catch_ir_signal_btn').on('click', function () {
+            var request = {};
+            request.action = 'catch_ir_signal';
+            app.dialog.preloader('Waiting for signal');
+            sendRequest(request, socket_remotes);
+          });
         },
       },
     },

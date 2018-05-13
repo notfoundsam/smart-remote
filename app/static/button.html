@@ -77,8 +77,8 @@
         <li>
           <a class="item-link smart-select smart-select-init">
             <select name="btn_radio_id">
-              <option value="999" >Base Lirc</option>
-              <option value="0" selected>Base Arduino</option>
+              <option value="999" selected>Base Lirc</option>
+              <option value="0" data-option-color="orange">Base Arduino</option>
             </select>
             <div class="item-content">
               <div class="item-inner">
@@ -114,8 +114,13 @@
     </div>
 
     <div class="block-title">Receved signal</div>
-    <div class="card">
-      <div class="card-content card-content-padding" id="btn_signal">{{button.btn_signal}}</div>
+      <div class="card">
+        <div class="card-content card-content-padding" id="ir_signal">{{button.btn_signal}}</div>
+      </div>
+    <div class="block">
+      <p class="row">
+        <a href="#" class="col button button-raised button-fill color-orange" id="catch_ir_signal_btn">Catch signal</a>
+      </p>
     </div>
 
     <div class="list no-hairlines-md">
@@ -137,7 +142,7 @@
       </p>
     </div>
 
-    <div class="list">
+    <div class="list" id="test_radio_list">
       <ul>
         <li>
           <label class="item-radio item-content">
@@ -157,23 +162,12 @@
             </div>
           </label>
         </li>
-        {{#each radios}}
-        <li>
-          <label class="item-radio item-content">
-            <input type="radio" name="test_radio_id" value="{{this.radio_id}}">
-            <i class="icon icon-radio"></i>
-            <div class="item-inner">
-              <div class="item-title">{{this.name}}</div>
-            </div>
-          </label>
-        </li>
-        {{/each}}
       </ul>
     </div>
 
     <div class="block">
       <p class="row">
-        <a href="#" class="col button button-raised button-fill color-blue" id="test_signal_btn">Test signal</a>
+        <a href="#" class="col button button-raised button-fill color-blue" id="test_signal_btn">Test</a>
       </p>
     </div>
   </div>
