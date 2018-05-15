@@ -1,17 +1,41 @@
+var radios_action_sheet = app.actions.create({
+  buttons: [
+    {
+      text: 'Add remote control',
+      onClick: function () {
+        mainView.router.navigate('/rc_create/');
+      }
+    },
+    {
+      text: 'Add radio',
+      onClick: function () {
+        mainView.router.navigate('/radio_create/', {
+          context: {
+            radio: {},
+          },
+        });
+      }
+    },
+    {
+      text: 'Cancel',
+      color: 'red',
+    },
+  ]
+});
+
 var rc_action_sheet = app.actions.create({
   buttons: [
     {
       text: 'Add button',
       onClick: function () {
 
-        mainView.router.navigate('/button/', {
-          context: {
-            button: {
-              rc_id: $$('div.page[data-name=rc]').attr('data-rc-id'),
-              btn_type: 'ir'
-            }
-          }
-        });
+        var request = {};
+        request.action = 'button_edit';
+        request.content = {}
+        request.content.rc_id = $$('div.page[data-name=rc]').attr('data-rc-id');
+
+        sendRequest(request, socket_remotes);
+        app.preloader.show();
       }
     },
     // {

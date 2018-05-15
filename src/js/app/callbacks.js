@@ -130,43 +130,23 @@ var callbacks = {
         }
     },
     button_edit: function(response) {
-        if (response.edit) {
+        if (response.button) {
             response.radios.forEach(function(el) {
-                if (response.button.btn_radio_id == el.id)
+                if (response.button.btn_radio_id == el.radio_id)
                     el.btn_selected = true;
-            });
-
-            mainView.router.navigate('/button/', {
-                context: {
-                    button: response.button,
-                    radios: response.radios
-                }
-            });
-        } else {
-            app.dialog.close();
-
-            var rc_id = $$('div.page[data-page=rc_buttons]').attr('data-rc-id');
-            var rc_name = $$('div.page[data-page=rc_buttons]').attr('data-rc-name');
-
-            mainView.router.load({
-                url: 'static/rc_button_save.html',
-                context: {
-                    button: {
-                        rc_id: rc_id,
-                        rc_name: rc_name,
-                        btn_signal: response.signal,
-                        btn_type: 'ir',
-                        btn_radio: 999
-                    },
-                    radios: response.radios
-                }
             });
         }
 
+        mainView.router.navigate('/button/', {
+            context: {
+                button: response.button,
+                radios: response.radios
+            }
+        });
+
         app.preloader.hide();
-        // mainView.router.navigate('/rc/' + response.rc_id);
     },
-    button_saved: function(response) {
+    back_to_rc: function(response) {
         app.preloader.hide();
         mainView.router.navigate('/rc/' + response.rc_id);
     },

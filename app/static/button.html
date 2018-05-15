@@ -119,7 +119,7 @@
 
       <div class="block-title">Receved signal</div>
         <div class="card">
-          <div class="card-content card-content-padding" id="ir_signal">{{button.btn_signal}}</div>
+          <div class="card-content card-content-padding" id="ir_signal">{{#js_if "this.button.btn_type === 'ir'"}}{{button.btn_signal}}{{/js_if}}</div>
         </div>
       <div class="block">
         <p class="row">
@@ -133,7 +133,7 @@
             <div class="item-inner">
               <div class="item-title item-label">Command</div>
               <div class="item-input-wrap">
-                <input type="text" name="button_command" value="{{button.signal}}" placeholder="Enter command">
+                <input type="text" name="button_command" value="{{#js_if "this.button.btn_type === 'cmd'"}}{{button.btn_signal}}{{/js_if}}" placeholder="Enter command">
                 <span class="input-clear-button"></span>
               </div>
             </div>

@@ -20,55 +20,55 @@
   </div>
 
   <div class="page-content">
-  {{#if buttons}}
-    <input type="hidden" name="rc_id" value="{{rc_id}}">
-    <input type="hidden" name="rc_name" value="{{rc_name}}">
-    {{#if remove}}
-      <div class="block-title">Select to remove</div>
-    {{else}}
-      <div class="block-title">Select to edit</div>
+    <form id="button_list_form">
+    {{#if buttons}}
+      <input type="hidden" name="rc_id" value="{{rc_id}}">
+      {{#if remove}}
+        <div class="block-title">Select to remove</div>
+      {{else}}
+        <div class="block-title">Select to edit</div>
+      {{/if}}
+      
+      <div class="list">
+        <ul>
+          {{#if remove}}
+            {{#each buttons}}
+            <li>
+              <label class="item-checkbox item-content">
+                <input type="checkbox" name="buttons" value="{{this.id}}">
+                <i class="icon icon-checkbox"></i>
+                <div class="item-inner">
+                  <div class="item-title">{{this.name}}</div>
+                </div>
+              </label>
+            </li>
+            {{/each}}
+          {{else}}
+            {{#each buttons}}
+            <li>
+              <label class="item-radio item-content">
+                <input type="radio" name="button" value="{{this.id}}">
+                <i class="icon icon-radio"></i>
+                <div class="item-inner">
+                  <div class="item-title">{{this.name}}</div>
+                </div>
+              </label>
+            </li>
+            {{/each}}
+          {{/if}}
+        </ul>
+      </div>
+
+      <div class="block">
+        <p class="row">
+          {{#if remove}}
+            <a href="#" class="col button button-raised button-fill color-blue" id="button_remove_btn">Remove</a>
+          {{else}}
+            <a href="#" class="col button button-raised button-fill color-blue" id="button_edit_btn">Edit</a>
+          {{/if}}
+        </p>
+      </div>
     {{/if}}
-    
-    <div class="list">
-      <ul>
-        {{#if remove}}
-          {{#each buttons}}
-          <li>
-            <label class="item-checkbox item-content">
-              <input type="checkbox" name="button" value="{{this.id}}">
-              <i class="icon icon-checkbox"></i>
-              <div class="item-inner">
-                <div class="item-title">{{this.name}}</div>
-              </div>
-            </label>
-          </li>
-          {{/each}}
-        {{else}}
-          {{#each buttons}}
-          <li>
-            <label class="item-radio item-content">
-              <input type="radio" name="button" value="{{this.id}}">
-              <i class="icon icon-radio"></i>
-              <div class="item-inner">
-                <div class="item-title">{{this.name}}</div>
-              </div>
-            </label>
-          </li>
-          {{/each}}
-        {{/if}}
-      </ul>
-    </div>
-
-    <div class="block">
-      <p class="row">
-        {{#if remove}}
-          <a href="#" class="col button button-raised button-fill color-blue" id="buttons_remove_btn">Remove</a>
-        {{else}}
-          <a href="#" class="col button button-raised button-fill color-blue" id="button_edit_btn">Edit</a>
-        {{/if}}
-      </p>
-    </div>
-  {{/if}}
-
+    </form>
   </div>
 </div>

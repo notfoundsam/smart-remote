@@ -1,82 +1,72 @@
-<div class="pages">
-  <div data-page="radio_create" class="page">
-    <div class="navbar">
-      <div class="navbar-inner">
-        <!-- We need cool sliding animation on title element, so we have additional "sliding" class -->
-         <div class="left">
-            <a href="static/status.html" class="link icon-only">
-                <i class="icon icon-back"></i>
-            </a>
-        </div>
-        <div class="center sliding">Add new Radio</div>
-        <div class="right">
-          <a href="#" class="link icon-only open-panel"><i class="icon icon-bars"></i></a>
-        </div>
+<div data-name="radio_create" class="page">
+
+  <div class="navbar">
+    <div class="navbar-inner sliding">
+      <div class="left">
+        <a class="link back">
+          <i class="icon icon-back"></i>
+          <span class="ios-only">Back</span>
+        </a>
+      </div>
+      <div class="title">Add new Radio</div>
+      <div class="right">
+        <a href="#" data-panel="left" class="link panel-open"><i class="fa fa-bars size-22" aria-hidden="true"></i></a>
       </div>
     </div>
+  </div>
 
-    <div class="page-content">
+  <div class="page-content">
+    <form id="radio_create_form">
       <input type="hidden" name="radio" value="{{radio.id}}">
-      <div class="content-block-title">Radio settings</div>
-      <div class="list-block">
+      
+      <div class="block-title">Radio settings</div>
+      <div class="list no-hairlines-md">
         <ul>
-          <!-- Text inputs -->
-          <li>
-            <div class="item-content">
-              <div class="item-inner">
-                <div class="item-title floating-label">Radio name</div>
-                <div class="item-input">
-                  <input type="text" name="radio_name" value="{{radio.name}}">
-                </div>
+          <li class="item-content item-input">
+            <div class="item-inner">
+              <div class="item-title item-label">Radio name</div>
+              <div class="item-input-wrap">
+                <input type="text" name="button_name" value="{{radio.name}}" placeholder="Button name" required validate data-error-message="Enter a name">
+                <span class="input-clear-button"></span>
               </div>
             </div>
           </li>
-          <li>
-            <div class="item-content">
-              <div class="item-inner">
-                <div class="item-title floating-label">Radio sensor number</div>
-                <div class="item-input">
-                  <input type="tel" name="radio_id" value="{{radio.radio_id}}">
-                </div>
+          <li class="item-content item-input">
+            <div class="item-inner">
+              <div class="item-title item-label">Radio pipe number</div>
+              <div class="item-input-wrap">
+                <input type="tel" name="button_order_ver" value="{{radio.radio_id}}" placeholder="Enter a pipe number" required validate pattern="[0-9]*" data-error-message="Only numbers please!">
+                <span class="input-clear-button"></span>
               </div>
             </div>
           </li>
-          <li>
-            <div class="item-content">
-              <div class="item-inner">
-                <div class="item-title floating-label">Order</div>
-                <div class="item-input">
-                  <input type="tel" name="radio_order" value="{{radio.order}}">
-                </div>
+          <li class="item-content item-input">
+            <div class="item-inner">
+              <div class="item-title item-label">Order</div>
+              <div class="item-input-wrap">
+                <input type="tel" name="button_order_hor" value="{{radio.order}}" placeholder="Order horizontal" required validate pattern="[0-9]*" data-error-message="Only numbers please!">
+                <span class="input-clear-button"></span>
               </div>
             </div>
           </li>
         </ul>
       </div>
 
-      <!-- RC OPTIONS START -->
-      <div class="content-block-title">Radio has the following sensors</div>
-      <div class="list-block">
+      <div class="list">
         <ul>
           <li>
-            <label class="label-checkbox item-content">
-              <!-- Checked by default -->
+            <label class="item-checkbox item-content">
               <input type="checkbox" name="radio_battery" value="1"{{#js_if "this.radio.battery === true"}} checked{{/js_if}}>
-              <div class="item-media">
-                <i class="icon icon-form-checkbox"></i>
-              </div>
+              <i class="icon icon-checkbox"></i>
               <div class="item-inner">
                 <div class="item-title">Battery</div>
               </div>
             </label>
           </li>
           <li>
-            <label class="label-checkbox item-content">
-              <!-- Checked by default -->
+            <label class="item-checkbox item-content">
               <input type="checkbox" name="radio_dht" value="1"{{#js_if "this.radio.dht === true"}} checked{{/js_if}}>
-              <div class="item-media">
-                <i class="icon icon-form-checkbox"></i>
-              </div>
+              <i class="icon icon-checkbox"></i>
               <div class="item-inner">
                 <div class="item-title">DHT sensor</div>
               </div>
@@ -84,13 +74,12 @@
           </li>
         </ul>
       </div>
-      <!-- RC OPTIONS END -->
-      
-      <div class="content-block">
-        <p class="buttons-row">
-          <a href="#" class="button-control button button-raised button-fill color-blue" id="radio_save_btn">Save</a>
+
+      <div class="block">
+        <p class="row">
+          <a href="#" class="col button button-raised button-fill color-blue" id="radio_save_btn">Save</a>
         </p>
       </div>
-    </div>
+    </form>
   </div>
 </div>

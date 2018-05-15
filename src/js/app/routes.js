@@ -1,15 +1,61 @@
 var app_routes = [
   {
     path: '/radios/',
-    url: './static/radios.html',
+    templateUrl: './static/radios.html',
     on: {
       pageInit: function (e, page) {
         var request = {};
 
         request.action = 'radios_refresh';
         sendRequest(request, socket_radios);
+
+        $$('#radios_action_btn').on('click', function () {
+          radios_action_sheet.open();
+        });
       },
     }
+  },
+  {
+    name: 'rc_create',
+    path: '/rc_create/',
+    templateUrl: './static/rc_create.html',
+    on: {
+      pageInit: function (e, page) {
+        page.$el.find('#rc_save_btn').on('click', function () {
+          app.input.validateInputs('#rc_create_form');
+          var content = app.form.convertToData('#rc_create_form');
+
+          if (content.rc_name && content.rc_icon) {
+            var request = {};
+            request.action = 'rc_save';
+            request.content = content;
+            sendRequest(request, socket_remotes);
+            mainView.router.navigate('/radios/');
+          }
+        });
+      },
+    }
+  },
+  {
+    name: 'radio_create',
+    path: '/radio_create/',
+    templateUrl: './static/radio_create.html',
+    on: {
+      pageInit: function (e, page) {
+        // page.$el.find('#rc_save_btn').on('click', function () {
+        //   app.input.validateInputs('#rc_create_form');
+        //   var content = app.form.convertToData('#rc_create_form');
+
+        //   if (content.rc_name && content.rc_icon) {
+        //     var request = {};
+        //     request.action = 'rc_save';
+        //     request.content = content;
+        //     sendRequest(request, socket_remotes);
+        //     mainView.router.navigate('/radios/');
+        //   }
+        // });
+      },
+    },
   },
   {
     name: 'rc',
@@ -87,25 +133,17 @@ var app_routes = [
     templateUrl: './static/button_list.html',
     on: {
       pageInit: function (e, page) {
-        // $$('#rc_buttons_remove_btn').on('click', function () {
-        //   var request = {};
-        //   var buttons = [];
-        //   var page = $$(this).closest('.page-content');
+        $$('#button_remove_btn').on('click', function () {
+          var request = {};
+          var buttons = [];
+          var content = app.form.convertToData('#button_list_form');
 
-        //   request.action = 'rc_buttons_remove';
-        //   request.content = {}
-        //   request.content.rc_id = page.find('input[name=rc_id]').val();
-        //   request.content.rc_name = page.find('input[name=rc_name]').val();
-          
-        //   page.find('input[name=button]:checked').each(function() {
-        //       buttons.push($$(this).val());
-        //   });
+          request.action = 'rc_button_remove';
+          request.content = content;
 
-        //   request.content.buttons = buttons;
-
-        //   sendRequest(request, socket_remotes);
-        //   myApp.showIndicator();
-        // });
+          sendRequest(request, socket_remotes);
+          app.preloader.show();
+        });
 
         $$('#button_edit_btn').on('click', function () {
           var button = page.$el.find('input[name=button]:checked').val();

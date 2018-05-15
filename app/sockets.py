@@ -64,24 +64,29 @@ def handle_json(data):
         if rc.createButton(content) == True:
             lirc.regenerateLircCommands()
             lirc.reloadLirc()
-            emit('json', {'response': {'result': 'success', 'callback': 'button_saved', 'rc_id': content['rc_id']}})
+            emit('json', {'response': {'result': 'success', 'callback': 'back_to_rc', 'rc_id': content['rc_id']}})
 
-    elif data['action'] == 'rc_buttons_remove':
+    elif data['action'] == 'rc_button_remove':
         content = data['content']
 
         rc.removeButton(content)
-        emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote', 'rc_id': content['rc_id'], 'rc_name': content['rc_name']}})
+        emit('json', {'response': {'result': 'success', 'callback': 'back_to_rc', 'rc_id': content['rc_id']}})
 
     elif data['action'] == 'button_edit':
         content = data['content']
 
-        button = rc.getButton(content)
-        if button is not None:
-            sensor = RadioSensor()
-            radios = sensor.getRadiosIdName()
-            emit('json', {'response': {'result': 'success', 'callback': 'button_edit', 'button': button, 'radios': radios, 'edit': True}})
+        sensor = RadioSensor()
+        radios = sensor.getRadiosIdName()
+
+        if 'button' in content:
+            button = rc.getButton(content)
+
+            if button is None:
+                emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
         else:
-            emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
+            button = {'rc_id': content['rc_id'], 'btn_type': 'ir'}
+        
+        emit('json', {'response': {'result': 'success', 'callback': 'button_edit', 'button': button, 'radios': radios}})
 
     elif data['action'] == 'rc_refresh':
         remotes = rc.getRemotesList()
