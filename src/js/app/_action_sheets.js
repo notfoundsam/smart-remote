@@ -12,6 +12,7 @@ var radios_action_sheet = app.actions.create({
         mainView.router.navigate('/radio_create/', {
           context: {
             radio: {},
+            new: true
           },
         });
       }

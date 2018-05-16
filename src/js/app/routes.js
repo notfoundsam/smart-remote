@@ -42,18 +42,18 @@ var app_routes = [
     templateUrl: './static/radio_create.html',
     on: {
       pageInit: function (e, page) {
-        // page.$el.find('#rc_save_btn').on('click', function () {
-        //   app.input.validateInputs('#rc_create_form');
-        //   var content = app.form.convertToData('#rc_create_form');
+        page.$el.find('#radio_save_btn').on('click', function () {
+          app.input.validateInputs('#radio_create_form');
+          var content = app.form.convertToData('#radio_create_form');
 
-        //   if (content.rc_name && content.rc_icon) {
-        //     var request = {};
-        //     request.action = 'rc_save';
-        //     request.content = content;
-        //     sendRequest(request, socket_remotes);
-        //     mainView.router.navigate('/radios/');
-        //   }
-        // });
+          if (content.radio_name && content.radio_pipe && content.radio_order) {
+            var request = {};
+            request.action = 'radio_save';
+            request.content = content;
+            sendRequest(request, socket_radios);
+            mainView.router.navigate('/radios/');
+          }
+        });
       },
     },
   },

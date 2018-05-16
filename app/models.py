@@ -54,7 +54,7 @@ class Button(db.Model):
     timestamp = db.Column(db.DateTime)
     signal = db.Column(db.Text)
     remote_id = db.Column(db.Integer, db.ForeignKey('remote.id'))
-    radio_id = db.Column(db.Integer, db.ForeignKey('radio.radio_id'))
+    radio_id = db.Column(db.Integer, db.ForeignKey('radio.id'))
     type = db.Column(db.String(20))
 
     def __repr__(self):
@@ -62,7 +62,7 @@ class Button(db.Model):
 
 class Radio(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    radio_id = db.Column(db.Integer)
+    pipe = db.Column(db.Integer)
     name = db.Column(db.String(200))
     enabled = db.Column(db.Boolean)
     order = db.Column(db.Integer)

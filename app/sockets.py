@@ -84,7 +84,7 @@ def handle_json(data):
             if button is None:
                 emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
         else:
-            button = {'rc_id': content['rc_id'], 'btn_type': 'ir'}
+            button = {'rc_id': content['rc_id'], 'btn_type': 'ir', 'btn_radio_id': 0}
         
         emit('json', {'response': {'result': 'success', 'callback': 'button_edit', 'button': button, 'radios': radios}})
 

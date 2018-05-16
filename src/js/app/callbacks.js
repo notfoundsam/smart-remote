@@ -164,7 +164,7 @@ var callbacks = {
                 var card_content_inner = $$('<div class="row"></div>');
                 var card_footer = $$('<div class="card-footer"><a href="#" class="radio-edit-btn" data-id="' + element.id + '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</a><a href="#" class="radio-remove-btn" data-id="' + element.id + '"><i class="fa fa-trash-o" aria-hidden="true"></i> Remove</a></div>');
                 
-                card_header.append($$('<div></div>').text(element.name + ' (radio number: ' + element.radio_id + ')'));
+                card_header.append($$('<div></div>').text(element.name + ' (radio number: ' + element.pipe + ')'));
 
                 if (element.battery) {
                     card_header.append($$('<div class="sensor-bat"><i class="fa fa-battery-full" aria-hidden="true"></i></div>'));
