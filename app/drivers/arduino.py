@@ -1,6 +1,6 @@
 from __future__ import print_function
 import serial
-import time
+import time, random
 import array
 import os, sys
 import threading, Queue
@@ -203,7 +203,7 @@ class ArduinoQueueRadio():
         self.ser.flushInput()
         self.ser.flushOutput()
 
-        self.signal = 'c%s %s\n' % (self.radio.radio_id, 'status')
+        self.signal = 'c%s %s\n' % (self.radio.pipe, 'status')
 
         partial_signal = [self.signal[i:i+self.buffer] for i in range(0, len(self.signal), self.buffer)]
         
@@ -250,7 +250,7 @@ class ArduinoQueueRadio():
             if 'bat' in sensors_data:
                 sensors['bat'] = sensors_data['bat']
 
-        so.emit('json', {'response': {'result': 'success', 'callback': 'radio_sensor_refresh', 'rid': self.radio.id, 'sensors': sensors}}, namespace='/radios')
+        so.emit('json', {'response': {'result': 'success', 'callback': 'radio_sensor_refresh', 'id': self.radio.id, 'sensors': sensors}}, namespace='/radios')
 
 class SerialDev():
     
@@ -271,4 +271,7 @@ class SerialDev():
         print(data, file=sys.stderr)
 
     def readline(self):
-        return "temp 20.00,hum 45.00,bat 0.18:OK\n"
+        temp = random.uniform(18, 26)
+        hum = random.uniform(35, 65)
+        bat = random.uniform(0.1, 1)
+        return "temp %.2f,hum %.2f,bat %.2f:OK\n" % (temp, hum, bat)

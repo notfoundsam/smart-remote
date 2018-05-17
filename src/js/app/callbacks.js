@@ -158,7 +158,7 @@ var callbacks = {
         
         if (page.length && radios.length) {
             radios.forEach(function(element) {
-                var card = $$('<div class="card" id="rid_' + element.id + '"></div>');
+                var card = $$('<div class="card" id="id_' + element.id + '"></div>');
                 var card_header = $$('<div class="card-header"></div>');
                 var card_content = $$('<div class="card-content card-content-padding"></div>');
                 var card_content_inner = $$('<div class="row"></div>');
@@ -201,23 +201,19 @@ var callbacks = {
         }
     },
     radio_edit: function(response) {
-        var radios = response.radios;
-        var page = $$('div.page[data-page=status]');
-
-        mainView.router.load({
-            url: 'static/radio_create.html',
-            context: {
-                radio: response.radio
-            }
+        mainView.router.navigate('/radio_create/', {
+          context: {
+            radio: response.radio,
+            new: false
+          },
         });
     },
     radio_sensor_refresh: function(response) {
-        var rid = response.rid;
         // var sensors = response.sensors;
-        var page = $$('div.page[data-name=index]');
+        var page = $$('div.page[data-name=radios]');
 
         if (page.length) {
-            var radio = $$('#rid_' + rid);
+            var radio = $$('#id_' + response.id);
 
             if (response.sensors.temp) {
                 radio.find('.sensor-temp').html(response.sensors.temp)
