@@ -9,9 +9,6 @@ function activateConnection() {
             request.action = 'rc_refresh';
             sendRequest(request, socket_remotes);
         });
-        // socket_remotes.on('message', function(msg) {
-        //     console.log(msg);
-        // });
         socket_remotes.on('json', function(data) {
             console.log(data);
             if (data.response) {
@@ -21,18 +18,24 @@ function activateConnection() {
 
         
     }
-    // console.log(socket_remotes);
-    // if (socket_commands == null) {
+
+    if (socket_radios == null) {
         
-    //     socket = io.connect('http://' + document.domain + ':' + location.port + '/commands');
-    //     socket.on('connect', function() {
-    //         console.log('connected to commands');
-    //         // socket.emit('my event', {data: 'I\'m connected!'});
-    //     });
-    //     socket.on('message', function(msg) {
-    //         console.log(msg);
-    //     });
-    // }
+        socket_radios = io.connect('http://' + document.domain + ':' + location.port + '/radios');
+        socket_radios.on('connect', function() {
+            // console.log('connected to radios');
+            // var request = {};
+
+            // request.action = 'radios_refresh';
+            // sendRequest(request, socket_radios);
+        });
+        socket_radios.on('json', function(data) {
+            console.log(data);
+            if (data.response) {
+                parseResponse(data.response);
+            }
+        });
+    }
 }
 
 

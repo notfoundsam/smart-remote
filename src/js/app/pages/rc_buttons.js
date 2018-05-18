@@ -28,6 +28,33 @@ myApp.onPageInit('rc_buttons', function (page) {
                 }
             },
             {
+                text: 'Edit Button',
+                onClick: function () {
+                    var rc_name = $$('div.page[data-page=rc_buttons]').attr('data-rc-name');
+                    var rc_id = $$('div.page[data-page=rc_buttons]').attr('data-rc-id');
+                    var buttons = [];
+
+                    $$('#buttons_area a.button').each(function() {
+                        var btn = {};
+
+                        btn.id = $$(this).attr('data-btn-id');
+                        btn.name = $$(this).text();
+                        
+                        buttons.push(btn);
+                    });
+                    
+                    mainView.router.load({
+                        url: 'static/rc_button_list.html',
+                        context: {
+                            remove: false,
+                            buttons: buttons,
+                            rc_id: rc_id,
+                            rc_name: rc_name
+                        }
+                    });
+                }
+            },
+            {
                 text: 'Remove Buttons',
                 onClick: function () {
                     var rc_name = $$('div.page[data-page=rc_buttons]').attr('data-rc-name');
@@ -44,8 +71,9 @@ myApp.onPageInit('rc_buttons', function (page) {
                     });
                     
                     mainView.router.load({
-                        url: 'static/rc_buttons_remove.html',
+                        url: 'static/rc_button_list.html',
                         context: {
+                            remove: true,
                             buttons: buttons,
                             rc_id: rc_id,
                             rc_name: rc_name
