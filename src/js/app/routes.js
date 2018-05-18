@@ -9,8 +9,15 @@ var app_routes = [
         request.action = 'radios_refresh';
         sendRequest(request, socket_radios);
 
-        $$('#radios_action_btn').on('click', function () {
+        page.$el.find('#radios_action_btn').on('click', function () {
           radios_action_sheet.open();
+        });
+
+        page.$el.find('#lirc_update_btn').on('click', function () {
+          var request = {};
+
+          request.action = 'lirc_update';
+          sendRequest(request, socket_remotes);
         });
       },
     }
@@ -87,10 +94,6 @@ var app_routes = [
     templateUrl: './static/button.html',
     on: {
       pageInit: function (e, page) {
-        // var request = {};
-        // request.action = 'get_radio_options';
-        // sendRequest(request, socket_radios);
-
         page.$el.find('#catch_ir_signal_btn').on('click', function () {
           var request = {};
           request.action = 'catch_ir_signal';
@@ -112,15 +115,36 @@ var app_routes = [
         });
 
         page.$el.find('#test_signal_btn').on('click', function () {
-          // var request = {};
-          // var page = $$(this).closest('.page-content');
+          var form = page.$el.find('#button_form');
+          var button_type = form.find('input[name=button_type]:checked').val();
 
-          // request.action = 'test_signal';
-          // request.content = {}
-          // request.content.radio_id = page.find('input[name=test_radio_id]:checked').val();
-          // request.content.signal = page.find('#btn_signal').text();
+          var request = {};
+          request.action = 'test_signal';
+          request.content = {}
+          
+          if (button_type == 'ir') {
+            var ir_signal = form.find('#ir_signal').text();
 
-          // sendRequest(request, socket_remotes);
+            if (ir_signal) {
+              request.content.signal = ir_signal;
+            } else {
+              app.dialog.alert('No IR signal', 'Invalid input');
+              return;
+            }
+          } else {
+            var command = form.find('input[name=button_command]').val();
+
+            if (command) {
+              request.content.signal = command;
+            } else {
+              app.dialog.alert('No command', 'Invalid input');
+              return;
+            }
+          }
+
+          request.content.button_type = button_type;
+          request.content.radio_id = page.$el.find('input[name=test_radio_id]:checked').val();
+          sendRequest(request, socket_remotes);
         });
       },
       pageAfterIn: function (e, page) {

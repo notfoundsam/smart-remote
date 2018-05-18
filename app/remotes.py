@@ -151,4 +151,8 @@ class RemoteControl:
             
             return True
         else:
-            response = arduino.sendIrSignal(content['signal'], content['radio_id'])
+            btn = Button(
+                signal = content['signal'],
+                radio_id = content['radio_id'],
+                type = content['button_type'])
+            arduino.send(btn, self.sid)

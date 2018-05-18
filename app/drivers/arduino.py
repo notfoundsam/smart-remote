@@ -120,7 +120,7 @@ class ArduinoQueueItem():
 
     def __init__(self, ser, btn, sid, priority):
         self.signal = ''
-        self.buffer = 30
+        self.buffer = 32
         self.ser = ser
         self.btn = btn
         self.sid = sid
@@ -150,11 +150,9 @@ class ArduinoQueueItem():
         self.ser.flushInput()
         self.ser.flushOutput()
 
-        # print('btn start', file=sys.stderr)
-
         if self.btn.type == 'ir':
             self.prepareIrSignal()
-        elif btn.type == 'cmd':
+        elif self.btn.type == 'cmd':
             self.prepareCommand()
 
         partial_signal = [self.signal[i:i+self.buffer] for i in range(0, len(self.signal), self.buffer)]
@@ -178,12 +176,12 @@ class ArduinoQueueItem():
             response = ser.readline()
 
         data = response.split(':')
-        # print('btn end', file=sys.stderr)
 
-        if data[1] == 'FAIL':
-            so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
-        elif data[1] == 'OK':
-            so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
+        if 1 < len(data):
+            if data[1] == 'FAIL':
+                so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
+            elif data[1] == 'OK':
+                so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
         else:
             so.emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}}, namespace='/remotes', room=self.sid)
 
@@ -191,7 +189,7 @@ class ArduinoQueueRadio():
 
     def __init__(self, ser, radio, priority):
         self.signal = ''
-        self.buffer = 30
+        self.buffer = 32
         self.ser = ser
         self.radio = radio
         self.priority = priority
@@ -228,10 +226,11 @@ class ArduinoQueueRadio():
         data = response.split(':')
         print(repr(response), file=sys.stderr)
 
-        if data[1] == 'FAIL':
-            so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')
-        elif data[1] == 'OK':
-            self.getStatus(data[0])
+        if 1 < len(data):
+            if data[1] == 'FAIL':
+                so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')
+            elif data[1] == 'OK':
+                self.getStatus(data[0])
         else:
             so.emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}}, namespace='/radios')
 
