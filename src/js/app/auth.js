@@ -3,11 +3,11 @@ $$('#login').on('click', function() {
     var password = $$('input[name=password]').val();
 
     if (!username || !password) {
-        myApp.alert('Enter both username and password', 'Input error');
+        app.dialog.alert('Enter both username and password', 'Input error');
         return;
     }
 
-    $$.ajax({
+    app.request({
         url: '/api/v1.0/login',
         type: 'POST',
         data: {
@@ -20,17 +20,18 @@ $$('#login').on('click', function() {
                 case 10: 
                     // $$('#username').text(d_obj.result.current_user);
                     // current_bidder = d_obj.result.current_bidder;
-                    mainView.router.load({
-                        url: 'static/status.html'
-                    });
+                    // mainView.router.load({
+                    //     url: 'static/status.html'
+                    // });
+                    mainView.router.navigate('/radios/');
                     activateConnection();
-                    myApp.closeModal('.login-screen');
+                    loginScreen.close();
                     break;
                 case 20: 
-                    myApp.closeModal('.login-screen');
+                    loginScreen.close();
                     break;
                 case 30:
-                    myApp.alert('Login or password incorect', 'Login error');
+                    app.dialog.alert('Login or password incorect', 'Login error');
                     break;
             }
         }
@@ -38,17 +39,17 @@ $$('#login').on('click', function() {
 });
 
 $$('#logout').on('click', function() {
-    $$.ajax({
+    app.request({
         url: '/api/v1.0/logout',
         type: 'POST',
         success: function (data) {
             var d_obj = JSON.parse(data);
             switch (d_obj.status_code) {
                 case 40: 
-                    myApp.loginScreen();
+                    loginScreen.open();
                     break;
                 default:
-                    myApp.alert('Refresh the page', 'Logout error');
+                    app.dialog.alert('Refresh the page', 'Logout error');
                     break;
             }
         }

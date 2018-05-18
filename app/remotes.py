@@ -29,31 +29,31 @@ class RemoteControl:
         rc = Remote.query.filter_by(identificator = content['rc_id']).first()
 
         if rc is not None:
-            if content['btn_id']:
-                btn = Button.query.filter_by(identificator = content['btn_id']).first()
+            if content['button_id']:
+                btn = Button.query.filter_by(identificator = content['button_id']).first()
 
                 if btn is None:
                     return False
 
-                btn.name = content['btn_name']
-                btn.order_hor = content['btn_order_hor']
-                btn.order_ver = content['btn_order_ver']
-                btn.color = content['btn_color']
-                btn.signal = content['btn_signal']
-                btn.radio_id = content['btn_radio_id']
-                btn.type = content['btn_type']
+                btn.name = content['button_name']
+                btn.order_hor = content['button_order_hor']
+                btn.order_ver = content['button_order_ver']
+                btn.color = content['button_color']
+                btn.signal = content['button_signal'] if content['button_type'] == 'ir' else content['button_command']
+                btn.radio_id = content['button_radio_id']
+                btn.type = content['button_type']
                 btn.timestamp = datetime.utcnow()
             else:
                 btn_id = "BTN_" + str(uuid.uuid4()).replace('-', '_')
                 btn = Button(identificator = btn_id,
-                            name = content['btn_name'],
-                            order_hor = content['btn_order_hor'],
-                            order_ver = content['btn_order_ver'],
-                            color = content['btn_color'],
-                            signal = content['btn_signal'],
+                            name = content['button_name'],
+                            order_hor = content['button_order_hor'],
+                            order_ver = content['button_order_ver'],
+                            color = content['button_color'],
+                            signal = content['button_signal'] if content['button_type'] == 'ir' else content['button_command'],
                             remote_id = rc.id,
-                            radio_id = content['btn_radio_id'],
-                            type = content['btn_type'],
+                            radio_id = content['button_radio_id'],
+                            type = content['button_type'],
                             timestamp = datetime.utcnow())
 
                 db.session.add(btn)
@@ -124,6 +124,14 @@ class RemoteControl:
 
         return buttons
 
+    def getRemoteName(self, rc_id):
+        rc = Remote.query.filter_by(identificator = rc_id).first()
+
+        if rc is not None:
+            return rc.name
+
+        return ''
+
     def execute(self, btn_id):
         btn = Button.query.filter_by(identificator = btn_id).first()
         
@@ -143,4 +151,8 @@ class RemoteControl:
             
             return True
         else:
-            response = arduino.sendIrSignal(content['signal'], content['radio_id'])
+            btn = Button(
+                signal = content['signal'],
+                radio_id = content['radio_id'],
+                type = content['button_type'])
+            arduino.send(btn, self.sid)

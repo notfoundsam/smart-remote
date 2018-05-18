@@ -1,6 +1,6 @@
 from __future__ import print_function
 import serial
-import time
+import time, random
 import array
 import os, sys
 import threading, Queue
@@ -120,7 +120,7 @@ class ArduinoQueueItem():
 
     def __init__(self, ser, btn, sid, priority):
         self.signal = ''
-        self.buffer = 30
+        self.buffer = 32
         self.ser = ser
         self.btn = btn
         self.sid = sid
@@ -150,11 +150,9 @@ class ArduinoQueueItem():
         self.ser.flushInput()
         self.ser.flushOutput()
 
-        # print('btn start', file=sys.stderr)
-
         if self.btn.type == 'ir':
             self.prepareIrSignal()
-        elif btn.type == 'cmd':
+        elif self.btn.type == 'cmd':
             self.prepareCommand()
 
         partial_signal = [self.signal[i:i+self.buffer] for i in range(0, len(self.signal), self.buffer)]
@@ -178,12 +176,12 @@ class ArduinoQueueItem():
             response = ser.readline()
 
         data = response.split(':')
-        # print('btn end', file=sys.stderr)
 
-        if data[1] == 'FAIL':
-            so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
-        elif data[1] == 'OK':
-            so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
+        if 1 < len(data):
+            if data[1] == 'FAIL':
+                so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
+            elif data[1] == 'OK':
+                so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
         else:
             so.emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}}, namespace='/remotes', room=self.sid)
 
@@ -191,7 +189,7 @@ class ArduinoQueueRadio():
 
     def __init__(self, ser, radio, priority):
         self.signal = ''
-        self.buffer = 30
+        self.buffer = 32
         self.ser = ser
         self.radio = radio
         self.priority = priority
@@ -203,7 +201,7 @@ class ArduinoQueueRadio():
         self.ser.flushInput()
         self.ser.flushOutput()
 
-        self.signal = 'c%s %s\n' % (self.radio.radio_id, 'status')
+        self.signal = 'c%s %s\n' % (self.radio.pipe, 'status')
 
         partial_signal = [self.signal[i:i+self.buffer] for i in range(0, len(self.signal), self.buffer)]
         
@@ -228,10 +226,11 @@ class ArduinoQueueRadio():
         data = response.split(':')
         print(repr(response), file=sys.stderr)
 
-        if data[1] == 'FAIL':
-            so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')
-        elif data[1] == 'OK':
-            self.getStatus(data[0])
+        if 1 < len(data):
+            if data[1] == 'FAIL':
+                so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')
+            elif data[1] == 'OK':
+                self.getStatus(data[0])
         else:
             so.emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}}, namespace='/radios')
 
@@ -250,7 +249,7 @@ class ArduinoQueueRadio():
             if 'bat' in sensors_data:
                 sensors['bat'] = sensors_data['bat']
 
-        so.emit('json', {'response': {'result': 'success', 'callback': 'radio_sensor_refresh', 'rid': self.radio.id, 'sensors': sensors}}, namespace='/radios')
+        so.emit('json', {'response': {'result': 'success', 'callback': 'radio_sensor_refresh', 'id': self.radio.id, 'sensors': sensors}}, namespace='/radios')
 
 class SerialDev():
     
@@ -271,4 +270,7 @@ class SerialDev():
         print(data, file=sys.stderr)
 
     def readline(self):
-        return "temp 20.00,hum 45.00,bat 0.18:OK\n"
+        temp = random.uniform(18, 26)
+        hum = random.uniform(35, 65)
+        bat = random.uniform(0.1, 1)
+        return "temp %.2f,hum %.2f,bat %.2f:OK\n" % (temp, hum, bat)

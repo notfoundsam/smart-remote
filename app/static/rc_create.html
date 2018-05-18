@@ -1,47 +1,41 @@
-<div class="pages">
-  <div data-page="rc_create" class="page">
-    <div class="navbar">
-      <div class="navbar-inner">
-        <!-- We need cool sliding animation on title element, so we have additional "sliding" class -->
-         <div class="left">
-            <a href="static/status.html" class="link icon-only">
-                <i class="icon icon-back"></i>
-            </a>
-        </div>
-        <div class="center sliding">Add new RC</div>
-        <div class="right">
-          <a href="#" class="link icon-only open-panel"><i class="icon icon-bars"></i></a>
-        </div>
+<div data-name="rc_create" class="page">
+
+  <div class="navbar">
+    <div class="navbar-inner sliding">
+      <div class="left">
+        <a class="link back">
+          <i class="icon icon-back"></i>
+          <span class="ios-only">Back</span>
+        </a>
+      </div>
+      <div class="title">Add new RC</div>
+      <div class="right">
+        <a href="#" data-panel="left" class="link panel-open"><i class="fa fa-bars size-22" aria-hidden="true"></i></a>
       </div>
     </div>
+  </div>
 
-    <div class="page-content">
-
-      <div class="content-block-title">RC settings</div>
-      <div class="list-block">
+  <div class="page-content">
+    <form id="rc_create_form">
+      <div class="block-title">RC settings</div>
+      <div class="list no-hairlines-md">
         <ul>
-          <!-- Text inputs -->
-          <li>
-            <div class="item-content">
-              <div class="item-inner">
-                <div class="item-title floating-label">RC name</div>
-                <div class="item-input">
-                  <input type="text" name="rc_name" value="">
-                </div>
+          <li class="item-content item-input">
+            <div class="item-inner">
+              <div class="item-title item-label">RC name</div>
+              <div class="item-input-wrap">
+                <input type="text" name="rc_name" value="" placeholder="Button name" required validate data-error-message="Enter a name">
+                <span class="input-clear-button"></span>
               </div>
             </div>
           </li>
         </ul>
       </div>
 
-      <!-- RC OPTIONS START -->
-      <div class="content-block-title">Remote icon</div>
-      <div class="list-block">
+      <div class="list">
         <ul>
           <li>
-            <!-- Additional "smart-select" class -->
-            <a href="#" class="item-link smart-select">
-              <!-- select -->
+            <a class="item-link smart-select smart-select-init">
               <select name="rc_icon">
                 <option value="fa fa-lightbulb-o" data-option-icon="fa fa-lightbulb-o" selected>Light</option>
                 <option value="fa fa-television" data-option-icon="fa fa-television">TV</option>
@@ -59,7 +53,6 @@
               </select>
               <div class="item-content">
                 <div class="item-inner">
-                  <!-- Select label -->
                   <div class="item-title">Choose icon</div>
                 </div>
               </div>
@@ -67,13 +60,12 @@
           </li>
         </ul>
       </div>
-      <!-- RC OPTIONS END -->
-      
-      <div class="content-block">
-        <p class="buttons-row">
-          <a href="#" class="button-control button button-raised button-fill color-blue" id="rc_save_btn">Save</a>
+
+      <div class="block">
+        <p class="row">
+          <a href="#" class="col button button-raised button-fill color-blue" id="rc_save_btn">Save</a>
         </p>
       </div>
-    </div>
+    </form>
   </div>
 </div>

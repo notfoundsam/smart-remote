@@ -8,14 +8,14 @@ import threading, time
 
 class RadioSensor():
     def create(self, content):
-        if content['radio']:
-            radio = Radio.query.filter_by(id = content['radio']).first()
+        if content['radio_id']:
+            radio = Radio.query.filter_by(id = content['radio_id']).first()
 
             if radio is None:
                 return False
 
             radio.name = content['radio_name']
-            radio.radio_id = content['radio_id']
+            radio.pipe = content['radio_pipe']
             # radio.enabled = content['enabled']
             radio.order = content['radio_order']
             radio.battery = content['radio_battery']
@@ -23,7 +23,7 @@ class RadioSensor():
             radio.timestamp = datetime.utcnow()
         else:
             radio = Radio(name = content['radio_name'],
-                            radio_id = content['radio_id'],
+                            pipe = content['radio_pipe'],
                             enabled = True,
                             order = content['radio_order'],
                             battery = content['radio_battery'],
@@ -50,7 +50,7 @@ class RadioSensor():
         for radio in Radio.query.order_by(Radio.id).all():
             r = {
                 'id': radio.id,
-                'radio_id': radio.radio_id,
+                'pipe': radio.pipe,
                 'name': radio.name,
                 'battery': radio.battery,
                 'dht': radio.dht,
@@ -66,7 +66,7 @@ class RadioSensor():
         for radio in Radio.query.order_by(Radio.id).all():
             r = {
                 'id': radio.id,
-                'radio_id': radio.radio_id,
+                'pipe': radio.pipe,
                 'name': radio.name,
             }
 
@@ -83,7 +83,7 @@ class RadioSensor():
             return {
                 'id': radio.id,
                 'name': radio.name,
-                'radio_id': radio.radio_id,
+                'pipe': radio.pipe,
                 'order': radio.order,
                 'battery': radio.battery,
                 'dht': radio.dht,
