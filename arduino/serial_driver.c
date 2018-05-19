@@ -54,7 +54,7 @@ void radioSetup() {
   radio.powerUp();
   radio.setChannel(75);
   radio.setRetries(2,15);
-  radio.setPayloadSize(1);
+  radio.setPayloadSize(32);
   radio.setCRCLength(RF24_CRC_8);
   radio.setDataRate(RF24_2MBPS);     // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);       // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
@@ -70,6 +70,10 @@ void readSerial() {
   boolean buffer_on = true;
   boolean timeout = true;
   unsigned long started_waiting_at = micros();
+
+
+  char pipe_buf[12];
+  int pipe_buf_i = 0;
   
   // Set timeout to 50ms
   while (micros() - started_waiting_at < 50000) {
@@ -77,6 +81,12 @@ void readSerial() {
       // started_waiting_at = micros();
       buffer_counter++;
       b = Serial.read();
+
+      if (pipe_buf_i < 12) {
+        pipe_buf[pipe_buf_i] = b;
+        pipe_buf_i++;
+        continue;
+      }
 
       if (buffer_on) {
         if (buffer_index == 2) {

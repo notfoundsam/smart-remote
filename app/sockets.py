@@ -106,7 +106,7 @@ def handle_json(data):
         lirc.regenerateLircCommands()
         lirc.reloadLirc()
 
-    elif data['action'] == 'rc_button_pushed':
+    elif data['action'] == 'button_pushed':
         data = rc.execute(data['content']['btn_id'])
 
     elif data['action'] == 'test_signal':
