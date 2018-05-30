@@ -51,11 +51,9 @@ void readSerial() {
 
   char buffer[32];
   int buffer_index = 0;
-
-
   
-  // Set timeout to 50ms
-  while (micros() - started_waiting_at < 50000) {
+  // Set timeout to 100ms
+  while (micros() - started_waiting_at < 100000) {
     if (Serial.available() > 0) {
       buffer_counter++;
       b = Serial.read();
