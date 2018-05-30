@@ -10,8 +10,8 @@ uint64_t address = 0xAABBCCDD33LL;
 int radioSpeedPin = 2;
 int radioChannelPin1 = 3;
 int radioChannelPin2 = 4;
-int radio_retries = 15;
-int radio_delay = 100;
+int radio_retries = 5;
+int radio_delay = 10;
 byte radioSpeedState = 0; // 0 is RF24_250KBPS and 1 is RF24_1MBPS
 
 // IRremote setting
@@ -32,19 +32,20 @@ int bat_pin = A1;
 // float max_v = 4.1;
 // float min_v = 2.5;
 float Vin = 0;
+unsigned long ct = 0;
 
 void setup() {
   analogReference(INTERNAL);
   pinMode(radioSpeedPin, INPUT);
   Serial.begin(9600);
   radio.begin();
-  delay(1000);
+  delay(100);
   radio.powerUp();
-  radio.setChannel(75);                 // (0 - 127)
+  radio.setChannel(90);                 // (0 - 127)
   radio.setRetries(15,15);
   radio.setPayloadSize(32);
   radio.setCRCLength(RF24_CRC_8);
-  radio.setDataRate(RF24_2MBPS);      // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
+  radio.setDataRate(RF24_1MBPS);      // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);        // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
   radio.openWritingPipe(address);
   // radio.openWritingPipe(0xAABBCCDD55LL);
@@ -53,13 +54,15 @@ void setup() {
 }
 
 void loop() {
-  checkRadioSetting();
+  // checkRadioSetting();
   getDhtParams();
   getBatteryVoltage();
 
   if (radio.available()) {
     byte code[32];
     radio.read(&code, sizeof(code));
+
+    Serial.println(ct++);
 
     // If recive IR signal (it starts with i)
     if (code[0] == 105) {
@@ -69,12 +72,12 @@ void loop() {
         responseSuccess();
         radio.startListening();
       } else {
-        // Serial.println("recieve timeout");
+        Serial.println("recieve timeout");
       }
     }
     // If recive comand (it starts with c)
     else if (code[0] == 99) {
-      // Serial.println(sizeof(code));
+      Serial.println("c");
       readCommand(code);
     } else {
       Serial.println("wtf");
@@ -152,6 +155,7 @@ void readCommand(byte * code) {
 
   if (strcmp(buffer, "status") == 0) {
     // Serial.println("exec status command");
+    delay(100);
     sendStatus();
   } else {
     // Serial.println("unsupportedCommand");
@@ -187,25 +191,28 @@ void checkRadioSetting() {
 }
 
 void getDhtParams() {
-  delay(10);
+  delay(2);
   // 10 seconds
   if (started_waiting_at_dht == 0 || micros() - started_waiting_at_dht > 10000000) {
+    Serial.println("get dht");
     float h = dht.readHumidity();
     float t = dht.readTemperature();
+
+    started_waiting_at_dht = micros();
 
     if (!isnan(t) && !isnan(h)) {
       hum = h;
       temp = t;
 
-      started_waiting_at_dht = micros();
     }
   }
 }
 
 void getBatteryVoltage() {
-  delay(10);
+  delay(2);
   // 8 seconds
   if (started_waiting_at_battery == 0 || micros() - started_waiting_at_battery > 8000000) {
+    Serial.println("get bat");
     // Vin = analogRead(bat_pin);
     Vin = ((analogRead(bat_pin) * 1.1) / 1023) / 0.0911;
 
@@ -231,7 +238,7 @@ void sendStatus() {
   responce.getBytes(byte_arr, rsize+1);
 
   if (!sendSignal(byte_arr, rsize)) {
-    // Serial.println("sendStatus failed");
+    Serial.println("sendStatus failed");
     return;
   }
 }
@@ -245,7 +252,7 @@ void unsupportedCommand() {
   responce.getBytes(byte_arr, rsize+1);
 
   if (!sendSignal(byte_arr, rsize)) {
-    // Serial.println("unsupportedCommand failed");
+    Serial.println("unsupportedCommand failed");
     return;
   }
 }

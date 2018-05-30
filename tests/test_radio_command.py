@@ -73,7 +73,7 @@ try:
             #     bat = float(sensors_data['bat'])
             #     print(bat)
 
-        time.sleep(1)
+        time.sleep(0.2)
 
 except KeyboardInterrupt:
     ser.flushInput()
