@@ -270,7 +270,7 @@ class ArduinoQueueRadio():
         self.ser.flushInput()
         self.ser.flushOutput()
 
-        self.signal = 'c%s %s\n' % (self.radio.pipe, 'status')
+        self.signal = '%sc%s\n' % (self.radio.pipe.replace('0x', ''), 'status')
 
         partial_signal = [self.signal[i:i+self.buffer] for i in range(0, len(self.signal), self.buffer)]
         
