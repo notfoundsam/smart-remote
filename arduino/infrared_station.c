@@ -44,7 +44,7 @@ void setup() {
   radio.setChannel(90);                 // (0 - 127)
   radio.setRetries(15,15);
   radio.setPayloadSize(32);
-  radio.setCRCLength(RF24_CRC_8);
+  radio.setCRCLength(RF24_CRC_16);
   radio.setDataRate(RF24_1MBPS);      // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);        // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
   radio.openWritingPipe(address);
@@ -69,6 +69,7 @@ void loop() {
       Serial.println("ir");
       if (readIrSignal(code)) {
         radio.stopListening();
+        // delay(10);
         responseSuccess();
         radio.startListening();
       } else {
@@ -100,6 +101,7 @@ boolean readIrSignal(byte * code) {
   buffer[0] = code[2];
   buffer[1] = code[3];
   buffer[2] = code[4];
+  buffer[3] = '\0';
   zero = atoi(buffer);
   memset(buffer, 0, sizeof(buffer));
 
@@ -108,11 +110,12 @@ boolean readIrSignal(byte * code) {
   buffer[1] = code[7];
   buffer[2] = code[8];
   buffer[3] = code[9];
+  buffer[4] = '\0';
   one = atoi(buffer);
   memset(buffer, 0, sizeof(buffer));
 
-  // Serial.println(zero);
-  // Serial.println(one);
+  Serial.println(zero);
+  Serial.println(one);
 
   for (int i = 11; i < 32; ++i)
   {
@@ -125,12 +128,33 @@ boolean readIrSignal(byte * code) {
     }
 
     if (bit_code) {
-      if (code[i] == 48) {
-        raw_signal[raw_index] = zero;
-      } else {
-        raw_signal[raw_index] = one;
+      if (code[i] > 47 && code[i] < 58) {
+        buffer[buffer_index] = code[i];
+        buffer_index++;
+        continue;
+      } else if (code[i] == 97) {
+        int rep = atoi(buffer);
+
+        for (int j = 0; j < rep; ++j)
+        {
+          raw_signal[raw_index] = zero;
+          raw_index++;
+        }
+
+        memset(buffer, 0, sizeof(buffer));
+        buffer_index = 0;
+      } else if (code[i] == 98) {
+        int rep = atoi(buffer);
+
+        for (int j = 0; j < rep; ++j)
+        {
+          raw_signal[raw_index] = one;
+          raw_index++;
+        }
+
+        memset(buffer, 0, sizeof(buffer));
+        buffer_index = 0;
       }
-      raw_index++;
     } else {
       if (code[i] > 47 && code[i] < 58) {
         buffer[buffer_index] = code[i];
@@ -154,12 +178,17 @@ boolean readIrSignal(byte * code) {
   // set timeout to 100ms
   while (micros() - started_waiting_at < 100000) {
     if (radio.available()) {
-      started_waiting_at = micros();
+      
       radio.read(&ir_code, sizeof(ir_code));
 
       for (int i = 0; i < 32; ++i)
       {
-        // Serial.write(ir_code[i]);
+        Serial.write(ir_code[i]);
+        if (ir_code[i] == 10) {
+          timeout = false;
+          break;
+        }
+        Serial.write(ir_code[i]);
         if (ir_code[i] == 91) {
           bit_code = true;
           continue;
@@ -169,12 +198,33 @@ boolean readIrSignal(byte * code) {
         }
 
         if (bit_code) {
-          if (ir_code[i] == 48) {
-            raw_signal[raw_index] = zero;
-          } else {
-            raw_signal[raw_index] = one;
+          if (ir_code[i] > 47 && ir_code[i] < 58) {
+            buffer[buffer_index] = ir_code[i];
+            buffer_index++;
+            continue;
+          } else if (ir_code[i] == 97) {
+            int rep = atoi(buffer);
+
+            for (int j = 0; j < rep; ++j)
+            {
+              raw_signal[raw_index] = zero;
+              raw_index++;
+            }
+
+            memset(buffer, 0, sizeof(buffer));
+            buffer_index = 0;
+          } else if (ir_code[i] == 98) {
+            int rep = atoi(buffer);
+
+            for (int j = 0; j < rep; ++j)
+            {
+              raw_signal[raw_index] = one;
+              raw_index++;
+            }
+
+            memset(buffer, 0, sizeof(buffer));
+            buffer_index = 0;
           }
-          raw_index++;
         } else {
           if (ir_code[i] > 47 && ir_code[i] < 58) {
             buffer[buffer_index] = ir_code[i];
@@ -191,6 +241,7 @@ boolean readIrSignal(byte * code) {
           }
         }
       }
+      started_waiting_at = micros();
       // Serial.println("-");
       // return true;
       // Serial.println(b);
@@ -198,10 +249,12 @@ boolean readIrSignal(byte * code) {
   }
 
   if (!timeout) {
+    // radio.flush_rx();
+    // radio.flush_tx();
     Serial.println("send ir signal");
     // for (int i = 0; i < raw_index; ++i)
     // {
-    //   Serial.println(raw_signal[i]);      
+    //   Serial.println(raw_signal[i]);
     // }
     irsend.sendRaw(raw_signal, raw_index, khz);
     return true;
@@ -212,16 +265,21 @@ boolean readIrSignal(byte * code) {
 
 void responseSuccess() {
   // Serial.println("ir signal sent");
-  String responce = "ok\n";
+  String responce = "ok";
+  responce += "\n";
+
   int rsize = responce.length();
   
   byte byte_arr[rsize+1];
   responce.getBytes(byte_arr, rsize+1);
 
   if (!sendSignal(byte_arr, rsize)) {
-    // Serial.println("sendStatus failed");
+    Serial.println("sendStatus failed");
     return;
   }
+  radio.flush_rx();
+  radio.flush_tx();
+  Serial.println("sendStatus ok");
 }
 
 void readCommand(byte * code) {
@@ -242,7 +300,7 @@ void readCommand(byte * code) {
 
   if (strcmp(buffer, "status") == 0) {
     // Serial.println("exec status command");
-    delay(100);
+    delay(10);
     sendStatus();
   } else {
     // Serial.println("unsupportedCommand");

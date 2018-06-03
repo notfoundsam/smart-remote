@@ -133,6 +133,43 @@ class ArduinoQueueItem():
     def __cmp__(self, other):
         return cmp(self.priority, other.priority)
 
+    def encodeBits(self, data):
+        counter = 0
+        zero = None
+        encode = ''
+        
+        for digit in data:
+            if digit == '0':
+                if zero == None:
+                    zero = True
+
+                if counter > 0 and zero == False:
+                    encode += str(counter) + 'b'
+                    counter = 1
+                    zero = True
+                else:
+                    counter += 1
+
+            elif digit == '1':
+                if zero == None:
+                    zero = False
+
+                if counter > 0 and zero == True:
+                    encode += str(counter) + 'a'
+                    counter = 1
+                    zero = False
+                else:
+                    counter += 1
+
+        if counter > 0:
+            if zero == True:
+                encode += str(counter) + 'a'
+            if zero == False:
+                encode += str(counter) + 'b'
+
+
+        return encode
+
     def prepareIrSignal(self):
         pre_data = []
         data = []
@@ -147,7 +184,7 @@ class ArduinoQueueItem():
             if x > 65000:
                 data.append('65000')
                 if compressed != '':
-                    data.append("[%s]" % compressed)
+                    data.append("[%s]" % encodeBits(compressed))
                     compressed = ''
             else:
                 if x < 1800:
@@ -160,19 +197,17 @@ class ArduinoQueueItem():
                     compressed += code
                 else:
                     if compressed != '':
-                        data.append("[%s]" % compressed)
+                        data.append("[%s]" % encodeBits(compressed))
                         compressed = ''
                     data.append(value)
 
         if compressed != '':
-            data.append("[%s]" % compressed)
+            data.append("[%s]" % encodeBits(compressed))
 
         data.append('\n')
 
-
         pre_data.append(str(sum(zero)/len(zero)))
         pre_data.append(str(sum(one)/len(one)))
-
 
         self.signal = ' '.join(pre_data + data)
         print(self.signal, file=sys.stderr)
