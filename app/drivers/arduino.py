@@ -125,10 +125,10 @@ class ArduinoQueueItem():
         self.btn = btn
         self.sid = sid
         self.priority = priority
-        self.radio = btn.radio
+        self.pipe = btn.radio.pipe
 
-        # print("--------------", file=sys.stderr)
-        # print(self.btn.radio.pipe, file=sys.stderr)
+        print("--------------", file=sys.stderr)
+        print(self.pipe, file=sys.stderr)
 
     def __cmp__(self, other):
         return cmp(self.priority, other.priority)
@@ -173,7 +173,7 @@ class ArduinoQueueItem():
     def prepareIrSignal(self):
         pre_data = []
         data = []
-        pre_data.append('%si' % self.radio.pipe.replace('0x', ''))
+        pre_data.append('%si' % self.pipe.replace('0x', ''))
 
         zero = []
         one = []
@@ -184,7 +184,7 @@ class ArduinoQueueItem():
             if x > 65000:
                 data.append('65000')
                 if compressed != '':
-                    data.append("[%s]" % encodeBits(compressed))
+                    data.append("[%s]" % self.encodeBits(compressed))
                     compressed = ''
             else:
                 if x < 1800:
@@ -197,12 +197,12 @@ class ArduinoQueueItem():
                     compressed += code
                 else:
                     if compressed != '':
-                        data.append("[%s]" % encodeBits(compressed))
+                        data.append("[%s]" % self.encodeBits(compressed))
                         compressed = ''
                     data.append(value)
 
         if compressed != '':
-            data.append("[%s]" % encodeBits(compressed))
+            data.append("[%s]" % self.encodeBits(compressed))
 
         data.append('\n')
 
@@ -213,7 +213,7 @@ class ArduinoQueueItem():
         print(self.signal, file=sys.stderr)
 
     def prepareCommand(self):
-        self.signal = '%sc%s\n' % (self.radio.pipe.replace('0x', ''), self.btn.signal)
+        self.signal = '%sc%s\n' % (self.pipe.replace('0x', ''), self.btn.signal)
 
     def run(self):
         self.ser.flushInput()
