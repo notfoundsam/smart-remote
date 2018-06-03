@@ -173,7 +173,7 @@ class ArduinoQueueItem():
     def prepareIrSignal(self):
         pre_data = []
         data = []
-        pre_data.append('%si' % self.btn.radio.pipe)
+        pre_data.append('%si' % self.radio.pipe.replace('0x', ''))
 
         zero = []
         one = []
@@ -213,7 +213,7 @@ class ArduinoQueueItem():
         print(self.signal, file=sys.stderr)
 
     def prepareCommand(self):
-        self.signal = '%sc %s\n' % (self.btn.radio.pipe, self.btn.signal)
+        self.signal = '%sc%s\n' % (self.radio.pipe.replace('0x', ''), self.btn.signal)
 
     def run(self):
         self.ser.flushInput()
