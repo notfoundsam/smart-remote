@@ -14,23 +14,13 @@ lm.init_app(app)
 lm.login_view = 'login'
 
 from app import routes, models, sockets
+from sensor import StateChecker
 import threading
-from drivers import wire_recive
-# from run import debug, ar
-# from drivers.arduino import Arduino
-# ar = 'popopo'
-# if not debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-#     ar = Arduino.Instance()
-#     ar.test()
+# from drivers import wire_recive
+from run import arduino
 
-# from drivers.arduino import Arduino
-# from run import ser
-# print('0000', file=sys.stderr)
-# arduino.serial_connect()
-
-# @app.before_first_request
-# def before_first_request():
-#     arduino = Arduino()
-
-    # t1 = threading.Thread(target=wire_recive.read_signal)
-    # t1.start()
+@app.before_first_request
+def before_first_request():
+    arduino.startQueue()
+    status = StateChecker()
+    status.start()

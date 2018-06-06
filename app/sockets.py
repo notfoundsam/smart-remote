@@ -1,5 +1,5 @@
 from __future__ import print_function
-import sys
+import sys, Queue
 import functools
 from flask_socketio import emit
 from app import so
@@ -9,6 +9,8 @@ from flask_login import current_user
 from flask_socketio import disconnect
 from drivers import ir_reader
 from run import lirc
+from threading import Lock
+from flask import request
 
 def authenticated_only(f):
     @functools.wraps(f)
@@ -19,14 +21,30 @@ def authenticated_only(f):
             return f(*args, **kwargs)
     return wrapped
 
+# thread = None
+# thread_lock = Lock()
+
+# def background_thread():
+#     """Example of how to send server generated events to clients."""
+
+#     q = Queue.PriorityQueue()
+#     q.put(priority_queue.ArduinoQueue(5, 'Proficient5'))
+#     q.put(priority_queue.ArduinoQueue(3, 'Proficient3'))
+#     q.put(priority_queue.ArduinoQueue(1, 'Proficient1'))
+#     count = 0
+#     while not q.empty():
+#         el = q.get()
+#         el.run()
+#         so.sleep(2)
+        # count += 1
+        # print(count, file=sys.stderr)
+
+
 @so.on('connect', namespace='/remotes')
 def handle_connect():
-    pass
-    # global thread
-    # with thread_lock:
-    #     if thread is None:
-    #         thread = so.start_background_task(target=background_thread)
-    # emit('json', {'data': 'Connected', 'count': 0})
+    id = request.sid
+    print("%s connected" % id, file=sys.stderr)
+    emit('json', {'data': 'Connected', 'count': 0})
 
 @so.on('json', namespace='/remotes')
 @authenticated_only
@@ -34,64 +52,65 @@ def handle_json(data):
     # Debug
     print('received json: ' + str(data), file=sys.stderr)
     
-    rc = RemoteControl()
+    rc = RemoteControl(request.sid)
     
     if data['action'] == 'rc_save':
         if rc.create(data['content']) == True:
             remotes = rc.getRemotesList()
             emit('json', {'response': {'result': 'success', 'callback': 'rc_refresh', 'remotes': remotes}}, broadcast = True)
 
-    elif data['action'] == 'rc_button_save':
+    elif data['action'] == 'button_save':
         content = data['content']
         if rc.createButton(content) == True:
             lirc.regenerateLircCommands()
             lirc.reloadLirc()
-            emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote', 'rc_id': content['rc_id'], 'rc_name': content['rc_name']}})
+            emit('json', {'response': {'result': 'success', 'callback': 'back_to_rc', 'rc_id': content['rc_id']}})
 
-    elif data['action'] == 'rc_buttons_remove':
+    elif data['action'] == 'rc_button_remove':
         content = data['content']
 
         rc.removeButton(content)
-        emit('json', {'response': {'result': 'success', 'callback': 'back_to_remote', 'rc_id': content['rc_id'], 'rc_name': content['rc_name']}})
+        emit('json', {'response': {'result': 'success', 'callback': 'back_to_rc', 'rc_id': content['rc_id']}})
 
-    elif data['action'] == 'rc_button_edit':
+    elif data['action'] == 'button_edit':
         content = data['content']
 
-        button = rc.getButton(content)
-        if button is not None:
-            emit('json', {'response': {'result': 'success', 'callback': 'rc_button_save', 'button': button, 'edit': True}})
+        sensor = RadioSensor()
+        radios = sensor.getRadiosIdName()
+
+        if 'button' in content:
+            button = rc.getButton(content)
+
+            if button is None:
+                emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
         else:
-            emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
+            button = {'rc_id': content['rc_id'], 'btn_type': 'ir', 'btn_radio_id': 0}
+        
+        emit('json', {'response': {'result': 'success', 'callback': 'button_edit', 'button': button, 'radios': radios}})
 
     elif data['action'] == 'rc_refresh':
         remotes = rc.getRemotesList()
         emit('json', {'response': {'result': 'success', 'callback': 'rc_refresh', 'remotes': remotes}}, broadcast = True)
     
-    elif data['action'] == 'rc_buttons_refresh':
+    elif data['action'] == 'get_rc_buttons':
         content = data['content']
+        rc_name = rc.getRemoteName(content['rc_id'])
         buttons = rc.getRemoteButtons(content['rc_id'])
-        emit('json', {'response': {'result': 'success', 'callback': 'rc_buttons_refresh', 'buttons': buttons}})
+        emit('json', {'response': {'result': 'success', 'callback': 'rc_buttons_refresh', 'rc_name': rc_name, 'buttons': buttons}})
 
-    elif data['action'] == 'catch_signal':
+    elif data['action'] == 'catch_ir_signal':
         signal = ir_reader.read_signal()
-
-        if signal != False:
-            emit('json', {'response': {'result': 'success', 'callback': 'rc_button_save', 'signal': signal}})
-        else:
-            print('faild', file=sys.stderr)
-            emit('json', {'response': {'result': 'success', 'callback': 'catch_failed'}})
+        emit('json', {'response': {'result': 'success', 'callback': 'ir_signal', 'signal': signal}})
 
     elif data['action'] == 'lirc_update':
         lirc.regenerateLircCommands()
         lirc.reloadLirc()
 
-    elif data['action'] == 'rc_button_pushed':
-        if rc.execute(data['content']['btn_id']) != True:
-            emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
+    elif data['action'] == 'button_pushed':
+        data = rc.execute(data['content']['btn_id'])
 
     elif data['action'] == 'test_signal':
-        if rc.test(data['content']) != True:
-            emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
+        data = rc.test(data['content'])
 
 @so.on('json', namespace='/radios')
 @authenticated_only
@@ -100,9 +119,28 @@ def handle_json(data):
     sensor = RadioSensor()
 
     if data['action'] == 'radio_save':
-        if sensor.create(data['content']) == True:
-            emit('json', {'response': {'result': 'success', 'callback': 'radio_saved'}})
+        if sensor.create(data['content']) != True:
+            emit('json', {'response': {'result': 'error', 'message': 'Failed ;('}})
+        else:
+            radios = sensor.getRadiosList()
+            emit('json', {'response': {'result': 'success', 'callback': 'radios_refresh', 'radios': radios}}, broadcast = True)
+    
+    elif data['action'] == 'radio_edit':
+        radio = sensor.getRadio(data['content'])
+        if radio != False:
+            emit('json', {'response': {'result': 'success', 'callback': 'radio_edit', 'radio': radio}})
+
+    elif data['action'] == 'radio_remove':
+        content = data['content']
+        sensor.remove(content)
+        radios = sensor.getRadiosList()
+        emit('json', {'response': {'result': 'success', 'callback': 'radios_refresh', 'radios': radios}}, broadcast = True)
 
     elif data['action'] == 'radios_refresh':
         radios = sensor.getRadiosList()
         emit('json', {'response': {'result': 'success', 'callback': 'radios_refresh', 'radios': radios}}, broadcast = True)
+
+    elif data['action'] == 'get_radio_options':
+        radios = sensor.getRadiosIdName()
+        if radios != False:
+            emit('json', {'response': {'result': 'success', 'callback': 'set_radio_options', 'radios': radios}})

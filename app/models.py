@@ -62,8 +62,10 @@ class Button(db.Model):
 
 class Radio(db.Model):
     id = db.Column(db.Integer, primary_key = True)
+    pipe = db.Column(db.String(12))
     name = db.Column(db.String(200))
     enabled = db.Column(db.Boolean)
+    order = db.Column(db.Integer)
     battery = db.Column(db.Boolean(False))
     dht = db.Column(db.Boolean(False))
     timestamp = db.Column(db.DateTime)

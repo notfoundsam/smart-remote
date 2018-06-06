@@ -1,8 +1,11 @@
 from __future__ import print_function
 import serial
-import time
+import time, random
 import array
 import os, sys
+import threading, Queue
+import requests
+from app import so
 
 class Singleton:
     """
@@ -42,93 +45,310 @@ class Singleton:
     def __instancecheck__(self, inst):
         return isinstance(inst, self._decorated)
 
-class Common():
+@Singleton
+class Arduino():
+    ser = None
+    queue = None
+    starter = None
 
-    def prepareIrSignal(self, raw_signal, radio):
-        data = []
-        data.append('i%s' % radio)
+    def startQueue(self):
+        self.queue = ArduinoQueue(self.ser)
+        self.queue.start()
+    
+    def activateQueueStarter(self):
+        self.starter = ArduinoQueueStarter()
+        self.starter.start()
 
-        for x in raw_signal.split(' '):
-            if int(x) > 65000:
-                data.append('65000')
+    def send(self, btn, sid):
+        self.queue.putItem(ArduinoQueueItem(self.ser, btn, sid, 1))
+
+    def status(self, radio):
+        self.queue.putItem(ArduinoQueueRadio(self.ser, radio, 5))
+
+    def connect(self, env = ''):
+        if self.ser is None:
+            print('Connect to /dev/ttyUSB0', file=sys.stderr)
+
+            if env == 'dev':
+                self.ser = SerialDev()
             else:
-                data.append(x)
-
-        data.append('\n')
-
-        return ' '.join(data)
-
-    def prepareCommand(self, command, radio):
-        return 'c%s %s\n' % (radio, command)
-
-@Singleton
-class ArduinoDev(Common):
-    ser = None
-
-    def connect(self):
-        if self.ser is None:
-            self.ser = True
-            print('Connect to /dev/ttyUSB0', file=sys.stderr)
-
-    def close(self):
-        print('Close /dev/ttyUSB0', file=sys.stderr)
-
-    def sendCommand(self, command):
-        data = self.prepareCommand(command, radio)
-        print('Command to send: %s' % data, file=sys.stderr)
-
-    def sendIrSignal(self, raw_signal, radio):
-        data = self.prepareIrSignal(raw_signal, radio)
-        print('Signal to send: %s' % data, file=sys.stderr)
-
-        return True
-
-@Singleton
-class Arduino(Common):
-    ser = None
-
-    def close(self):
-        print('Close /dev/ttyUSB0', file=sys.stderr)
-
-    def connect(self):
-        if self.ser is None:
-            print('Connect to /dev/ttyUSB0', file=sys.stderr)
-            self.ser = serial.Serial()
+                self.ser = serial.Serial()
+                
             self.ser.baudrate = 500000
             self.ser.port = '/dev/ttyUSB0'
-            self.ser.timeout = 5
+            self.ser.timeout = 10
             self.ser.open()
 
             # Only after write sketch into Arduino
             time.sleep(2)
             self.ser.flushInput()
             self.ser.flushOutput()
-            self.ser.write(b'connect')
-            time.sleep(1)
-            print(repr(self.ser.readline()), file=sys.stderr)
-            self.ser.flushInput()
-    
-    def send(self, data):
-        print(data, file=sys.stderr)
-        b_arr = bytearray(data.encode())
+            # print(repr(self.ser.readline()), file=sys.stderr)
+            self.activateQueueStarter()
 
-        self.ser.flushInput()
-        self.ser.write(b_arr)
-        self.ser.flush()
+class ArduinoQueue(threading.Thread):
 
-        response = self.ser.readline()
-        result = response.rstrip()
+    def __init__(self, ser):
+        threading.Thread.__init__(self)
+        self.ser = ser
+        self.workQueue = Queue.PriorityQueue()
 
-        if result:
-            return result
+    def run(self):
+        while True:
+            if not self.workQueue.empty():
+                # print('get new item', file=sys.stderr)
+                queue_item = self.workQueue.get()
+                queue_item.run()
+                # print('run over', file=sys.stderr)
+            else:
+                time.sleep(0.05)
 
-        return False
+    def putItem(self, item):
+        self.workQueue.put(item)
 
-    def sendCommand(self, command):
-        data = self.prepareCommand(command, radio)
-        return self.send(data)
+class ArduinoQueueStarter(threading.Thread):
 
-    def sendIrSignal(self, raw_signal, radio):
-        data = self.prepareIrSignal(raw_signal, radio)
-        return self.send(data)
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        time.sleep(2)
+        r = requests.get('http://127.0.0.1:5000/')
+        print('Send first request', file=sys.stderr)
+
+class ArduinoQueueItem():
+
+    def __init__(self, ser, btn, sid, priority):
+        self.signal = ''
+        self.buffer = 32
+        self.ser = ser
+        self.btn = btn
+        self.sid = sid
+        self.priority = priority
+        self.pipe = btn.radio.pipe
+
+        print("--------------", file=sys.stderr)
+        print(self.pipe, file=sys.stderr)
+
+    def __cmp__(self, other):
+        return cmp(self.priority, other.priority)
+
+    def encodeBits(self, data):
+        counter = 0
+        zero = None
+        encode = ''
         
+        for digit in data:
+            if digit == '0':
+                if zero == None:
+                    zero = True
+
+                if counter > 0 and zero == False:
+                    encode += str(counter) + 'b'
+                    counter = 1
+                    zero = True
+                else:
+                    counter += 1
+
+            elif digit == '1':
+                if zero == None:
+                    zero = False
+
+                if counter > 0 and zero == True:
+                    encode += str(counter) + 'a'
+                    counter = 1
+                    zero = False
+                else:
+                    counter += 1
+
+        if counter > 0:
+            if zero == True:
+                encode += str(counter) + 'a'
+            if zero == False:
+                encode += str(counter) + 'b'
+
+
+        return encode
+
+    def prepareIrSignal(self):
+        pre_data = []
+        data = []
+        pre_data.append('%si' % self.pipe.replace('0x', ''))
+
+        zero = []
+        one = []
+        compressed = ''
+
+        for value in self.btn.signal.split(' '):
+            x = int(value)
+            if x > 65000:
+                data.append('65000')
+                if compressed != '':
+                    data.append("[%s]" % self.encodeBits(compressed))
+                    compressed = ''
+            else:
+                if x < 1800:
+                    code = '0'
+                    if x < 1000:
+                        zero.append(x)
+                    elif 1000 <= x:
+                        one.append(x)
+                        code = '1'
+                    compressed += code
+                else:
+                    if compressed != '':
+                        data.append("[%s]" % self.encodeBits(compressed))
+                        compressed = ''
+                    data.append(value)
+
+        if compressed != '':
+            data.append("[%s]" % self.encodeBits(compressed))
+
+        data.append('\n')
+
+        pre_data.append(str(sum(zero)/len(zero)))
+        pre_data.append(str(sum(one)/len(one)))
+
+        self.signal = ' '.join(pre_data + data)
+        print(self.signal, file=sys.stderr)
+
+    def prepareCommand(self):
+        self.signal = '%sc%s\n' % (self.pipe.replace('0x', ''), self.btn.signal)
+
+    def run(self):
+        self.ser.flushInput()
+        self.ser.flushOutput()
+
+        if self.btn.type == 'ir':
+            self.prepareIrSignal()
+        elif self.btn.type == 'cmd':
+            self.prepareCommand()
+
+        partial_signal = [self.signal[i:i+self.buffer] for i in range(0, len(self.signal), self.buffer)]
+        
+        response = ""
+
+        for part in partial_signal:
+            b_arr = bytearray(part.encode())
+            self.ser.write(b_arr)
+            self.ser.flush()
+
+            response = self.ser.readline()
+            response = response.rstrip()
+
+            if response != 'next':
+                break;
+
+            response = ""
+        
+        if response == "":
+            response = ser.readline()
+
+        data = response.split(':')
+
+        if 1 < len(data):
+            if data[1] == 'FAIL':
+                so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
+            elif data[1] == 'OK':
+                so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/remotes', room=self.sid)
+        else:
+            so.emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}}, namespace='/remotes', room=self.sid)
+
+class ArduinoQueueRadio():
+
+    def __init__(self, ser, radio, priority):
+        self.signal = ''
+        self.buffer = 32
+        self.ser = ser
+        self.radio = radio
+        self.priority = priority
+
+    def __cmp__(self, other):
+        return cmp(self.priority, other.priority)
+    
+    def run(self):
+        self.ser.flushInput()
+        self.ser.flushOutput()
+
+        self.signal = '%sc%s\n' % (self.radio.pipe.replace('0x', ''), 'status')
+
+        partial_signal = [self.signal[i:i+self.buffer] for i in range(0, len(self.signal), self.buffer)]
+        
+        response = ""
+
+        for part in partial_signal:
+            b_arr = bytearray(part.encode())
+            self.ser.write(b_arr)
+            self.ser.flush()
+
+            response = self.ser.readline()
+            response = response.rstrip()
+
+            if response != 'next':
+                break;
+
+            response = ""
+        
+        if response == "":
+            response = ser.readline()
+
+        data = response.split(':')
+        print(repr(response), file=sys.stderr)
+
+        if 1 < len(data):
+            if data[1] == 'FAIL':
+                so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')
+            elif data[1] == 'OK':
+                self.getStatus(data[0])
+        else:
+            so.emit('json', {'response': {'result': 'error', 'message': 'Unknown error'}}, namespace='/radios')
+
+    def getStatus(self, data):
+        sensors_data = dict(s.split(' ') for s in data.split(','))
+        sensors = {}
+
+        if self.radio.dht == 1:
+            if 'hum' in sensors_data:
+                sensors['hum'] = sensors_data['hum']
+  
+            if 'temp' in sensors_data:
+                sensors['temp'] = sensors_data['temp']
+
+        if self.radio.battery == 1:
+            if 'bat' in sensors_data:
+                sensors['bat'] = sensors_data['bat']
+
+        so.emit('json', {'response': {'result': 'success', 'callback': 'radio_sensor_refresh', 'id': self.radio.id, 'sensors': sensors}}, namespace='/radios')
+
+class SerialDev():
+    transfer = False
+
+    def open(self):
+        print('SERIAL DEV: Connect to /dev/ttyUSB0', file=sys.stderr)
+
+    def flushInput(self):
+        print('SERIAL DEV: flushInput', file=sys.stderr)
+
+    def flushOutput(self):
+        print('SERIAL DEV: flushOutput', file=sys.stderr)
+
+    def flush(self):
+        print('SERIAL DEV: flush', file=sys.stderr)
+
+    def write(self, data):
+        print('SERIAL DEV: Recieved bytearray', file=sys.stderr)
+        if data.endswith("\n"):
+            self.transfer = False
+        else:
+            self.transfer = True
+        print(data, file=sys.stderr)
+
+
+    def readline(self):
+        if self.transfer == False:
+            temp = random.uniform(18, 26)
+            hum = random.uniform(35, 65)
+            bat = random.uniform(0.1, 1)
+            return "temp %.2f,hum %.2f,bat %.2f:OK\n" % (temp, hum, bat)
+        else:
+            return "next\n"

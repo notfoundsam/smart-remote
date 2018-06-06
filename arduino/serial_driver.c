@@ -2,36 +2,25 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 RF24 radio(9, 10);
-unsigned short index = 0;
-int radio_retries = 20;
-int radio_delay = 20;
+int radio_retries = 5;
+int radio_delay = 10;
 
-uint64_t pipes[5] = {
-  0xAABBCCDD11LL,
-  0xAABBCCDD22LL,
-  0xAABBCCDD33LL,
-  0xAABBCCDD44LL,
-  0xAABBCCDD55LL,
-};
-
-unsigned long started_waiting_at;               // Set up a timeout period, get the current microseconds
-boolean timeout = false;
 boolean isSucces = false;
+int test_c = 0;
 
 void setup() {
   Serial.begin(500000);
   Serial.setTimeout(50);
-  
   radio.begin();
-  delay(1000);
+  delay(100);
   radio.powerUp();
-  radio.setChannel(75);
+  radio.setChannel(90);
   radio.setRetries(15,15);
+  radio.setPayloadSize(32);
+  radio.setCRCLength(RF24_CRC_16);
   radio.setDataRate(RF24_1MBPS);     // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);       // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
-  radio.setAutoAck(1);
   radio.startListening();
-  Serial.print("Loaded\n");
 }
 
 void loop() {
@@ -40,187 +29,200 @@ void loop() {
     radio.stopListening();
 
     readSerial();
+
     if (isSucces) {
       Serial.print(":OK\n");
     } else {
+      // radio.startListening();
       Serial.print(":FAIL\n");
     }
-
-    timeout = false;
-    index = 0;
-
-    radio.startListening();
   }
 }
 
 void readSerial() {
-  unsigned short code;
-  byte portSignal[1000];
-  timeout = true;
-  started_waiting_at = micros();
+  byte b;
+  byte serial_buffer = 0;
+  boolean timeout = true;
+  unsigned long started_waiting_at = micros();
+
+  char pipe_buf[10];
+  int pipe_buf_i = 0;
+  boolean pipe_set = false;
+  uint64_t pipe;
+
+  byte buffer[32];
+  int buffer_index = 0;
   
-  while (timeout == true && (micros() - started_waiting_at < 200000)) {
+  // Set timeout to 100ms
+  while (micros() - started_waiting_at < 100000) {
     if (Serial.available() > 0) {
-      started_waiting_at = micros();
-      
-      code = Serial.read();
-      portSignal[index] = code;
-      index++;
-      if (code == 10) {
+      serial_buffer++;
+      b = Serial.read();
+
+      if (pipe_buf_i < 10) {
+        pipe_buf[pipe_buf_i] = b;
+        pipe_buf_i++;
+        started_waiting_at = micros();
+        continue;
+      }
+
+      if (!pipe_set) {
+        pipe_set = true;
+        buffer[buffer_index] = b;
+        buffer_index++;
+        
+        pipe_buf[10] = '\0';
+        pipe = getUInt64fromHex(pipe_buf);
+        radio.openWritingPipe(pipe);
+        started_waiting_at = micros();
+        continue;
+      }
+
+      if (b == 10) {
+        test_c++;
+        buffer[buffer_index] = 10;
+        buffer_index++;
+
+        if (!sendSignal(buffer, buffer_index)) {
+          radio.flush_rx();
+          radio.flush_tx();
+          radio.startListening();
+          // serialFlush();
+          Serial.print("RADIO TRANSMIT SIGNAL 1");
+          return;
+        }
+        if (test_c == 3) {
+          if (!sendSignal(1, 1)) {
+            radio.flush_rx();
+            radio.flush_tx();
+            radio.startListening();
+            // serialFlush();
+            Serial.print("RADIO TRANSMIT SIGNAL 1");
+            return;
+          }
+        }
+
+        // Serial.print("+");
         timeout = false;
+
         break;
+      } else {
+        buffer[buffer_index] = b;
+        buffer_index++;
+      }
+
+      if (buffer_index == 32) {
+
+        test_c++;
+        if (!sendSignal(buffer, buffer_index)) {
+          radio.flush_rx();
+          radio.flush_tx();
+          radio.startListening();
+          // serialFlush();
+          Serial.print("RADIO TRANSMIT SIGNAL 2");
+          return;
+        }
+        buffer_index = 0;
+        // radio.flush_rx();
+        // radio.flush_tx();
+        delay(20);
+      }
+
+      started_waiting_at = micros();
+
+      if (serial_buffer == 32) {
+        Serial.print("next\n");
+        serial_buffer = 0;
       }
     }
   }
   
   if (timeout) {
+    serialFlush();
     Serial.print("SERIAL READ TIMEOUT");
     return;
   } else {
-    if (portSignal[0] == 105) {
-      // If recive IR signal (it starts with i)
-      irSignal(portSignal);
-    } else if (portSignal[0] == 99) {
-      // If recive comand (it starts with c)
-      command(portSignal);
-    }
+    radio.openReadingPipe(1, pipe);
+    radio.startListening();
+    waitForResponce();
   }
 }
 
-void command(byte *signal) {
-  int b;
-  setWritingPipe(signal[1]);
+void waitForResponce() {
+  byte income_pipe;
+  byte signal[32];
+  unsigned long responce_started_at = micros();
+  boolean timeout = true;
 
-  if (!sendSignal(99)) {
-    Serial.print("RADIO COMMAND FIRST");
-    return;
-  }
-
-  for (int i = 3; i < index; i++) {
-    b = signal[i];
-    
-    if (b == 10) {
-      if (sendSignal(10)) {
-        // This delay is necessary
-        delay(30);
-        setReadingPipe(signal[1]);
-        radio.startListening();
-        // FIX ME
-        radio.flush_rx();
-        waitResponce();
-      } else {
-        Serial.print("RADIO COMMAND LAST");
-      }
-    } else {
-      if (!sendSignal(b)) {
-        Serial.print("RADIO COMMAND BUFF");
-        return;
-      }
-    }
-  }
-}
-
-void irSignal(byte *signal) {
-  byte b;
-  char strBuffer[20];
-  byte strIndex = 0;
-
-  setWritingPipe(signal[1]);
-
-  if (!sendSignal(105)) {
-    Serial.print("RADIO IR SIGNAL FIRST");
-    return;
-  }
+  // delay(10);
+  // radio.flush_rx();
+  // radio.flush_tx();
   
-  for (int i = 3; i < index; i++) {
-    b = signal[i];
-    
-    if (b > 47 && b < 58) {
-      strBuffer[strIndex] = b;
-      strIndex++;
-    } else if (b == 32) {
-      if (!sendSignal(atoi(strBuffer))) {
-        Serial.print("RADIO IR SIGNAL BUFFER");
-        return;
-      }
-      memset(strBuffer, 0, sizeof(strBuffer));
-      strIndex = 0;
-    } else if (b == 10) {
-      if (sendSignal(10)) {
-        isSucces = true;
-        return;
-      } else {
-        Serial.print("RADIO IR SIGNAL LAST");
+
+  // Wait 500ms seconds for responce
+  while (micros() - responce_started_at < 500000) {
+    if (radio.available(&income_pipe)) {
+      if (income_pipe == 1) {
+        radio.read(&signal, sizeof(signal));
+        timeout = false;
+        break;
       }
     }
   }
+
+  if (!timeout) {
+    for (int i = 0; i < 32; i++) {
+      if (signal[i] == 10) {
+        break;
+      }
+
+      Serial.write(signal[i]);
+    }
+    Serial.print(test_c);
+    test_c = 0;
+    isSucces = true;
+  } else {
+    radio.flush_rx();
+    radio.flush_tx();
+    // Some errors are here
+    Serial.print(test_c);
+    test_c = 0;
+    Serial.print("RADIO RESPONCE TIMEOUT");
+  }
 }
 
-boolean sendSignal(int signal) {
+boolean sendSignal(byte * signal, int size) {
   for (int i = 0; i < radio_retries; i++) {
-    if (radio.write(&signal, sizeof(signal))) {
+    if (radio.write(signal, size)) {
       return true;
     }
+
     delay(radio_delay);
   }
 
   return false;
 }
 
-// Set pipe to send signal
-void setWritingPipe(int pipe) {
-
-  if (pipe == 49) {
-    radio.openWritingPipe(pipes[0]);
-  } else if (pipe == 50) {
-    radio.openWritingPipe(pipes[1]);
-  } else if (pipe == 51) {
-    radio.openWritingPipe(pipes[2]);
-  } else if (pipe == 52) {
-    radio.openWritingPipe(pipes[3]);
-  } else if (pipe == 53) {
-    radio.openWritingPipe(pipes[4]);
+void serialFlush(){
+  while(Serial.available() > 0) {
+    char t = Serial.read();
   }
 }
 
-// Set pipe to recieve responce
-void setReadingPipe(int pipe) {
-  if (pipe == 49) {
-    radio.openReadingPipe(1, pipes[0]);
-  } else if (pipe == 50) {
-    radio.openReadingPipe(1, pipes[1]);
-  } else if (pipe == 51) {
-    radio.openReadingPipe(1, pipes[2]);
-  } else if (pipe == 52) {
-    radio.openReadingPipe(1, pipes[3]);
-  } else if (pipe == 53) {
-    radio.openReadingPipe(1, pipes[4]);
-  }
-}
-
-void waitResponce() {
-  byte pipe;
-  unsigned int index = 0;
-  unsigned int signal;
-  started_waiting_at = micros();
-  timeout = true;
-
-  // Wait 5 seconds for responce
-  while (timeout == true && (micros() - started_waiting_at < 500000)) {
-    if (radio.available(&pipe)) {
-      if (pipe == 1) {
-        started_waiting_at = micros();
-        radio.read(&signal, sizeof(signal));
-
-        if (signal == 10) {
-          isSucces = true;
-          return;
-        } else {
-          Serial.write(signal);
-        }
-      }
-    }
+uint64_t getUInt64fromHex(char const *str)
+{
+  uint64_t accumulator = 0;
+  for (size_t i = 0 ; isxdigit((unsigned char)str[i]) ; ++i)
+  {
+    char c = str[i];
+    accumulator *= 16;
+    if (isdigit(c)) /* '0' .. '9'*/
+      accumulator += c - '0';
+    else if (isupper(c)) /* 'A' .. 'F'*/
+      accumulator += c - 'A' + 10;
+    else /* 'a' .. 'f'*/
+      accumulator += c - 'a' + 10;
   }
 
-  Serial.print("RADIO RESPONCE TIMEOUT");
+  return accumulator;
 }
