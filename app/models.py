@@ -62,7 +62,7 @@ class Button(db.Model):
 
 class Radio(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    pipe = db.Column(db.Integer)
+    pipe = db.Column(db.String(12))
     name = db.Column(db.String(200))
     enabled = db.Column(db.Boolean)
     order = db.Column(db.Integer)

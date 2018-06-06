@@ -35,7 +35,7 @@
             <div class="item-inner">
               <div class="item-title item-label">Radio pipe number</div>
               <div class="item-input-wrap">
-                <input type="tel" name="radio_pipe" value="{{radio.pipe}}" placeholder="Enter a pipe number" required validate pattern="[0-9]*" data-error-message="Only numbers please!">
+                <input type="tel" name="radio_pipe" value="{{radio.pipe}}" placeholder="Enter a pipe number" required validate pattern="^0x[0-9a-fA-F]{10}$" data-error-message="Only hexadecimal">
                 <span class="input-clear-button"></span>
               </div>
             </div>
@@ -52,6 +52,7 @@
         </ul>
       </div>
 
+      <div class="block-title">Connected sensors</div>
       <div class="list">
         <ul>
           <li>

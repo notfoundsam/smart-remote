@@ -32,7 +32,7 @@
           var data = $$(this).dataset();
           var request = {};
 
-          request.action = 'rc_button_pushed';
+          request.action = 'button_pushed';
           request.content = {}
           request.content.btn_id = data.btnId;
           sendRequest(request, socket_remotes);
@@ -102,7 +102,7 @@
   button_edit: function(response) {
     if (response.button) {
       response.radios.forEach(function(el) {
-        if (response.button.btn_radio_id == el.radio_id)
+        if (response.button.btn_radio_id == el.id)
           el.btn_selected = true;
       });
     }

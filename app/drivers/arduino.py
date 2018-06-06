@@ -125,26 +125,95 @@ class ArduinoQueueItem():
         self.btn = btn
         self.sid = sid
         self.priority = priority
+        self.pipe = btn.radio.pipe
+
+        print("--------------", file=sys.stderr)
+        print(self.pipe, file=sys.stderr)
 
     def __cmp__(self, other):
         return cmp(self.priority, other.priority)
 
-    def prepareIrSignal(self):
-        data = []
-        data.append('i%s' % self.btn.radio_id)
+    def encodeBits(self, data):
+        counter = 0
+        zero = None
+        encode = ''
+        
+        for digit in data:
+            if digit == '0':
+                if zero == None:
+                    zero = True
 
-        for x in self.btn.signal.split(' '):
-            if int(x) > 65000:
+                if counter > 0 and zero == False:
+                    encode += str(counter) + 'b'
+                    counter = 1
+                    zero = True
+                else:
+                    counter += 1
+
+            elif digit == '1':
+                if zero == None:
+                    zero = False
+
+                if counter > 0 and zero == True:
+                    encode += str(counter) + 'a'
+                    counter = 1
+                    zero = False
+                else:
+                    counter += 1
+
+        if counter > 0:
+            if zero == True:
+                encode += str(counter) + 'a'
+            if zero == False:
+                encode += str(counter) + 'b'
+
+
+        return encode
+
+    def prepareIrSignal(self):
+        pre_data = []
+        data = []
+        pre_data.append('%si' % self.pipe.replace('0x', ''))
+
+        zero = []
+        one = []
+        compressed = ''
+
+        for value in self.btn.signal.split(' '):
+            x = int(value)
+            if x > 65000:
                 data.append('65000')
+                if compressed != '':
+                    data.append("[%s]" % self.encodeBits(compressed))
+                    compressed = ''
             else:
-                data.append(x)
+                if x < 1800:
+                    code = '0'
+                    if x < 1000:
+                        zero.append(x)
+                    elif 1000 <= x:
+                        one.append(x)
+                        code = '1'
+                    compressed += code
+                else:
+                    if compressed != '':
+                        data.append("[%s]" % self.encodeBits(compressed))
+                        compressed = ''
+                    data.append(value)
+
+        if compressed != '':
+            data.append("[%s]" % self.encodeBits(compressed))
 
         data.append('\n')
 
-        self.signal = ' '.join(data)
+        pre_data.append(str(sum(zero)/len(zero)))
+        pre_data.append(str(sum(one)/len(one)))
+
+        self.signal = ' '.join(pre_data + data)
+        print(self.signal, file=sys.stderr)
 
     def prepareCommand(self):
-        self.signal = 'c%s %s\n' % (self.btn.radio_id, self.btn.signal)
+        self.signal = '%sc%s\n' % (self.pipe.replace('0x', ''), self.btn.signal)
 
     def run(self):
         self.ser.flushInput()
@@ -201,7 +270,7 @@ class ArduinoQueueRadio():
         self.ser.flushInput()
         self.ser.flushOutput()
 
-        self.signal = 'c%s %s\n' % (self.radio.pipe, 'status')
+        self.signal = '%sc%s\n' % (self.radio.pipe.replace('0x', ''), 'status')
 
         partial_signal = [self.signal[i:i+self.buffer] for i in range(0, len(self.signal), self.buffer)]
         
@@ -252,7 +321,8 @@ class ArduinoQueueRadio():
         so.emit('json', {'response': {'result': 'success', 'callback': 'radio_sensor_refresh', 'id': self.radio.id, 'sensors': sensors}}, namespace='/radios')
 
 class SerialDev():
-    
+    transfer = False
+
     def open(self):
         print('SERIAL DEV: Connect to /dev/ttyUSB0', file=sys.stderr)
 
@@ -267,10 +337,18 @@ class SerialDev():
 
     def write(self, data):
         print('SERIAL DEV: Recieved bytearray', file=sys.stderr)
+        if data.endswith("\n"):
+            self.transfer = False
+        else:
+            self.transfer = True
         print(data, file=sys.stderr)
 
+
     def readline(self):
-        temp = random.uniform(18, 26)
-        hum = random.uniform(35, 65)
-        bat = random.uniform(0.1, 1)
-        return "temp %.2f,hum %.2f,bat %.2f:OK\n" % (temp, hum, bat)
+        if self.transfer == False:
+            temp = random.uniform(18, 26)
+            hum = random.uniform(35, 65)
+            bat = random.uniform(0.1, 1)
+            return "temp %.2f,hum %.2f,bat %.2f:OK\n" % (temp, hum, bat)
+        else:
+            return "next\n"

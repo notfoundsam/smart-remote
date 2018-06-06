@@ -19,7 +19,7 @@
     <form id="button_form">
       <input type="hidden" name="rc_id" value="{{button.rc_id}}">
       <input type="hidden" name="button_id" value="{{button.btn_id}}">
-      <input type="hidden" name="button_signal" value="{{button.signal}}">
+      <input type="hidden" name="button_signal" value="{{button.btn_signal}}">
 
       <div class="list no-hairlines-md">
         <ul>
@@ -81,7 +81,7 @@
                 <option value="999" selected>Base Lirc</option>
                 <option value="0" data-option-color="orange">Base Arduino</option>
                 {{#each radios}}
-                <option value="{{this.radio_id}}" data-option-color="green"{{#js_if "this.btn_selected"}} selected{{/js_if}}>{{this.name}}</option>
+                <option value="{{this.id}}" data-option-color="green"{{#js_if "this.btn_selected"}} selected{{/js_if}}>{{this.name}}</option>
                 {{/each}}
               </select>
               <div class="item-content">

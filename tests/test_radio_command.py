@@ -3,7 +3,7 @@ import time
 import array
 
 command = "status"
-radio = '3'
+radio_pipe = 'AABBCCDD33'
 
 success = 0
 fail = 0
@@ -21,7 +21,9 @@ time.sleep(2)
 ser.flushInput()
 ser.flushOutput()
 
-signal = 'c%s %s\n' % (radio, command)
+signal = '%sc%s\n' % (radio_pipe, command)
+
+print(signal)
 
 n = 32
 partial_signal = [signal[i:i+n] for i in range(0, len(signal), n)]
@@ -71,7 +73,7 @@ try:
             #     bat = float(sensors_data['bat'])
             #     print(bat)
 
-        time.sleep(0.5)
+        time.sleep(0.2)
 
 except KeyboardInterrupt:
     ser.flushInput()
