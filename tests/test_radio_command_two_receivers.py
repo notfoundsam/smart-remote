@@ -3,8 +3,8 @@ import time
 import array
 
 command = "status"
-# radio_pipe = 'AABBCCDD33'
-radio_pipe = 'AABBCCDD44'
+radio_pipe_1 = 'AABBCCDD33'
+radio_pipe_2 = 'AABBCCDD44'
 
 success = 0
 fail = 0
@@ -22,18 +22,27 @@ time.sleep(2)
 ser.flushInput()
 ser.flushOutput()
 
-signal = '%sc%s\n' % (radio_pipe, command)
-
-print(signal)
-
-n = 32
-partial_signal = [signal[i:i+n] for i in range(0, len(signal), n)]
+flag = False
 
 try:
     while True:
+        if flag == True:
+            flag = False
+            radio_pipe = radio_pipe_1
+        else:
+            flag = True
+            radio_pipe = radio_pipe_2
+
+        signal = '%sc%s\n' % (radio_pipe, command)
+
+        print "--------START---------"
+        print(signal)
+
+        n = 32
+        partial_signal = [signal[i:i+n] for i in range(0, len(signal), n)]
+        
         ser.flushInput()
         ser.flushOutput()
-        print "-----------------"
 
         response_in = ""
 
@@ -58,7 +67,7 @@ try:
         print(repr(response_in))
         if data[1] == 'FAIL':
             fail += 1
-            time.sleep(5)
+            time.sleep(1)
         elif data[1] == 'OK':
             success += 1
         else:
@@ -74,6 +83,7 @@ try:
             #     bat = float(sensors_data['bat'])
             #     print(bat)
 
+        print "--------END---------"
         time.sleep(1)
 
 except KeyboardInterrupt:

@@ -92,7 +92,8 @@ void readSerial() {
           return;
         }
         if (test_c == 3) {
-          if (!sendSignal(1, 1)) {
+          byte test[1] = {0};
+          if (!sendSignal(test, sizeof(test))) {
             radio.flush_rx();
             radio.flush_tx();
             radio.startListening();
