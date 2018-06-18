@@ -1,7 +1,7 @@
 version: '3'
 services:
   brocker:
-    image: nodered/node-red-docker
+    image: nodered/node-red-docker:rpi
     ports:
       - "1080:1080"
     deploy:
