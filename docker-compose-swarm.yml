@@ -49,7 +49,8 @@ services:
   mosquitto:
     image: pascaldevink/rpi-mosquitto
     ports:
-      - "3000:3000"
+      - "1883:1883"
+      - "9001:9001"
     deploy:
       replicas: 1
 
