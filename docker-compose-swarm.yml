@@ -25,9 +25,9 @@ services:
   node-red:
     image: easypi/node-red-arm
     ports:
-      - "1080:1080"
-    volumes:
-      - ./node-red:/root/.node-red
+      - "1880:1880"
+    # volumes:
+    #   - ./node-red:/root/.node-red
     deploy:
       replicas: 1
       placement:
