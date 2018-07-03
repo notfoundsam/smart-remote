@@ -6,7 +6,7 @@ services:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=smart_remote
     volumes:
-      - mysql-data:/var/lib/mysql
+      - ./docker/mysql-data:/var/lib/mysql
     ports:
       - "3390:3306"
   web:
@@ -36,6 +36,8 @@ services:
     image: influxdb
     environment:
       - INFLUXDB_DB=smart_remote
+    volumes:
+      - ./docker/influx-data:/var/lib/influxdb
     ports:
       - "8086:8086"
   grafana:
@@ -48,5 +50,6 @@ services:
       - "1883:1883"
       - "9001:9001"
 
-volumes:
-  mysql-data:
+# volumes:
+#   mysql-data:
+#   influx-data:
