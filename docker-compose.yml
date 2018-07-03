@@ -1,5 +1,14 @@
-version: '2'
+version: '3'
 services:
+  db:
+    image: mysql:5.6
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=smart_remote
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3390:3306"
   web:
     build:
       context: .
@@ -13,12 +22,14 @@ services:
     ports:
       - "5000:5000"
   node-red:
-    user: node-red
+    # image: nodered/node-red-docker
     build:
       context: ./node-red
       dockerfile: Dockerfile
+    environment:
+      - FLOWS=smart_remote.json
     volumes:
-      - ./node-red/lib/flows:/data/lib/flows
+      - ./node-red:/data:Z
     ports:
       - "1880:1880"
   influxdb:
@@ -36,3 +47,6 @@ services:
     ports:
       - "1883:1883"
       - "9001:9001"
+
+volumes:
+  mysql-data:
