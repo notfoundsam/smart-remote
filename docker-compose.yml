@@ -13,12 +13,7 @@ services:
     ports:
       - "5000:5000"
   node-red:
-    user: node-red
-    build:
-      context: ./node-red
-      dockerfile: Dockerfile
-    volumes:
-      - ./node-red/lib/flows:/data/lib/flows
+    image: nodered/node-red-docker
     ports:
       - "1880:1880"
   influxdb:
