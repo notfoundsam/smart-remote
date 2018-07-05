@@ -12,6 +12,7 @@ services:
       - ./:/app
     ports:
       - "5000:5000"
+    privileged: true
   node-red:
     image: easypi/node-red-arm
     ports:
