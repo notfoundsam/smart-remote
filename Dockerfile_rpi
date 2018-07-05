@@ -1,6 +1,6 @@
 FROM resin/rpi-raspbian:jessie
 
-RUN apt-get install python-pip -y
+RUN apt-get update && apt-get install python-pip -y
 
 RUN mkdir /app
 WORKDIR /app
