@@ -1,5 +1,8 @@
 FROM python:2
 
+RUN apt-get update && apt-get install lirc -y
+COPY lirc/lirc_options.conf /etc/lirc/lirc_options.conf
+
 RUN mkdir /app
 WORKDIR /app
 
