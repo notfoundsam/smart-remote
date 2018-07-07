@@ -1,18 +1,18 @@
 version: '2'
 services:
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile_rpi
-    command: bash -c "python run.py"
-    working_dir: /app
-    # environment:
-    #   - APP_ENV=development
-    volumes:
-      - ./:/app
-    ports:
-      - "5000:5000"
-    privileged: true
+  # web:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile_rpi
+  #   command: bash -c "python run.py"
+  #   working_dir: /app
+  #   # environment:
+  #   #   - APP_ENV=development
+  #   volumes:
+  #     - ./:/app
+  #   ports:
+  #     - "5000:5000"
+  #   privileged: true
   node-red:
     image: easypi/node-red-arm
     ports:
