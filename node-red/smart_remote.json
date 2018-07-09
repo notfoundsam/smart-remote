@@ -1,1 +1,250 @@
-[{"id":"139cd499.bd04cb","type":"mqtt in","z":"e624c434.2df818","name":"weather","topic":"/weather","qos":"2","broker":"68696c2f.91ceb4","x":110,"y":340,"wires":[["1d88b02c.f588a","63470c10.861434","25751ac5.f75f96"]]},{"id":"f672d4f1.ff6208","type":"influxdb out","z":"e624c434.2df818","influxdb":"4b5f5017.819e3","name":"weather","measurement":"weather","precision":"","retentionPolicy":"","x":540,"y":460,"wires":[]},{"id":"1d88b02c.f588a","type":"function","z":"e624c434.2df818","name":"test","func":"// msg.payload\n// node.log(msg.payload);\n\nvar temp = /temp:(.+?);/.exec(msg.payload);\n// node.log(node.name);\nnode.log(temp);\n\nmsg.payload = [\n    {\n        numValue: 10,\n        randomValue: Math.random()*10,\n        strValue: \"message1\",\n    },\n    {\n        device: \"dht22-1\"\n    }\n];\nreturn msg;","outputs":1,"noerr":0,"x":330,"y":340,"wires":[["78c1ff61.dd2a"]]},{"id":"78c1ff61.dd2a","type":"debug","z":"e624c434.2df818","name":"","active":false,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","x":550,"y":340,"wires":[]},{"id":"63470c10.861434","type":"json","z":"e624c434.2df818","name":"dht","property":"payload","action":"obj","pretty":false,"x":330,"y":400,"wires":[["a5c98d14.e1bcc","f672d4f1.ff6208"]]},{"id":"a5c98d14.e1bcc","type":"debug","z":"e624c434.2df818","name":"","active":false,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","x":550,"y":400,"wires":[]},{"id":"25751ac5.f75f96","type":"debug","z":"e624c434.2df818","name":"","active":false,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","x":310,"y":480,"wires":[]},{"id":"28858d6e.6b7f32","type":"mqtt in","z":"e624c434.2df818","name":"offline","topic":"/offline","qos":"2","broker":"68696c2f.91ceb4","x":110,"y":560,"wires":[["59a9e878.7863c8"]]},{"id":"59a9e878.7863c8","type":"debug","z":"e624c434.2df818","name":"offline msg","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"payload","x":300,"y":560,"wires":[]},{"id":"b50fe736.a54698","type":"mqtt in","z":"e624c434.2df818","name":"battery","topic":"/battery","qos":"2","broker":"68696c2f.91ceb4","x":120,"y":680,"wires":[["6041fb6b.7b0ce4","c4c09a6a.405d28"]]},{"id":"c4c09a6a.405d28","type":"debug","z":"e624c434.2df818","name":"","active":false,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","x":310,"y":760,"wires":[]},{"id":"6041fb6b.7b0ce4","type":"json","z":"e624c434.2df818","name":"battery","property":"payload","action":"obj","pretty":false,"x":330,"y":680,"wires":[["f73591.b5902a7"]]},{"id":"f73591.b5902a7","type":"influxdb out","z":"e624c434.2df818","influxdb":"4b5f5017.819e3","name":"battery","measurement":"battery","precision":"","retentionPolicy":"","x":530,"y":740,"wires":[]},{"id":"68696c2f.91ceb4","type":"mqtt-broker","z":"","name":"mosquitto","broker":"mosquitto","port":"1883","clientid":"node_red","usetls":false,"compatmode":true,"keepalive":"60","cleansession":false,"willTopic":"","willQos":"0","willPayload":"","birthTopic":"","birthQos":"0","birthPayload":""},{"id":"4b5f5017.819e3","type":"influxdb","z":"","hostname":"influxdb","port":"8086","protocol":"http","database":"smart_remote","name":"","usetls":false,"tls":""}]
+[
+    {
+        "id": "954c5540.eca3f8",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "241857c7.2e5a98",
+        "type": "mqtt in",
+        "z": "954c5540.eca3f8",
+        "name": "weather",
+        "topic": "/weather",
+        "qos": "2",
+        "broker": "7a7c6295.69116c",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "b4cc362b.cba308",
+                "510a7198.d2e36"
+            ]
+        ]
+    },
+    {
+        "id": "5dd68c03.23f974",
+        "type": "influxdb out",
+        "z": "954c5540.eca3f8",
+        "influxdb": "c5b257d5.4b5ce8",
+        "name": "weather",
+        "measurement": "weather",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 560,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "b4cc362b.cba308",
+        "type": "json",
+        "z": "954c5540.eca3f8",
+        "name": "dht22",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 350,
+        "y": 100,
+        "wires": [
+            [
+                "43f5f123.1a333",
+                "5dd68c03.23f974"
+            ]
+        ]
+    },
+    {
+        "id": "43f5f123.1a333",
+        "type": "debug",
+        "z": "954c5540.eca3f8",
+        "name": "dht object",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 560,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "510a7198.d2e36",
+        "type": "debug",
+        "z": "954c5540.eca3f8",
+        "name": "dht22 json",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 370,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "d6458991.1ccae8",
+        "type": "mqtt in",
+        "z": "954c5540.eca3f8",
+        "name": "offline",
+        "topic": "/offline",
+        "qos": "2",
+        "broker": "7a7c6295.69116c",
+        "x": 150,
+        "y": 500,
+        "wires": [
+            [
+                "dc6d46af.beb748"
+            ]
+        ]
+    },
+    {
+        "id": "dc6d46af.beb748",
+        "type": "debug",
+        "z": "954c5540.eca3f8",
+        "name": "mosquitto offline",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 380,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "4f55069d.c86408",
+        "type": "mqtt in",
+        "z": "954c5540.eca3f8",
+        "name": "battery",
+        "topic": "/battery",
+        "qos": "2",
+        "broker": "7a7c6295.69116c",
+        "x": 150,
+        "y": 300,
+        "wires": [
+            [
+                "38d0481f.e9e358",
+                "57f01d32.ebfaf4"
+            ]
+        ]
+    },
+    {
+        "id": "57f01d32.ebfaf4",
+        "type": "debug",
+        "z": "954c5540.eca3f8",
+        "name": "battery json",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 370,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "38d0481f.e9e358",
+        "type": "json",
+        "z": "954c5540.eca3f8",
+        "name": "battery",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 350,
+        "y": 300,
+        "wires": [
+            [
+                "65f3c7.51afec38",
+                "7346ff5.489c3"
+            ]
+        ]
+    },
+    {
+        "id": "65f3c7.51afec38",
+        "type": "influxdb out",
+        "z": "954c5540.eca3f8",
+        "influxdb": "c5b257d5.4b5ce8",
+        "name": "battery",
+        "measurement": "battery",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 550,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "7346ff5.489c3",
+        "type": "debug",
+        "z": "954c5540.eca3f8",
+        "name": "battery object",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 580,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "59dd4ede.69138",
+        "type": "comment",
+        "z": "954c5540.eca3f8",
+        "name": "Convert json to js object",
+        "info": "",
+        "x": 360,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "d3785707.a7cab8",
+        "type": "comment",
+        "z": "954c5540.eca3f8",
+        "name": "Convert json to js object",
+        "info": "",
+        "x": 360,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "c817c128.74182",
+        "type": "comment",
+        "z": "954c5540.eca3f8",
+        "name": "If sensor is offline just write it in debug window",
+        "info": "",
+        "x": 290,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "7a7c6295.69116c",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "mosquitto",
+        "broker": "mosquitto",
+        "port": "1883",
+        "clientid": "node_red",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": false,
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": ""
+    },
+    {
+        "id": "c5b257d5.4b5ce8",
+        "type": "influxdb",
+        "z": "",
+        "hostname": "influxdb",
+        "port": "8086",
+        "protocol": "http",
+        "database": "smart_remote",
+        "name": "",
+        "usetls": false,
+        "tls": ""
+    }
+]

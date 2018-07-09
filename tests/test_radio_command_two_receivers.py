@@ -12,7 +12,7 @@ error = 0
 
 ser = serial.Serial()
 ser.baudrate = 500000
-ser.port = '/dev/ttyUSB1'
+ser.port = '/dev/ttyUSB0'
 ser.timeout = 10
 ser.open()
 
@@ -84,7 +84,7 @@ try:
             #     print(bat)
 
         print "--------END---------"
-        time.sleep(1)
+        time.sleep(0.05)
 
 except KeyboardInterrupt:
     ser.flushInput()
