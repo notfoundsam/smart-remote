@@ -1,5 +1,14 @@
 version: '2'
 services:
+  db:
+    image: mysql:5.6
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=smart_remote
+    volumes:
+      - ./docker/mysql-data:/var/lib/mysql
+    ports:
+      - "3390:3306"
   web:
     build:
       context: .
@@ -8,9 +17,44 @@ services:
     working_dir: /app
     environment:
       - APP_ENV=development
+      - APP_DOCKER=true
     volumes:
       - ./:/app
     ports:
       - "5000:5000"
-    expose:
-      - "80"
+    privileged: true
+    # devices:
+    #   - "/dev/ttyUSB0:/dev/ttyUSB0"
+  node-red:
+    # image: nodered/node-red-docker
+    build:
+      context: ./node-red
+      dockerfile: Dockerfile
+    environment:
+      - FLOWS=smart_remote.json
+    volumes:
+      - ./node-red:/data:Z
+    ports:
+      - "1880:1880"
+    user: node-red
+  influxdb:
+    image: influxdb
+    environment:
+      - INFLUXDB_DB=smart_remote
+    volumes:
+      - ./docker/influx-data:/var/lib/influxdb
+    ports:
+      - "8086:8086"
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+  mosquitto:
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+
+# volumes:
+#   mysql-data:
+#   influx-data:

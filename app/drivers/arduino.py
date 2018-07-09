@@ -1,6 +1,6 @@
 from __future__ import print_function
 import serial
-import time, random
+import time, random, socket, json
 import array
 import os, sys
 import threading, Queue
@@ -308,16 +308,24 @@ class ArduinoQueueRadio():
         sensors = {}
 
         if self.radio.dht == 1:
-            if 'hum' in sensors_data:
-                sensors['hum'] = sensors_data['hum']
+            if 'h' in sensors_data:
+                sensors['hum'] = sensors_data['h']
   
-            if 'temp' in sensors_data:
-                sensors['temp'] = sensors_data['temp']
+            if 't' in sensors_data:
+                sensors['temp'] = sensors_data['t']
 
         if self.radio.battery == 1:
-            if 'bat' in sensors_data:
-                sensors['bat'] = sensors_data['bat']
+            if 'b' in sensors_data:
+                sensors['bat'] = sensors_data['b']
 
+        arduino_json = '[{"tempValue":%.2f,"humiValue":%.2f},{"type":"arduino", "id":"%s"}]' % (float(sensors_data['t']), float(sensors_data['h']), self.radio.pipe)
+        s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        if 'APP_DOCKER' in os.environ:
+            s.connect(("node-red", 9090))
+        else:
+            s.connect(("127.0.0.1", 9090))
+        s.send(arduino_json)
+        s.close()
         so.emit('json', {'response': {'result': 'success', 'callback': 'radio_sensor_refresh', 'id': self.radio.id, 'sensors': sensors}}, namespace='/radios')
 
 class SerialDev():
@@ -349,6 +357,6 @@ class SerialDev():
             temp = random.uniform(18, 26)
             hum = random.uniform(35, 65)
             bat = random.uniform(0.1, 1)
-            return "temp %.2f,hum %.2f,bat %.2f:OK\n" % (temp, hum, bat)
+            return "t %.2f,h %.2f,b %.2f:OK\n" % (temp, hum, bat)
         else:
             return "next\n"

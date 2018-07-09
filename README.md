@@ -33,3 +33,8 @@ http://localhost:5000
 ```bash
 $ docker-compose up
 ```
+
+## Swarm mode
+```bash
+$ docker stack deploy --compose-file docker-compose-swarm.yml smart-home
+```

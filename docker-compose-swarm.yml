@@ -1,0 +1,56 @@
+version: '3'
+services:
+  # db:
+  #   image: mysql:5.6
+  #   restart: always
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=root
+  #   volumes:
+  #     - db-data:/var/lib/mysql
+  #   deploy:
+  #     replicas: 1
+  #     placement:
+  #       constraints: [node.role == manager]
+  #   ports:
+  #     - "3306:3306"
+  # viz:
+  #   image: alexellis2/visualizer-arm
+  #   restart: always
+  #   deploy:
+  #     replicas: 1
+  #     # placement:
+  #     #   constraints: [node.role == manager]
+  #   ports:
+  #     - "8080:8080"
+  node-red:
+    image: easypi/node-red-arm
+    ports:
+      - "1880:1880"
+    # volumes:
+    #   - ./node-red:/root/.node-red
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+  influxdb:
+    image: influxdb
+    ports:
+      - "8086:8086"
+    deploy:
+      replicas: 1
+  grafana:
+    image: fg2it/grafana-armhf:v5.1.3
+    ports:
+      - "3000:3000"
+    deploy:
+      replicas: 1
+  mosquitto:
+    image: pascaldevink/rpi-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    deploy:
+      replicas: 1
+
+# volumes:
+#   db-data:
