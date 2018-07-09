@@ -17,6 +17,7 @@ services:
     working_dir: /app
     environment:
       - APP_ENV=development
+      - APP_DOCKER=true
     volumes:
       - ./:/app
     ports:
