@@ -263,6 +263,11 @@ class ArduinoQueueRadio():
         self.radio = radio
         self.priority = priority
 
+        if 'APP_DOCKER' in os.environ:
+            self.host = 'node-red'
+        else:
+            self.host = '127.0.0.1'
+
     def __cmp__(self, other):
         return cmp(self.priority, other.priority)
     
@@ -297,6 +302,11 @@ class ArduinoQueueRadio():
 
         if 1 < len(data):
             if data[1] == 'FAIL':
+                arduino_json = '{"type":"arduino", "id":"%s", "status":"offline", "msg":"%s"}' % (self.radio.pipe, data[0])
+                s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+                s.connect((self.host, 9090))
+                s.send(arduino_json)
+                s.close()
                 so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')
             elif data[1] == 'OK':
                 self.getStatus(data[0])
@@ -320,10 +330,7 @@ class ArduinoQueueRadio():
 
         arduino_json = '[{"tempValue":%.2f,"humiValue":%.2f},{"type":"arduino", "id":"%s"}]' % (float(sensors_data['t']), float(sensors_data['h']), self.radio.pipe)
         s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        if 'APP_DOCKER' in os.environ:
-            s.connect(("node-red", 9090))
-        else:
-            s.connect(("127.0.0.1", 9090))
+        s.connect((self.host, 9090))
         s.send(arduino_json)
         s.close()
         so.emit('json', {'response': {'result': 'success', 'callback': 'radio_sensor_refresh', 'id': self.radio.id, 'sensors': sensors}}, namespace='/radios')
