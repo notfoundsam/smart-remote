@@ -328,7 +328,7 @@ class ArduinoQueueRadio():
             if 'b' in sensors_data:
                 sensors['bat'] = sensors_data['b']
 
-        arduino_json = '[{"tempValue":%.2f,"humiValue":%.2f},{"type":"arduino", "id":"%s"}]' % (float(sensors_data['t']), float(sensors_data['h']), self.radio.pipe)
+        arduino_json = '[{"tempValue":%.2f,"humiValue":%.2f, "batValue":%.2f},{"type":"arduino", "id":"%s"}]' % (float(sensors_data['t']), float(sensors_data['h']),  float(sensors_data['b']), self.radio.pipe)
         s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         s.connect((self.host, 9090))
         s.send(arduino_json)
