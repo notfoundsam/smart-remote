@@ -328,7 +328,7 @@ void getDhtParams() {
 }
 
 void getBatteryVoltage() {
-  bat = ((analogRead(bat_pin) * 1.1) / 1023) / 0.0911;
+  bat = ((analogRead(bat_pin) * 1.1) / 1023) / 0.0855;
 }
 
 void responseSuccess() {
