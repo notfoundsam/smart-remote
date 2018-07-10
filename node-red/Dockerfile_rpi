@@ -1,0 +1,4 @@
+FROM easypi/node-red-arm
+RUN cd ~/.node-red && npm install node-red-contrib-influxdb
+ADD node-red/settings_rpi.js /root/.node-red/settings.js
+ADD node-red/smart_remote.json /root/.node-red/smart_remote.json
