@@ -59,8 +59,8 @@ class Arduino():
         self.starter = ArduinoQueueStarter()
         self.starter.start()
 
-    def send(self, btn, sid):
-        self.queue.putItem(ArduinoQueueItem(self.ser, btn, sid, 1))
+    def send(self, btn, pipe, sid):
+        self.queue.putItem(ArduinoQueueItem(self.ser, btn, pipe, sid, 1))
 
     def status(self, radio):
         self.queue.putItem(ArduinoQueueRadio(self.ser, radio, 5))
@@ -118,14 +118,14 @@ class ArduinoQueueStarter(threading.Thread):
 
 class ArduinoQueueItem():
 
-    def __init__(self, ser, btn, sid, priority):
+    def __init__(self, ser, btn, pipe, sid, priority):
         self.signal = ''
         self.buffer = 32
         self.ser = ser
         self.btn = btn
         self.sid = sid
         self.priority = priority
-        self.pipe = btn.radio.pipe
+        self.pipe = pipe
 
         print("--------------", file=sys.stderr)
         print(self.pipe, file=sys.stderr)
