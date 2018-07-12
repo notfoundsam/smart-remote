@@ -1,7 +1,7 @@
 version: '3'
 services:
   node-red:
-    image: easypi/node-red-arm
+    image: notfoundsam/node-red-swarm
     ports:
       - "1880:1880"
     deploy:
