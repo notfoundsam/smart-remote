@@ -1,7 +1,7 @@
 FROM easypi/node-red-arm
-RUN cd /root/.node-red \
-    npm i -g npm \
-    apk add -U build-base \
+RUN cd /root/.node-red && \
+    npm i -g npm && \
+    apk add -U build-base && \
     npm install node-red-contrib-influxdb
     
 ADD node-red/settings_rpi.js /root/.node-red/settings.js
