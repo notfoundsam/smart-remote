@@ -2,6 +2,8 @@ version: '3'
 services:
   node-red:
     image: notfoundsam/node-red-swarm
+    environment:
+      - FLOWS=smart_remote.json
     ports:
       - "1880:1880"
     deploy:
