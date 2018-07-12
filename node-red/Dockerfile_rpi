@@ -1,10 +1,2 @@
-FROM easypi/node-red-arm
-
-#ADD node-red/package_rpi.json /root/.node-red/package.json
-#ADD node-red/settings_rpi.js /root/.node-red/settings.js
-#ADD node-red/smart_remote.json /root/.node-red/smart_remote.json
-
-# RUN cd /root/.node-red && \
-#    apk add -U build-base && \
-#    npm install
-
+FROM nodered/node-red-docker:rpi-v8
+RUN npm install node-red-contrib-influxdb
