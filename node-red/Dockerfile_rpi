@@ -3,5 +3,5 @@ RUN cd /root/.node-red && \
     apk add -U build-base && \
     npm install node-red-contrib-influxdb
 
-ADD node-red/settings_rpi.js /root/.node-red/settings.js
-ADD node-red/smart_remote.json /root/.node-red/smart_remote.json
+#ADD node-red/settings_rpi.js /root/.node-red/settings.js
+#ADD node-red/smart_remote.json /root/.node-red/smart_remote.json
