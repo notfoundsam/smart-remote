@@ -27,6 +27,7 @@ node-red/*
 !node-red/package.json
 !node-red/smart_remote.json
 !node-red/settings_rpi.js
+!node-red/package_rpi.json
 
 # Docker files
 /docker/*

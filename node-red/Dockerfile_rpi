@@ -1,7 +1,10 @@
 FROM easypi/node-red-arm
+
+ADD node-red/package_rpi.json /root/.node-red/package.json
+ADD node-red/settings_rpi.js /root/.node-red/settings.js
+ADD node-red/smart_remote.json /root/.node-red/smart_remote.json
+
 RUN cd /root/.node-red && \
     apk add -U build-base && \
-    npm install node-red-contrib-influxdb
+    npm install
 
-#ADD node-red/settings_rpi.js /root/.node-red/settings.js
-#ADD node-red/smart_remote.json /root/.node-red/smart_remote.json
