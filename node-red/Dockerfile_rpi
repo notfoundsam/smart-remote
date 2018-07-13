@@ -1,4 +1,4 @@
 FROM nodered/node-red-docker:rpi-v8
 RUN npm install node-red-contrib-influxdb
 
-ADD smart_remote.json /data/smart_remote.json
+ADD node-red/smart_remote.json /data/smart_remote.json
