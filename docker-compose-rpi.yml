@@ -14,7 +14,13 @@ services:
   #     - "5000:5000"
   #   privileged: true
   node-red:
-    image: easypi/node-red-arm
+    build:
+      context: ./node-red
+      dockerfile: Dockerfile_rpi
+    environment:
+      - FLOWS=smart_remote.json
+    volumes:
+      - ./node-red:/data:Z
     ports:
       - "1880:1880"
       - "9090:9090"
