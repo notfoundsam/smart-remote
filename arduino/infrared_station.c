@@ -84,15 +84,23 @@ void loop() {
   }
 
   // Sleep each 15ms to save power
-  while (millis() - sleep_at >= 15) {
-    wdt_enable(WDTO_30MS); //Задаем интервал сторожевого таймера (30ms) WDTO_15MS, WDTO_30MS, WDTO_60MS, WDTO_120MS, WDTO_250MS, WDTO_500MS etc.
+  while (millis() - sleep_at >= 20) {
+    wdt_enable(WDTO_60MS); //Задаем интервал сторожевого таймера (30ms) WDTO_15MS, WDTO_30MS, WDTO_60MS, WDTO_120MS, WDTO_250MS, WDTO_500MS etc.
     WDTCSR |= (1 << WDIE); //Устанавливаем бит WDIE регистра WDTCSR для разрешения прерываний от сторожевого таймера
-    set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Устанавливаем интересующий нас режим
+    // set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Устанавливаем интересующий нас режим
 
     radio.stopListening();
     radio.powerDown();
 
-    sleep_mode(); // Переводим МК в спящий режим
+    ADCSRA &= ~(1 << ADEN); // Отключаем АЦП
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Устанавливаем интересующий нас режим
+    sleep_enable();
+    // Отключаем детектор пониженного напряжения питания 
+    MCUCR = bit (BODS) | bit (BODSE);  
+    MCUCR = bit (BODS);
+    sleep_cpu(); // Переводим МК в спящий режим
+
+    // sleep_mode(); // Переводим МК в спящий режим
     sleep_at = millis();
 
     radio.powerUp();

@@ -2,8 +2,8 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 RF24 radio(9, 10);
-int radio_retries = 5;
-int radio_delay = 10;
+int radio_retries = 15;
+int radio_delay = 5;
 
 boolean isSucces = false;
 
