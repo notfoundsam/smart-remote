@@ -266,7 +266,7 @@ class ArduinoQueueRadio():
         if 'APP_DOCKER' in os.environ:
             self.host = 'node-red'
         else:
-            self.host = '127.0.0.1'
+            self.host = '192.168.100.10'
 
     def __cmp__(self, other):
         return cmp(self.priority, other.priority)

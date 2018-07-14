@@ -2,10 +2,10 @@ do
   local M = {}
 
   M.connected = false
-  M.server_ip = "192.168.100.50"
+  M.server_ip = "192.168.100.10"
   M.server_port = 1883
   M.server_channel = "/weather"
-  M.device_id = "station_outside"
+  M.device_id = "station_1"
 
   local client = mqtt.Client(M.device_id, 60)
   client:lwt('/offline', M.device_id)

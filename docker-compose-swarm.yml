@@ -10,6 +10,8 @@ services:
       replicas: 1
   influxdb:
     image: influxdb
+    environment:
+      - INFLUXDB_DB=smart_remote
     ports:
       - "8086:8086"
     deploy:
