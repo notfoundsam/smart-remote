@@ -72,6 +72,8 @@
         "alignAsTable": true,
         "avg": false,
         "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
         "max": false,
         "min": false,
         "rightSide": true,
@@ -808,7 +810,7 @@
           "groupBy": [
             {
               "params": [
-                "10s"
+                "2m"
               ],
               "type": "time"
             },
@@ -848,7 +850,7 @@
         }
       ],
       "thresholds": "2.5,3,4.2",
-      "timeFrom": "2m",
+      "timeFrom": null,
       "title": "Battery outside",
       "type": "singlestat",
       "valueFontSize": "80%",
@@ -926,7 +928,7 @@
           "groupBy": [
             {
               "params": [
-                "10s"
+                "2m"
               ],
               "type": "time"
             },
@@ -972,7 +974,7 @@
         }
       ],
       "thresholds": "2.5,3,4.2",
-      "timeFrom": "2m",
+      "timeFrom": null,
       "title": "Battery living",
       "type": "singlestat",
       "valueFontSize": "80%",

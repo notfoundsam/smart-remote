@@ -1,5 +1,5 @@
 local dht_pin = 4
-local vin_ratio = 0.0995
+local vin_ratio = 10.37
 
 adc.force_init_mode(adc.INIT_ADC)
 
@@ -31,6 +31,6 @@ end
 function battery()
   input = adc.read(0)
   
-  vin = ((input * 3.3) / 1023) / vin_ratio
+  vin = (input * 3.04 / 1024) * vin_ratio
   m.publishBattery('{"batValue":'..vin..'}')
 end

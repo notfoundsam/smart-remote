@@ -6,6 +6,7 @@ services:
       - FLOWS=smart_remote.json
     ports:
       - "1880:1880"
+      - "9090:9090"
     deploy:
       replicas: 1
   influxdb:
@@ -14,6 +15,8 @@ services:
       - INFLUXDB_DB=smart_remote
     ports:
       - "8086:8086"
+    volumes:
+      - influx-data:/var/lib/influxdb
     deploy:
       replicas: 2
   grafana:
@@ -29,3 +32,6 @@ services:
       - "9001:9001"
     deploy:
       replicas: 1
+
+volumes:
+  influx-data:

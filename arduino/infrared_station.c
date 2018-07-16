@@ -28,7 +28,7 @@ float hum;
 float temp;
 
 // Battery setting
-int bat_pin = A1;
+int bat_pin = A0;
 // float max_v = 4.1;
 // float min_v = 2.5;
 float bat = 0;
@@ -354,7 +354,7 @@ void getDhtParams() {
 }
 
 void getBatteryVoltage() {
-  bat = ((analogRead(bat_pin) * 1.1) / 1023) / 0.0855;
+  bat = ((analogRead(bat_pin) * 1.1) / 1023) * 10.86;
 }
 
 void responseSuccess() {
