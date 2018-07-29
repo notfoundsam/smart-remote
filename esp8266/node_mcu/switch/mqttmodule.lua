@@ -1,11 +1,14 @@
 do
   local M = {}
+  local pin = 2
+  gpio.mode(pin, gpio.INPUT)
+  -- gpio.write(pin, gpio.LOW)
 
   M.connected = false
   M.server_ip = "192.168.100.10"
   M.server_port = 1883
-  M.server_channel = "/weather"
-  M.device_id = "station_1"
+  M.server_channel = "/air_dryer"
+  M.device_id = "air_dryer"
 
   local client = mqtt.Client(M.device_id, 60)
   client:lwt('/offline', M.device_id)
@@ -13,6 +16,26 @@ do
   client:on("offline", function(con)
     M.connected = false
     print("disconnected")
+  end)
+
+  client:on("message", function(cli, topic, msg)
+    if topic == '/air_dryer' then
+      if msg == 'gpio1_on' then
+        print('gpio1_on')
+        gpio.mode(pin, gpio.OUTPUT)
+        gpio.write(pin, gpio.HIGH)
+        gpio.write(pin, gpio.LOW)
+      elseif msg == 'gpio1_off' then
+        print('gpio1_off')
+        gpio.mode(pin, gpio.INPUT)
+        -- gpio.write(pin, gpio.LOW)
+      elseif msg == 'gpio1_pulse' then
+        print('gpio1_pulse')
+        gpio.mode(pin, gpio.OUTPUT)
+        gpio.write(pin, gpio.HIGH)
+        gpio.write(pin, gpio.LOW)
+      end
+    end
   end)
 
   function M.connect()
@@ -31,10 +54,6 @@ do
 
   function M.publish(message)
     client:publish(M.server_channel, '['..message..',{"id":"'..M.device_id..'"}]', 0, 0)
-  end
-
-  function M.publishBattery(message)
-    client:publish("/battery", '['..message..',{"id":"'..M.device_id..'"}]', 0, 0)
   end
 
   return M
