@@ -23,7 +23,7 @@ ir_tmp_code.txt
 # node-red
 node-red/*
 !node-red/Dockerfile
-!node-red/package.json
+!node-red/Dockerfile_rpi
 !node-red/smart_remote.json
 
 # Docker files

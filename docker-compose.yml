@@ -1,14 +1,14 @@
 version: '2'
 services:
-  db:
-    image: mysql:5.6
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=smart_remote
-    volumes:
-      - ./docker/mysql-data:/var/lib/mysql
-    ports:
-      - "3390:3306"
+  # db:
+  #   image: mysql:5.6
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=root
+  #     - MYSQL_DATABASE=smart_remote
+  #   volumes:
+  #     - ./docker/mysql-data:/var/lib/mysql
+  #   ports:
+  #     - "3390:3306"
   web:
     build:
       context: .
@@ -26,7 +26,6 @@ services:
     # devices:
     #   - "/dev/ttyUSB0:/dev/ttyUSB0"
   node-red:
-    # image: nodered/node-red-docker
     build:
       context: ./node-red
       dockerfile: Dockerfile

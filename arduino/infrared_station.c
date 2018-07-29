@@ -3,6 +3,8 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
+#include <avr/wdt.h>
+#include <avr/sleep.h>
 
 // Radio setting
 RF24 radio(9, 10); // For nano pin 9 and 10
@@ -26,16 +28,16 @@ float hum;
 float temp;
 
 // Battery setting
-int bat_pin = A1;
+int bat_pin = A0;
 // float max_v = 4.1;
 // float min_v = 2.5;
 float bat = 0;
-unsigned long ct = 0;
+unsigned long sleep_at;
 
 void setup() {
   analogReference(INTERNAL);
   pinMode(radioSpeedPin, INPUT);
-  Serial.begin(9600);
+  // Serial.begin(9600);
   radio.begin();
   delay(100);
   radio.powerUp();
@@ -50,8 +52,8 @@ void setup() {
   radio.openReadingPipe(1, address);
   radio.startListening();
   getDhtParams();
-  delay(10);
   getBatteryVoltage();
+  sleep_at = millis();
 }
 
 void loop() {
@@ -69,7 +71,7 @@ void loop() {
       if (readIrSignal(code)) {
         responseSuccess();
       } else {
-        Serial.println("recieve timeout");
+        // Serial.println("recieve timeout");
       }
     }
     // If recive comand (it starts with c)
@@ -77,8 +79,32 @@ void loop() {
       // Serial.println("c");
       readCommand(code);
     } else {
-      Serial.println("wtf");
+      // Serial.println("wtf");
     }
+  }
+
+  // Sleep each 15ms to save power
+  while (millis() - sleep_at >= 20) {
+    wdt_enable(WDTO_60MS); //Задаем интервал сторожевого таймера (30ms) WDTO_15MS, WDTO_30MS, WDTO_60MS, WDTO_120MS, WDTO_250MS, WDTO_500MS etc.
+    WDTCSR |= (1 << WDIE); //Устанавливаем бит WDIE регистра WDTCSR для разрешения прерываний от сторожевого таймера
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Устанавливаем интересующий нас режим
+
+    radio.stopListening();
+    radio.powerDown();
+
+    // ADCSRA &= ~(1 << ADEN); // Отключаем АЦП
+    // set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Устанавливаем интересующий нас режим
+    // sleep_enable();
+    // // Отключаем детектор пониженного напряжения питания 
+    // MCUCR = bit (BODS) | bit (BODSE);  
+    // MCUCR = bit (BODS);
+    // sleep_cpu(); // Переводим МК в спящий режим
+
+    sleep_mode(); // Переводим МК в спящий режим
+    sleep_at = millis();
+
+    radio.powerUp();
+    radio.startListening();
   }
 }
 
@@ -328,7 +354,7 @@ void getDhtParams() {
 }
 
 void getBatteryVoltage() {
-  bat = ((analogRead(bat_pin) * 1.1) / 1023) / 0.0911;
+  bat = ((analogRead(bat_pin) * 1.1) / 1023) * 10.86;
 }
 
 void responseSuccess() {
@@ -341,7 +367,7 @@ void responseSuccess() {
   responce.getBytes(byte_arr, rsize+1);
 
   if (!sendWithACK(byte_arr, rsize)) {
-    Serial.println("sendStatus failed");
+    // Serial.println("sendStatus failed");
     return;
   }
 }
@@ -366,7 +392,7 @@ void sendStatus() {
   responce.getBytes(byte_arr, rsize+1);
 
   if (!sendWithACK(byte_arr, rsize)) {
-    Serial.println("sendStatus failed");
+    // Serial.println("sendStatus failed");
   }
 }
 
@@ -379,7 +405,7 @@ void unsupportedCommand() {
   responce.getBytes(byte_arr, rsize+1);
 
   if (!sendWithACK(byte_arr, rsize)) {
-    Serial.println("unsupportedCommand failed");
+    // Serial.println("unsupportedCommand failed");
     return;
   }
 }
@@ -402,7 +428,6 @@ boolean sendWithACK(byte * data, int size) {
           radio.read(&response, sizeof(response));
 
           if (response[0] == 6) {
-            Serial.println("ok");
             return true;
           } else {
             continue;
@@ -420,4 +445,9 @@ void sendACK() {
   radio.stopListening();
   radio.write(ack, sizeof(ack));
   radio.startListening();
+}
+
+ISR (WDT_vect) {
+  wdt_disable();
+  // sleep_at = millis();
 }

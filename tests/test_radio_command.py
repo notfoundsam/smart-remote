@@ -58,7 +58,7 @@ try:
         print(repr(response_in))
         if data[1] == 'FAIL':
             fail += 1
-            time.sleep(5)
+            time.sleep(0.5)
         elif data[1] == 'OK':
             success += 1
         else:
@@ -74,7 +74,7 @@ try:
             #     bat = float(sensors_data['bat'])
             #     print(bat)
 
-        time.sleep(1)
+        time.sleep(0.4)
 
 except KeyboardInterrupt:
     ser.flushInput()

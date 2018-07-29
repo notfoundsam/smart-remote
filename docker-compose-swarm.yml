@@ -1,43 +1,24 @@
 version: '3'
 services:
-  # db:
-  #   image: mysql:5.6
-  #   restart: always
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=root
-  #   volumes:
-  #     - db-data:/var/lib/mysql
-  #   deploy:
-  #     replicas: 1
-  #     placement:
-  #       constraints: [node.role == manager]
-  #   ports:
-  #     - "3306:3306"
-  # viz:
-  #   image: alexellis2/visualizer-arm
-  #   restart: always
-  #   deploy:
-  #     replicas: 1
-  #     # placement:
-  #     #   constraints: [node.role == manager]
-  #   ports:
-  #     - "8080:8080"
   node-red:
-    image: easypi/node-red-arm
+    image: notfoundsam/node-red-swarm
+    environment:
+      - FLOWS=smart_remote.json
     ports:
       - "1880:1880"
-    # volumes:
-    #   - ./node-red:/root/.node-red
+      - "9090:9090"
     deploy:
       replicas: 1
-      placement:
-        constraints: [node.role == manager]
   influxdb:
     image: influxdb
+    environment:
+      - INFLUXDB_DB=smart_remote
     ports:
       - "8086:8086"
+    volumes:
+      - influx-data:/var/lib/influxdb
     deploy:
-      replicas: 1
+      replicas: 2
   grafana:
     image: fg2it/grafana-armhf:v5.1.3
     ports:
@@ -52,5 +33,5 @@ services:
     deploy:
       replicas: 1
 
-# volumes:
-#   db-data:
+volumes:
+  influx-data:

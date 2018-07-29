@@ -2,8 +2,8 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 RF24 radio(9, 10);
-int radio_retries = 5;
-int radio_delay = 10;
+int radio_retries = 15;
+int radio_delay = 5;
 
 boolean isSucces = false;
 
@@ -173,7 +173,9 @@ boolean sendWithACK(byte * data, int size) {
   byte response[32];
   unsigned long ack_started_at;
 
-  for (int i = 0; i <= radio_retries; i++) {
+  int radio_sleep_retries = 30;
+
+  for (int i = 0; i <= radio_sleep_retries; i++) {
     radio.stopListening();
     radio.write(data, size);
     radio.startListening();
@@ -182,6 +184,8 @@ boolean sendWithACK(byte * data, int size) {
     // Wait 15ms for responce
     while (millis() - ack_started_at <= 15) {
       if (radio.available(&income_pipe)) {
+        radio_sleep_retries = radio_retries;
+
         if (income_pipe == 1) {
           radio.read(&response, sizeof(response));
           
