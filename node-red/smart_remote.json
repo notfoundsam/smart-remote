@@ -1,8 +1,15 @@
 [
     {
-        "id": "fc61ead0.a7f3c8",
+        "id": "4d7ebdf8.2a3754",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "c6b6c023.f4883",
         "type": "mqtt in",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "weather",
         "topic": "/weather",
         "qos": "2",
@@ -11,15 +18,15 @@
         "y": 100,
         "wires": [
             [
-                "4afc568f.bc64f8",
-                "5f0978d4.cdfc78"
+                "f6e25327.6272b",
+                "372f33d7.c9eb9c"
             ]
         ]
     },
     {
-        "id": "af1ece5f.8a77d",
+        "id": "71fffe61.a00fa",
         "type": "influxdb out",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "influxdb": "f92a7551.0003e8",
         "name": "weather",
         "measurement": "weather",
@@ -30,9 +37,9 @@
         "wires": []
     },
     {
-        "id": "4afc568f.bc64f8",
+        "id": "f6e25327.6272b",
         "type": "json",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "dht22",
         "property": "payload",
         "action": "obj",
@@ -41,15 +48,15 @@
         "y": 100,
         "wires": [
             [
-                "52410b66.653aa4",
-                "af1ece5f.8a77d"
+                "3b6a6a60.36d486",
+                "71fffe61.a00fa"
             ]
         ]
     },
     {
-        "id": "52410b66.653aa4",
+        "id": "3b6a6a60.36d486",
         "type": "debug",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "dht object",
         "active": false,
         "tosidebar": true,
@@ -61,9 +68,9 @@
         "wires": []
     },
     {
-        "id": "5f0978d4.cdfc78",
+        "id": "372f33d7.c9eb9c",
         "type": "debug",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "dht22 json",
         "active": false,
         "tosidebar": true,
@@ -75,9 +82,9 @@
         "wires": []
     },
     {
-        "id": "8228753a.e8faa8",
+        "id": "91ea878f.888018",
         "type": "mqtt in",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "offline",
         "topic": "/offline",
         "qos": "2",
@@ -86,14 +93,14 @@
         "y": 500,
         "wires": [
             [
-                "2c45e53.6dfc21a"
+                "ba35b295.fc0c"
             ]
         ]
     },
     {
-        "id": "2c45e53.6dfc21a",
+        "id": "ba35b295.fc0c",
         "type": "debug",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "mosquitto offline",
         "active": true,
         "tosidebar": true,
@@ -105,9 +112,9 @@
         "wires": []
     },
     {
-        "id": "52666e5c.a9996",
+        "id": "a676c8ef.632878",
         "type": "mqtt in",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "battery",
         "topic": "/battery",
         "qos": "2",
@@ -116,15 +123,15 @@
         "y": 300,
         "wires": [
             [
-                "8ea2da1f.061958",
-                "cad2d0fa.5f7b"
+                "4a8f9403.1c311c",
+                "15ea2526.290fcb"
             ]
         ]
     },
     {
-        "id": "cad2d0fa.5f7b",
+        "id": "15ea2526.290fcb",
         "type": "debug",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "battery json",
         "active": false,
         "tosidebar": true,
@@ -136,9 +143,9 @@
         "wires": []
     },
     {
-        "id": "8ea2da1f.061958",
+        "id": "4a8f9403.1c311c",
         "type": "json",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "battery",
         "property": "payload",
         "action": "obj",
@@ -147,15 +154,15 @@
         "y": 300,
         "wires": [
             [
-                "3261cd65.796f02",
-                "d4da5c8b.43945"
+                "80626e45.da981",
+                "db8e28bf.af9c38"
             ]
         ]
     },
     {
-        "id": "3261cd65.796f02",
+        "id": "80626e45.da981",
         "type": "influxdb out",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "influxdb": "f92a7551.0003e8",
         "name": "battery",
         "measurement": "battery",
@@ -166,9 +173,9 @@
         "wires": []
     },
     {
-        "id": "d4da5c8b.43945",
+        "id": "db8e28bf.af9c38",
         "type": "debug",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "battery object",
         "active": false,
         "tosidebar": true,
@@ -180,9 +187,9 @@
         "wires": []
     },
     {
-        "id": "642b007c.edc94",
+        "id": "89a837a9.4816a8",
         "type": "comment",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "Convert json to js object",
         "info": "",
         "x": 360,
@@ -190,9 +197,9 @@
         "wires": []
     },
     {
-        "id": "293635d.5da49ca",
+        "id": "55ec4b0.fcebfb4",
         "type": "comment",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "Convert json to js object",
         "info": "",
         "x": 360,
@@ -200,9 +207,9 @@
         "wires": []
     },
     {
-        "id": "226e5ced.0d5454",
+        "id": "88f49603.e586c8",
         "type": "comment",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "If sensor is offline just write it in debug window",
         "info": "",
         "x": 290,
@@ -210,45 +217,30 @@
         "wires": []
     },
     {
-        "id": "2ac0f076.eaa74",
+        "id": "23a78b39.9b8464",
         "type": "tcp in",
-        "z": "865ee89b.5f6078",
-        "name": "arduino",
+        "z": "4d7ebdf8.2a3754",
+        "name": "arduino:9090",
         "server": "server",
         "host": "",
         "port": "9090",
         "datamode": "stream",
         "datatype": "utf8",
         "newline": "",
-        "topic": "",
+        "topic": "/weather",
         "base64": false,
-        "x": 150,
+        "x": 170,
         "y": 600,
         "wires": [
             [
-                "d1ed399c.40caa8",
-                "6f6d71b8.5a7cd"
+                "9ea17c68.addc5"
             ]
         ]
     },
     {
-        "id": "d1ed399c.40caa8",
-        "type": "debug",
-        "z": "865ee89b.5f6078",
-        "name": "arduino json",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "x": 370,
-        "y": 680,
-        "wires": []
-    },
-    {
-        "id": "6f6d71b8.5a7cd",
+        "id": "9ea17c68.addc5",
         "type": "json",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "name": "arduino",
         "property": "payload",
         "action": "obj",
@@ -257,21 +249,81 @@
         "y": 600,
         "wires": [
             [
-                "38368414.f7a60c"
+                "e12812d.6f807f",
+                "abe1024a.f45a1"
             ]
         ]
     },
     {
-        "id": "38368414.f7a60c",
+        "id": "3d0b697d.755946",
         "type": "influxdb out",
-        "z": "865ee89b.5f6078",
+        "z": "4d7ebdf8.2a3754",
         "influxdb": "f92a7551.0003e8",
         "name": "arduino weather",
         "measurement": "weather",
         "precision": "",
         "retentionPolicy": "",
+        "x": 820,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "e12812d.6f807f",
+        "type": "switch",
+        "z": "4d7ebdf8.2a3754",
+        "name": "if offline",
+        "property": "payload.status",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "offline",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
         "x": 580,
         "y": 600,
+        "wires": [
+            [
+                "c2406839.0cbf98"
+            ],
+            [
+                "3d0b697d.755946"
+            ]
+        ]
+    },
+    {
+        "id": "abe1024a.f45a1",
+        "type": "debug",
+        "z": "4d7ebdf8.2a3754",
+        "name": "arduino input",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 590,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "c2406839.0cbf98",
+        "type": "debug",
+        "z": "4d7ebdf8.2a3754",
+        "name": "arduino offlime",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 820,
+        "y": 560,
         "wires": []
     },
     {

@@ -1,6 +1,6 @@
 from __future__ import print_function
 import sys, os
-from .models import Remote, Button
+from .models import Remote, Button, Radio
 from app import db
 import uuid
 from datetime import datetime
@@ -140,7 +140,7 @@ class RemoteControl:
                 lirc.sendLircCommand(btn.remote.identificator, btn.identificator)
                 return True
             else:
-                arduino.send(btn, self.sid)
+                arduino.send(btn, btn.radio.pipe, self.sid)
 
     def test(self, content):
         if content['radio_id'] == '999':
@@ -151,8 +151,9 @@ class RemoteControl:
             
             return True
         else:
+            radio = Radio.query.filter_by(id = content['radio_id']).first()
             btn = Button(
                 signal = content['signal'],
                 radio_id = content['radio_id'],
                 type = content['button_type'])
-            arduino.send(btn, self.sid)
+            arduino.send(btn, radio.pipe, self.sid)

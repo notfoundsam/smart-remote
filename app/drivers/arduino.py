@@ -59,8 +59,8 @@ class Arduino():
         self.starter = ArduinoQueueStarter()
         self.starter.start()
 
-    def send(self, btn, sid):
-        self.queue.putItem(ArduinoQueueItem(self.ser, btn, sid, 1))
+    def send(self, btn, pipe, sid):
+        self.queue.putItem(ArduinoQueueItem(self.ser, btn, pipe, sid, 1))
 
     def status(self, radio):
         self.queue.putItem(ArduinoQueueRadio(self.ser, radio, 5))
@@ -118,14 +118,14 @@ class ArduinoQueueStarter(threading.Thread):
 
 class ArduinoQueueItem():
 
-    def __init__(self, ser, btn, sid, priority):
+    def __init__(self, ser, btn, pipe, sid, priority):
         self.signal = ''
         self.buffer = 32
         self.ser = ser
         self.btn = btn
         self.sid = sid
         self.priority = priority
-        self.pipe = btn.radio.pipe
+        self.pipe = pipe
 
         print("--------------", file=sys.stderr)
         print(self.pipe, file=sys.stderr)
@@ -263,6 +263,11 @@ class ArduinoQueueRadio():
         self.radio = radio
         self.priority = priority
 
+        if 'APP_DOCKER' in os.environ:
+            self.host = 'node-red'
+        else:
+            self.host = '192.168.100.10'
+
     def __cmp__(self, other):
         return cmp(self.priority, other.priority)
     
@@ -297,6 +302,11 @@ class ArduinoQueueRadio():
 
         if 1 < len(data):
             if data[1] == 'FAIL':
+                arduino_json = '{"type":"arduino", "id":"%s", "status":"offline", "msg":"%s"}' % (self.radio.pipe, data[0])
+                s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+                s.connect((self.host, 9090))
+                s.send(arduino_json)
+                s.close()
                 so.emit('json', {'response': {'result': 'error', 'message': data[0]}}, namespace='/radios')
             elif data[1] == 'OK':
                 self.getStatus(data[0])
@@ -318,12 +328,9 @@ class ArduinoQueueRadio():
             if 'b' in sensors_data:
                 sensors['bat'] = sensors_data['b']
 
-        arduino_json = '[{"tempValue":%.2f,"humiValue":%.2f},{"type":"arduino", "id":"%s"}]' % (float(sensors_data['t']), float(sensors_data['h']), self.radio.pipe)
+        arduino_json = '[{"tempValue":%.2f,"humiValue":%.2f, "batValue":%.2f},{"type":"arduino", "id":"%s"}]' % (float(sensors_data['t']), float(sensors_data['h']),  float(sensors_data['b']), self.radio.pipe)
         s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        if 'APP_DOCKER' in os.environ:
-            s.connect(("node-red", 9090))
-        else:
-            s.connect(("127.0.0.1", 9090))
+        s.connect((self.host, 9090))
         s.send(arduino_json)
         s.close()
         so.emit('json', {'response': {'result': 'success', 'callback': 'radio_sensor_refresh', 'id': self.radio.id, 'sensors': sensors}}, namespace='/radios')
