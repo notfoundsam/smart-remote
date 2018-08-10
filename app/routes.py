@@ -83,7 +83,7 @@ def nodes():
 
 @app.route('/api/v1/rcs', methods=['GET'])
 def nodes():
-    rc = RemoteControl(rc_id)
+    rc = RemoteControl()
     return jsonify({'rcs': rc.getRemotesList()})
 
 @app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['GET'])

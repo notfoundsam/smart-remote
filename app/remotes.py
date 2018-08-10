@@ -25,9 +25,7 @@ class RemoteControl:
         return True
 
     def createButton(self, content):
-        rc = Remote.query.filter_by(identificator = content['rc_id']).first()
-
-        if rc is not None:
+        if self.rc is not None:
             if content['button_id']:
                 btn = Button.query.filter_by(identificator = content['button_id']).first()
 
@@ -48,7 +46,7 @@ class RemoteControl:
                             order_ver = content['button_order_ver'],
                             color = content['button_color'],
                             signal = content['button_signal'] if content['button_type'] == 'ir' else content['button_command'],
-                            remote_id = rc.id,
+                            remote_id = self.rc.id,
                             radio_id = content['button_radio_id'],
                             type = content['button_type'],
                             timestamp = datetime.utcnow())
@@ -106,9 +104,7 @@ class RemoteControl:
     def getRemoteButtons(self):
         buttons = []
 
-        rc = Remote.query.filter_by(identificator = rc_id).first()
-
-        if rc is not None:
+        if self.rc is not None:
             for button in rc.buttons.order_by(Button.order_ver.asc(), Button.order_hor.asc()).all():
                 btn = {
                     'identificator': button.identificator,
@@ -131,12 +127,14 @@ class RemoteControl:
         return ''
 
     def getRemoteAttr(self, rc_id):
-        rc = Remote.query.filter_by(identificator = rc_id).first()
-
-        if rc is not None:
-            return rc.name
-
-        return ''
+        if self.rc is not None:
+            return {'id': self.rc.id,
+                    'name': self.rc.name,
+                    'order_hor': self.rc.order_hor,
+                    'order_ver': self.rc.order_ver,
+                    'color': self.rc.color,
+                    'signal': self.rc.signal,
+                }
 
     def execute(self, btn_id):
         btn = Button.query.filter_by(identificator = btn_id).first()
