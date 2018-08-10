@@ -8,13 +8,12 @@ from run import arduino, lirc
 
 class RemoteControl:
 
-    def __init__(self, sid):
-        self.sid = sid
+    def __init__(self, rc_id = None):
+        rc = Remote.query.filter_by(id = rc_id).first()
+        self.rc = rc
 
     def create(self, content):
-        rc_id = "RC_" + str(uuid.uuid4()).replace('-', '_')
-        remote = Remote(identificator = rc_id,
-                        name = content['rc_name'],
+        remote = Remote(name = content['rc_name'],
                         icon = content['rc_icon'],
                         order = 1,
                         public = True,
@@ -44,9 +43,7 @@ class RemoteControl:
                 btn.type = content['button_type']
                 btn.timestamp = datetime.utcnow()
             else:
-                btn_id = "BTN_" + str(uuid.uuid4()).replace('-', '_')
-                btn = Button(identificator = btn_id,
-                            name = content['button_name'],
+                btn = Button(name = content['button_name'],
                             order_hor = content['button_order_hor'],
                             order_ver = content['button_order_ver'],
                             color = content['button_color'],
@@ -96,7 +93,8 @@ class RemoteControl:
 
         for remote in Remote.query.order_by(Remote.id).all():
             r = {
-                'identificator': remote.identificator,
+                'id': remote.id,
+                'uid': remote.uid,
                 'name': remote.name,
                 'icon': remote.icon
             }
@@ -105,7 +103,7 @@ class RemoteControl:
 
         return remotes
 
-    def getRemoteButtons(self, rc_id):
+    def getRemoteButtons(self):
         buttons = []
 
         rc = Remote.query.filter_by(identificator = rc_id).first()
@@ -125,6 +123,14 @@ class RemoteControl:
         return buttons
 
     def getRemoteName(self, rc_id):
+        rc = Remote.query.filter_by(identificator = rc_id).first()
+
+        if rc is not None:
+            return rc.name
+
+        return ''
+
+    def getRemoteAttr(self, rc_id):
         rc = Remote.query.filter_by(identificator = rc_id).first()
 
         if rc is not None:
