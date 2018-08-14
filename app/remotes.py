@@ -9,20 +9,56 @@ from run import arduino, lirc
 class RemoteControl:
 
     def __init__(self, rc_id = None):
-        rc = Remote.query.filter_by(id = rc_id).first()
-        self.rc = rc
+        self.rc = Remote.query.filter_by(id = rc_id).first()
 
     def create(self, content):
-        remote = Remote(name = content['rc_name'],
-                        icon = content['rc_icon'],
-                        order = 1,
-                        public = True,
+        remote = Remote(name = content['name'],
+                        icon = content['icon'],
+                        order = content['order'],
+                        public = content['public'],
                         timestamp = datetime.utcnow())
 
         db.session.add(remote)
         db.session.commit()
 
-        return True
+        return {
+            'id': remote.id,
+            'name': remote.name,
+            'icon': remote.icon,
+            'order': remote.order,
+            'public': remote.public,
+        }
+
+
+    def get(self):
+        if self.rc is None:
+            return None
+        
+        return {'id': self.rc.id,
+                'name': self.rc.name,
+                'icon': self.rc.icon,
+                'order': self.rc.order,
+                'public': self.rc.public
+            }
+    
+    def update(self, content):
+        if self.rc is None:
+            return None
+
+        self.rc.name = content['name']
+        self.rc.icon = content['icon']
+        self.rc.order = content['order']
+        self.rc.public = content['public']
+        self.rc.timestamp = datetime.utcnow()
+
+        db.session.commit()
+        
+        return {'id': self.rc.id,
+                'name': self.rc.name,
+                'icon': self.rc.icon,
+                'order': self.rc.order,
+                'public': self.rc.public
+            }
 
     def createButton(self, content):
         if self.rc is not None:
@@ -92,7 +128,6 @@ class RemoteControl:
         for remote in Remote.query.order_by(Remote.id).all():
             r = {
                 'id': remote.id,
-                'uid': remote.uid,
                 'name': remote.name,
                 'icon': remote.icon
             }
@@ -125,16 +160,6 @@ class RemoteControl:
             return rc.name
 
         return ''
-
-    def getRemoteAttr(self, rc_id):
-        if self.rc is not None:
-            return {'id': self.rc.id,
-                    'name': self.rc.name,
-                    'order_hor': self.rc.order_hor,
-                    'order_ver': self.rc.order_ver,
-                    'color': self.rc.color,
-                    'signal': self.rc.signal,
-                }
 
     def execute(self, btn_id):
         btn = Button.query.filter_by(identificator = btn_id).first()

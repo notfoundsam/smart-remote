@@ -4,9 +4,11 @@ from flask import Flask, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_socketio import SocketIO
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config.from_object('config')
+CORS(app)
 db = SQLAlchemy(app)
 so = SocketIO(app)
 lm = LoginManager()

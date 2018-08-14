@@ -2,7 +2,7 @@
 from __future__ import print_function
 import sys
 from flask import render_template, flash, redirect, session, url_for, request, \
-    g, jsonify
+    g, jsonify, make_response, abort
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app, db, lm, so
 from .models import User
@@ -17,20 +17,20 @@ def load_user(id):
 
 @lm.unauthorized_handler
 def unauthorized():
-    return jsonify({'status_code': status_code['login_faild']}), 401
+    print('received message:', file=sys.stderr)
+    return make_response(jsonify({'status_code': status_code['login_faild']}), 401)
 
 @app.before_request
 def before_request():
     g.user = current_user
 
-# Roure for start Framework7
-# @app.route('/')
-# def index():
-#     return render_template('index.html')
-
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
+
+@app.errorhandler(400)
+def not_found(error):
+    return make_response(jsonify({'error': 'Bad request'}), 400)
 
 @app.route('/api/v1/login', methods=['POST'])
 def login():
@@ -58,7 +58,8 @@ def logout():
     return jsonify({'status': 200})
 
 @app.route('/api/v1/nodes', methods=['GET'])
-def nodes():
+@login_required
+def get_nodes():
     return jsonify({'nodes': [
             { 'id': 1, 'name': 'rpi-1' },
             { 'id': 2, 'name': 'rpi-2' },
@@ -66,15 +67,14 @@ def nodes():
         ]})
 
 @app.route('/api/v1/nodes/<int:node_id>', methods=['GET'])
-def nodes(node_id):
+@login_required
+def get_node(node_id):
     if not request.json:
         abort(400)
-    return jsonify({'node': [
-            { 'id': 1, 'name': 'rpi-1' }
-        ]})
 
 @app.route('/api/v1/nodes', methods=['POST'])
-def nodes():
+@login_required
+def create_node():
     if not request.json or not 'title' in request.json:
         abort(400)
     return jsonify({'node': [
@@ -82,12 +82,48 @@ def nodes():
         ]})
 
 @app.route('/api/v1/rcs', methods=['GET'])
-def nodes():
+# @login_required
+def get_rcs():
     rc = RemoteControl()
     return jsonify({'rcs': rc.getRemotesList()})
 
+@app.route('/api/v1/rcs', methods=['POST'])
+# @login_required
+def create_rc():
+    if not request.json or not 'name' in request.json or not 'icon' in request.json or not 'order' in request.json or not 'public' in request.json:
+        abort(400)
+
+    rc = RemoteControl()
+    result = rc.create(request.json)
+    return jsonify({'rc': result}), 201
+
+@app.route('/api/v1/rcs/<int:rc_id>', methods=['GET'])
+# @login_required
+def get_rc(rc_id):
+    rc = RemoteControl(rc_id)
+    result = rc.get()
+
+    if result is None:
+        abort(404)
+    return jsonify({'rc': result})
+
+@app.route('/api/v1/rcs/<int:rc_id>', methods=['PUT'])
+# @login_required
+def update_rc(rc_id):
+    rc = RemoteControl(rc_id)
+    result = rc.get()
+
+    if result is None:
+        abort(404)
+    if not request.json or not 'name' in request.json or not 'icon' in request.json or not 'order' in request.json or not 'public' in request.json:
+        abort(400)
+    
+    result = rc.update(request.json)
+    return jsonify({'rc': result})
+
 @app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['GET'])
-def nodes(rc_id):
+# @login_required
+def get_rc_buttons(rc_id):
     rc = RemoteControl(rc_id)
     return jsonify({'buttons': rc.getRemoteButtons(), 'rc': rc.getRemoteAttr()})
 

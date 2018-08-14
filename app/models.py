@@ -33,7 +33,6 @@ class User(db.Model):
 
 class Remote(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    identificator = db.Column(db.String(200))
     name = db.Column(db.String(200))
     public = db.Column(db.Boolean)
     order = db.Column(db.Integer)
