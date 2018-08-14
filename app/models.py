@@ -41,7 +41,7 @@ class Remote(db.Model):
     buttons = db.relationship('Button', backref = 'remote', lazy = 'dynamic')
 
     def __repr__(self):
-        return '<Remote %r>' % (self.identificator)
+        return '<Remote %r>' % (self.id)
 
 class Button(db.Model):
     id = db.Column(db.Integer, primary_key = True)

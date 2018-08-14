@@ -111,15 +111,25 @@ def get_rc(rc_id):
 # @login_required
 def update_rc(rc_id):
     rc = RemoteControl(rc_id)
-    result = rc.get()
 
-    if result is None:
+    if rc.getRC() is None:
         abort(404)
     if not request.json or not 'name' in request.json or not 'icon' in request.json or not 'order' in request.json or not 'public' in request.json:
         abort(400)
     
     result = rc.update(request.json)
     return jsonify({'rc': result})
+
+@app.route('/api/v1/rcs/<int:rc_id>', methods=['DELETE'])
+# @login_required
+def delete_rc(rc_id):
+    rc = RemoteControl(rc_id)
+
+    if rc.getRC() is None:
+        abort(404)
+    
+    result = rc.delete()
+    return jsonify({'result': result})
 
 @app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['GET'])
 # @login_required

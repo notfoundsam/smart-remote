@@ -9,6 +9,12 @@ from run import arduino, lirc
 class RemoteControl:
 
     def __init__(self, rc_id = None):
+        self.setRC(rc_id)
+
+    def getRC(self):
+        return self.rc
+
+    def setRC(self, rc_id):
         self.rc = Remote.query.filter_by(id = rc_id).first()
 
     def create(self, content):
@@ -59,6 +65,12 @@ class RemoteControl:
                 'order': self.rc.order,
                 'public': self.rc.public
             }
+
+    def delete(self):
+        db.session.delete(self.rc)
+        db.session.commit()
+        self.rc = None
+        return True
 
     def createButton(self, content):
         if self.rc is not None:
