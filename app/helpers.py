@@ -154,21 +154,19 @@ class ButtonHelper:
             'type': btn.type,
         }
 
-    def updateButton(self, btn_id, content):
-        btn = Button.query.filter_by(id = btn_id).first()
-
-        if self.rc is None or btn is None:
+    def updateButton(self, content):
+        if self.rc is None or self.button is None:
             return None
 
-        btn.name = content['button_name']
-        btn.order_hor = content['button_order_hor']
-        btn.order_ver = content['button_order_ver']
-        btn.color = content['button_color']
-        btn.signal = content['signal']
-        btn.radio_id = content['button_radio_id']
-        btn.type = content['button_type']
-        btn.rc_id = content['rc_id']
-        btn.timestamp = datetime.utcnow()
+        self.btn.name = content['name']
+        self.btn.order_hor = content['order_hor']
+        self.btn.order_ver = content['order_ver']
+        self.btn.color = content['color']
+        self.btn.command = content['command']
+        self.btn.rc_id = content['rc_id']
+        self.btn.radio_id = content['radio_id']
+        self.btn.type = content['type']
+        self.btn.timestamp = datetime.utcnow()
 
         db.session.commit()
 
@@ -178,11 +176,10 @@ class ButtonHelper:
             'order_hor': button.order_hor,
             'order_ver': button.order_ver,
             'color': button.color,
-            'signal': button.signal,
+            'command': button.command,
+            'rc_id' : button.rc_id,
             'radio_id': button.radio_id,
             'type': button.type,
-            'rc_id' : button.rc_id,
-            'rc_name' : button.remote.name
         }
 
     def removeButton(self, content):

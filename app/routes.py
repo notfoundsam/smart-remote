@@ -157,6 +157,38 @@ def create_rc_button(rc_id):
 
     return jsonify({'button': button}), 201
 
+# FIX_ME
+@app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['GET'])
+# @login_required
+def get_rc_button(rc_id, btn_id):
+    bh = ButtonHelper(rc_id)
+    
+    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'command' in request.json or not 'radio_id' in request.json or not 'type' in request.json:
+        abort(400)
+
+    button = bh.createButton(request.json)
+
+    if button is None:
+        abort(404)
+
+    return jsonify({'button': button}), 201
+
+# FIX_ME
+@app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['PUT'])
+# @login_required
+def update_rc_button(rc_id):
+    bh = ButtonHelper(rc_id)
+    
+    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'command' in request.json or not 'radio_id' in request.json or not 'type' in request.json:
+        abort(400)
+
+    button = bh.createButton(request.json)
+
+    if button is None:
+        abort(404)
+
+    return jsonify({'button': button}), 201
+
 # thread = None
 # thread_lock = Lock()
 
