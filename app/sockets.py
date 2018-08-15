@@ -3,7 +3,8 @@ import sys, Queue
 import functools
 from flask_socketio import emit
 from app import so
-from .remotes import RemoteControl
+# from .remotes import RemoteControl
+from .helpers import RcHelper
 from .sensor import RadioSensor
 from flask_login import current_user
 from flask_socketio import disconnect

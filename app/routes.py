@@ -8,7 +8,7 @@ from app import app, db, lm, so
 from .models import User
 from config import status_code
 from threading import Lock
-from .remotes import RemoteControl
+from .helpers import RcHelper, ButtonHelper
 from .sensor import RadioSensor
 
 @lm.user_loader
@@ -55,7 +55,7 @@ def login():
 @app.route('/api/v1/logout', methods=['GET'])
 def logout():
     logout_user()
-    return jsonify({'status': 200})
+    return jsonify({'result': True})
 
 @app.route('/api/v1/nodes', methods=['GET'])
 @login_required
@@ -84,8 +84,8 @@ def create_node():
 @app.route('/api/v1/rcs', methods=['GET'])
 # @login_required
 def get_rcs():
-    rc = RemoteControl()
-    return jsonify({'rcs': rc.getRemotesList()})
+    rch = RcHelper()
+    return jsonify({'rcs': rch.getRcs()})
 
 @app.route('/api/v1/rcs', methods=['POST'])
 # @login_required
@@ -93,49 +93,69 @@ def create_rc():
     if not request.json or not 'name' in request.json or not 'icon' in request.json or not 'order' in request.json or not 'public' in request.json:
         abort(400)
 
-    rc = RemoteControl()
-    result = rc.create(request.json)
-    return jsonify({'rc': result}), 201
+    rch = RcHelper()
+    rc = rch.createRc(request.json)
+    return jsonify({'rc': rc}), 201
 
 @app.route('/api/v1/rcs/<int:rc_id>', methods=['GET'])
 # @login_required
 def get_rc(rc_id):
-    rc = RemoteControl(rc_id)
-    result = rc.get()
+    rch = RcHelper(rc_id)
+    rc = rch.getRc()
 
-    if result is None:
+    if rc is None:
         abort(404)
-    return jsonify({'rc': result})
+    return jsonify({'rc': rc})
 
 @app.route('/api/v1/rcs/<int:rc_id>', methods=['PUT'])
 # @login_required
 def update_rc(rc_id):
-    rc = RemoteControl(rc_id)
+    rch = RcHelper(rc_id)
 
-    if rc.getRC() is None:
+    if rch.get() is None:
         abort(404)
     if not request.json or not 'name' in request.json or not 'icon' in request.json or not 'order' in request.json or not 'public' in request.json:
         abort(400)
     
-    result = rc.update(request.json)
-    return jsonify({'rc': result})
+    rc = rch.updateRc(request.json)
+    return jsonify({'rc': rc})
 
 @app.route('/api/v1/rcs/<int:rc_id>', methods=['DELETE'])
 # @login_required
 def delete_rc(rc_id):
-    rc = RemoteControl(rc_id)
+    rch = RcHelper(rc_id)
 
-    if rc.getRC() is None:
+    if rch.get() is None:
         abort(404)
     
-    result = rc.delete()
+    result = rch.deleteRc()
     return jsonify({'result': result})
 
 @app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['GET'])
 # @login_required
 def get_rc_buttons(rc_id):
-    rc = RemoteControl(rc_id)
-    return jsonify({'buttons': rc.getRemoteButtons(), 'rc': rc.getRemoteAttr()})
+    bh = ButtonHelper(rc_id)
+    buttons = bh.getButtons()
+
+    if buttons is None:
+        abort(404)
+
+    return jsonify({'buttons': buttons}), 201
+
+@app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['POST'])
+# @login_required
+def create_rc_button(rc_id):
+    bh = ButtonHelper(rc_id)
+    
+    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'command' in request.json or not 'radio_id' in request.json or not 'type' in request.json:
+        abort(400)
+
+    button = bh.createButton(request.json)
+
+    if button is None:
+        abort(404)
+
+    return jsonify({'button': button}), 201
 
 # thread = None
 # thread_lock = Lock()
