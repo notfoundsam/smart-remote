@@ -105,6 +105,7 @@ def get_rc(rc_id):
 
     if rc is None:
         abort(404)
+
     return jsonify({'rc': rc})
 
 @app.route('/api/v1/rcs/<int:rc_id>', methods=['PUT'])
@@ -112,23 +113,25 @@ def get_rc(rc_id):
 def update_rc(rc_id):
     rch = RcHelper(rc_id)
 
-    if rch.get() is None:
-        abort(404)
     if not request.json or not 'name' in request.json or not 'icon' in request.json or not 'order' in request.json or not 'public' in request.json:
         abort(400)
     
     rc = rch.updateRc(request.json)
+
+    if rc is None:
+        abort(404) 
+           
     return jsonify({'rc': rc})
 
 @app.route('/api/v1/rcs/<int:rc_id>', methods=['DELETE'])
 # @login_required
 def delete_rc(rc_id):
     rch = RcHelper(rc_id)
+    result = rch.deleteRc()
 
-    if rch.get() is None:
+    if result is None:
         abort(404)
     
-    result = rch.deleteRc()
     return jsonify({'result': result})
 
 @app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['GET'])
@@ -157,37 +160,42 @@ def create_rc_button(rc_id):
 
     return jsonify({'button': button}), 201
 
-# FIX_ME
 @app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['GET'])
 # @login_required
 def get_rc_button(rc_id, btn_id):
-    bh = ButtonHelper(rc_id)
-    
-    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'command' in request.json or not 'radio_id' in request.json or not 'type' in request.json:
-        abort(400)
-
-    button = bh.createButton(request.json)
+    bh = ButtonHelper(rc_id, btn_id)
+    button = bh.getButton()
 
     if button is None:
         abort(404)
 
-    return jsonify({'button': button}), 201
+    return jsonify({'button': button})
 
-# FIX_ME
-@app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['PUT'])
+@app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['PUT'])
 # @login_required
-def update_rc_button(rc_id):
-    bh = ButtonHelper(rc_id)
+def update_rc_button(rc_id, btn_id):
+    bh = ButtonHelper(rc_id, btn_id)
     
     if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'command' in request.json or not 'radio_id' in request.json or not 'type' in request.json:
         abort(400)
 
-    button = bh.createButton(request.json)
+    button = bh.updateButton(request.json)
 
     if button is None:
         abort(404)
 
-    return jsonify({'button': button}), 201
+    return jsonify({'button': button})
+
+@app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['DELETE'])
+# @login_required
+def delete_rc_button(rc_id, btn_id):
+    bh = ButtonHelper(rc_id, btn_id)
+    result = bh.deleteButton()
+
+    if result is None:
+        abort(404)
+
+    return jsonify({'result': result})
 
 # thread = None
 # thread_lock = Lock()

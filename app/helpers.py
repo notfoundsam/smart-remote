@@ -82,9 +82,17 @@ class RcHelper:
             }
 
     def deleteRc(self):
+        if self.rc is None:
+            return None
+
+        for btn in self.rc.buttons:
+            db.session.delete(btn)
+
+        db.session.commit()
         db.session.delete(self.rc)
         db.session.commit()
         self.rc = None
+
         return True
 
 class ButtonHelper:
@@ -154,93 +162,88 @@ class ButtonHelper:
             'type': btn.type,
         }
 
-    def updateButton(self, content):
+    def getButton(self):
         if self.rc is None or self.button is None:
             return None
 
-        self.btn.name = content['name']
-        self.btn.order_hor = content['order_hor']
-        self.btn.order_ver = content['order_ver']
-        self.btn.color = content['color']
-        self.btn.command = content['command']
-        self.btn.rc_id = content['rc_id']
-        self.btn.radio_id = content['radio_id']
-        self.btn.type = content['type']
-        self.btn.timestamp = datetime.utcnow()
+        return {
+            'id': self.button.id,
+            'name': self.button.name,
+            'order_hor': self.button.order_hor,
+            'order_ver': self.button.order_ver,
+            'color': self.button.color,
+            'command': self.button.command,
+            'rc_id' : self.button.rc_id,
+            'radio_id': self.button.radio_id,
+            'type': self.button.type,
+        }
+
+    def updateButton(self, params):
+        if self.rc is None or self.button is None:
+            return None
+
+        self.button.name = params['name']
+        self.button.order_hor = params['order_hor']
+        self.button.order_ver = params['order_ver']
+        self.button.color = params['color']
+        self.button.command = params['command']
+        self.button.radio_id = params['radio_id']
+        self.button.type = params['type']
+        self.button.timestamp = datetime.utcnow()
 
         db.session.commit()
 
         return {
-            'id': button.id,
-            'name': button.name,
-            'order_hor': button.order_hor,
-            'order_ver': button.order_ver,
-            'color': button.color,
-            'command': button.command,
-            'rc_id' : button.rc_id,
-            'radio_id': button.radio_id,
-            'type': button.type,
+            'id': self.button.id,
+            'name': self.button.name,
+            'order_hor': self.button.order_hor,
+            'order_ver': self.button.order_ver,
+            'color': self.button.color,
+            'command': self.button.command,
+            'rc_id' : self.button.rc_id,
+            'radio_id': self.button.radio_id,
+            'type': self.button.type,
         }
 
-    def removeButton(self, content):
-        ids = content['buttons']
+    def deleteButton(self):
+        if self.rc is None or self.button is None:
+            return None
 
-        for button in ids:
-            btn = Button.query.filter_by(identificator = button).first()
-            db.session.delete(btn)
-
+        db.session.delete(self.button)
         db.session.commit()
+        self.button = None
+        return True
 
-    def getButton(self, content):
-        btn_id = content['button']
-        button = Button.query.filter_by(identificator = btn_id).first()
+    # def getRemoteName(self, rc_id):
+    #     rc = Rc.query.filter_by(identificator = rc_id).first()
 
-        if button is not None:
-            return {
-                'btn_id': button.identificator,
-                'btn_name': button.name,
-                'btn_order_hor': button.order_hor,
-                'btn_order_ver': button.order_ver,
-                'btn_color': button.color,
-                'btn_signal': button.signal,
-                'btn_radio_id': button.radio_id,
-                'btn_type': button.type,
-                'rc_id' : button.remote.identificator,
-                'rc_name' : button.remote.name
-            }
+    #     if rc is not None:
+    #         return rc.name
 
-        return False
+    #     return ''
 
-    def getRemoteName(self, rc_id):
-        rc = Rc.query.filter_by(identificator = rc_id).first()
-
-        if rc is not None:
-            return rc.name
-
-        return ''
-
-    def execute(self, btn_id):
-        btn = Button.query.filter_by(identificator = btn_id).first()
+    # def execute(self, btn_id):
+    #     btn = Button.query.filter_by(identificator = btn_id).first()
         
-        if btn is not None:
-            if btn.radio_id == 999:
-                lirc.sendLircCommand(btn.remote.identificator, btn.identificator)
-                return True
-            else:
-                arduino.send(btn, btn.radio.pipe, self.sid)
+    #     if btn is not None:
+    #         if btn.radio_id == 999:
+    #             lirc.sendLircCommand(btn.remote.identificator, btn.identificator)
+    #             return True
+    #         else:
+    #             arduino.send(btn, btn.radio.pipe, self.sid)
 
-    def test(self, content):
-        if content['radio_id'] == '999':
-            lirc.regenerateLircCommands()
-            lirc.addTestSignal(content['signal'])
-            lirc.reloadLirc()
-            lirc.sendTestSignal()
+    # def test(self, content):
+    #     if content['radio_id'] == '999':
+    #         lirc.regenerateLircCommands()
+    #         lirc.addTestSignal(content['signal'])
+    #         lirc.reloadLirc()
+    #         lirc.sendTestSignal()
             
-            return True
-        else:
-            radio = Radio.query.filter_by(id = content['radio_id']).first()
-            btn = Button(
-                signal = content['signal'],
-                radio_id = content['radio_id'],
-                type = content['button_type'])
-            arduino.send(btn, radio.pipe, self.sid)
+    #         return True
+    #     else:
+    #         radio = Radio.query.filter_by(id = content['radio_id']).first()
+    #         btn = Button(
+    #             signal = content['signal'],
+    #             radio_id = content['radio_id'],
+    #             type = content['button_type'])
+    #         arduino.send(btn, radio.pipe, self.sid)
