@@ -1,10 +1,83 @@
 from __future__ import print_function
 import sys, os
-from .models import Rc, Button, Radio
+from .models import Rc, Button, Radio, Node
 from app import db
 import uuid
 from datetime import datetime
 from run import arduino, lirc
+
+class NodeHelper:
+
+    def __init__(self, node_id = None):
+        self.set(node_id)
+
+    def get(self):
+        return self.node
+
+    def set(self, node_id):
+        self.node = Node.query.filter_by(id = node_id).first()
+
+    def getNodes(self):
+        nodes = []
+
+        for node in Node.query.order_by(Node.order).all():
+            n = {'id': node.id,
+                'name': node.name,
+                'host_name': node.host_name,
+                'order': node.order}
+
+            nodes.append(n)
+
+        return nodes
+
+
+    def createNode(self, params):
+        node = Node(name = params['name'],
+                    host_name = params['host_name'],
+                    order = params['order'],
+                    timestamp = datetime.utcnow())
+
+        db.session.add(node)
+        db.session.commit()
+
+        return {'id': node.id,
+                'name': node.name,
+                'host_name': node.host_name,
+                'order': node.order}
+
+    def getNode(self):
+        if self.node is None:
+            return None
+        
+        return {'id': self.node.id,
+                'name': self.node.name,
+                'host_name': self.node.host_name,
+                'order': self.node.order}
+
+    def updateNode(self, params):
+        if self.node is None:
+            return None
+
+        self.node.name = params['name']
+        self.node.host_name = params['host_name']
+        self.node.order = params['order']
+        self.node.timestamp = datetime.utcnow()
+
+        db.session.commit()
+        
+        return {'id': self.node.id,
+                'name': self.node.name,
+                'host_name': self.node.host_name,
+                'order': self.node.order}
+
+    def deleteNode(self):
+        if self.node is None:
+            return None
+
+        db.session.delete(self.node)
+        db.session.commit()
+        self.node = None
+        return True
 
 class RcHelper:
 
@@ -43,13 +116,11 @@ class RcHelper:
         db.session.add(rc)
         db.session.commit()
 
-        return {
-            'id': rc.id,
-            'name': rc.name,
-            'icon': rc.icon,
-            'order': rc.order,
-            'public': rc.public,
-        }
+        return {'id': rc.id,
+                'name': rc.name,
+                'icon': rc.icon,
+                'order': rc.order,
+                'public': rc.public}
 
     def getRc(self):
         if self.rc is None:
@@ -59,8 +130,7 @@ class RcHelper:
                 'name': self.rc.name,
                 'icon': self.rc.icon,
                 'order': self.rc.order,
-                'public': self.rc.public
-            }
+                'public': self.rc.public}
     
     def updateRc(self, params):
         if self.rc is None:
@@ -78,8 +148,7 @@ class RcHelper:
                 'name': self.rc.name,
                 'icon': self.rc.icon,
                 'order': self.rc.order,
-                'public': self.rc.public
-            }
+                'public': self.rc.public}
 
     def deleteRc(self):
         if self.rc is None:
@@ -117,8 +186,7 @@ class ButtonHelper:
         buttons = []
 
         for button in self.rc.buttons.order_by(Button.order_ver.asc(), Button.order_hor.asc()).all():
-            btn = {
-                'id': button.id,
+            b = {'id': button.id,
                 'name': button.name,
                 'color': button.color,
                 'order_ver': button.order_ver,
@@ -126,10 +194,9 @@ class ButtonHelper:
                 'command': button.command,
                 'rc_id': button.rc_id,
                 'radio_id': button.radio_id,
-                'type': button.type
-            }
+                'type': button.type}
 
-            buttons.append(btn)
+            buttons.append(b)
 
         return buttons
 
@@ -150,33 +217,29 @@ class ButtonHelper:
         db.session.add(btn)
         db.session.commit()
 
-        return {
-            'id': btn.id,
-            'name': btn.name,
-            'order_hor': btn.order_hor,
-            'order_ver': btn.order_ver,
-            'color': btn.color,
-            'command': btn.command,
-            'rc_id' : btn.rc_id,
-            'radio_id': btn.radio_id,
-            'type': btn.type,
-        }
+        return {'id': btn.id,
+                'name': btn.name,
+                'order_hor': btn.order_hor,
+                'order_ver': btn.order_ver,
+                'color': btn.color,
+                'command': btn.command,
+                'rc_id' : btn.rc_id,
+                'radio_id': btn.radio_id,
+                'type': btn.type}
 
     def getButton(self):
         if self.rc is None or self.button is None:
             return None
 
-        return {
-            'id': self.button.id,
-            'name': self.button.name,
-            'order_hor': self.button.order_hor,
-            'order_ver': self.button.order_ver,
-            'color': self.button.color,
-            'command': self.button.command,
-            'rc_id' : self.button.rc_id,
-            'radio_id': self.button.radio_id,
-            'type': self.button.type,
-        }
+        return {'id': self.button.id,
+                'name': self.button.name,
+                'order_hor': self.button.order_hor,
+                'order_ver': self.button.order_ver,
+                'color': self.button.color,
+                'command': self.button.command,
+                'rc_id' : self.button.rc_id,
+                'radio_id': self.button.radio_id,
+                'type': self.button.type}
 
     def updateButton(self, params):
         if self.rc is None or self.button is None:
@@ -193,17 +256,15 @@ class ButtonHelper:
 
         db.session.commit()
 
-        return {
-            'id': self.button.id,
-            'name': self.button.name,
-            'order_hor': self.button.order_hor,
-            'order_ver': self.button.order_ver,
-            'color': self.button.color,
-            'command': self.button.command,
-            'rc_id' : self.button.rc_id,
-            'radio_id': self.button.radio_id,
-            'type': self.button.type,
-        }
+        return {'id': self.button.id,
+                'name': self.button.name,
+                'order_hor': self.button.order_hor,
+                'order_ver': self.button.order_ver,
+                'color': self.button.color,
+                'command': self.button.command,
+                'rc_id' : self.button.rc_id,
+                'radio_id': self.button.radio_id,
+                'type': self.button.type}
 
     def deleteButton(self):
         if self.rc is None or self.button is None:

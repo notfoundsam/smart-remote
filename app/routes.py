@@ -8,7 +8,7 @@ from app import app, db, lm, so
 from .models import User
 from config import status_code
 from threading import Lock
-from .helpers import RcHelper, ButtonHelper
+from .helpers import RcHelper, ButtonHelper, NodeHelper
 from .sensor import RadioSensor
 
 @lm.user_loader
@@ -57,30 +57,61 @@ def logout():
     logout_user()
     return jsonify({'result': True})
 
+# Nodes routes
 @app.route('/api/v1/nodes', methods=['GET'])
-@login_required
+# @login_required
 def get_nodes():
-    return jsonify({'nodes': [
-            { 'id': 1, 'name': 'rpi-1' },
-            { 'id': 2, 'name': 'rpi-2' },
-            { 'id': 3, 'name': 'rpi-3' }
-        ]})
-
-@app.route('/api/v1/nodes/<int:node_id>', methods=['GET'])
-@login_required
-def get_node(node_id):
-    if not request.json:
-        abort(400)
+    nh = NodeHelper()
+    return jsonify({'rcs': nh.getNodes()})
 
 @app.route('/api/v1/nodes', methods=['POST'])
-@login_required
+# @login_required
 def create_node():
-    if not request.json or not 'title' in request.json:
+    if not request.json or not 'name' in request.json or not 'host_name' in request.json or not 'order' in request.json:
         abort(400)
-    return jsonify({'node': [
-            { 'id': 1, 'name': 'rpi-1' }
-        ]})
 
+    nh = NodeHelper()
+    node = nh.createNode(request.json)
+    return jsonify({'node': node}), 201
+
+@app.route('/api/v1/nodes/<int:node_id>', methods=['GET'])
+# @login_required
+def get_node(node_id):
+    nh = NodeHelper(node_id)
+    node = nh.getNode()
+
+    if node is None:
+        abort(404)
+
+    return jsonify({'node': node})
+
+@app.route('/api/v1/nodes/<int:node_id>', methods=['PUT'])
+# @login_required
+def update_node(node_id):
+    nh = NodeHelper(node_id)
+
+    if not request.json or not 'name' in request.json or not 'host_name' in request.json or not 'order' in request.json:
+        abort(400)
+    
+    node = nh.updateNode(request.json)
+
+    if node is None:
+        abort(404) 
+
+    return jsonify({'node': node})
+
+@app.route('/api/v1/nodes/<int:node_id>', methods=['DELETE'])
+# @login_required
+def delete_node(node_id):
+    nh = NodeHelper(node_id)
+    result = nh.deleteNode()
+
+    if result is None:
+        abort(404)
+    
+    return jsonify({'result': result})
+
+# Rc routes
 @app.route('/api/v1/rcs', methods=['GET'])
 # @login_required
 def get_rcs():
@@ -120,7 +151,7 @@ def update_rc(rc_id):
 
     if rc is None:
         abort(404) 
-           
+
     return jsonify({'rc': rc})
 
 @app.route('/api/v1/rcs/<int:rc_id>', methods=['DELETE'])
@@ -134,6 +165,7 @@ def delete_rc(rc_id):
     
     return jsonify({'result': result})
 
+# Buttons routes
 @app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['GET'])
 # @login_required
 def get_rc_buttons(rc_id):

@@ -41,7 +41,7 @@ class Rc(db.Model):
     buttons = db.relationship('Button', backref = 'rc', lazy = 'dynamic')
 
     def __repr__(self):
-        return '<RC %r>' % (self.id)
+        return '<Rc %r>' % (self.id)
 
 class Button(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -51,6 +51,7 @@ class Button(db.Model):
     color = db.Column(db.String(10))
     timestamp = db.Column(db.DateTime)
     command = db.Column(db.Text)
+    node_id = db.Column(db.Integer, db.ForeignKey('node.id'))
     rc_id = db.Column(db.Integer, db.ForeignKey('rc.id'))
     radio_id = db.Column(db.Integer, db.ForeignKey('radio.id'))
     type = db.Column(db.String(20))
@@ -62,7 +63,7 @@ class Radio(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     pipe = db.Column(db.String(12))
     name = db.Column(db.String(200))
-    enabled = db.Column(db.Boolean)
+    enabled = db.Column(db.Boolean(True))
     order = db.Column(db.Integer)
     battery = db.Column(db.Boolean(False))
     dht = db.Column(db.Boolean(False))
@@ -71,3 +72,14 @@ class Radio(db.Model):
 
     def __repr__(self):
         return '<Radio %r>' % (self.id)
+
+class Node(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(200))
+    host_name = db.Column(db.String(200))
+    order = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime)
+    buttons = db.relationship('Button', backref = 'node', lazy = 'dynamic')
+
+    def __repr__(self):
+        return '<Node %r>' % (self.id)
