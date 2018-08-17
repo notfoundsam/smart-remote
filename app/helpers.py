@@ -193,6 +193,7 @@ class ButtonHelper:
                 'order_hor': button.order_hor,
                 'command': button.command,
                 'rc_id': button.rc_id,
+                'node_id': button.node_id,
                 'radio_id': button.radio_id,
                 'type': button.type}
 
@@ -210,6 +211,7 @@ class ButtonHelper:
                     color = params['color'],
                     command = params['command'],
                     rc_id = self.rc.id,
+                    node_id = params['node_id'],
                     radio_id = params['radio_id'],
                     type = params['type'],
                     timestamp = datetime.utcnow())
@@ -224,6 +226,7 @@ class ButtonHelper:
                 'color': btn.color,
                 'command': btn.command,
                 'rc_id' : btn.rc_id,
+                'node_id': btn.node_id,
                 'radio_id': btn.radio_id,
                 'type': btn.type}
 
@@ -238,6 +241,7 @@ class ButtonHelper:
                 'color': self.button.color,
                 'command': self.button.command,
                 'rc_id' : self.button.rc_id,
+                'node_id': self.button.node_id,
                 'radio_id': self.button.radio_id,
                 'type': self.button.type}
 
@@ -251,6 +255,7 @@ class ButtonHelper:
         self.button.color = params['color']
         self.button.command = params['command']
         self.button.radio_id = params['radio_id']
+        self.button.node_id = params['node_id']
         self.button.type = params['type']
         self.button.timestamp = datetime.utcnow()
 
@@ -263,6 +268,7 @@ class ButtonHelper:
                 'color': self.button.color,
                 'command': self.button.command,
                 'rc_id' : self.button.rc_id,
+                'node_id': self.button.node_id,
                 'radio_id': self.button.radio_id,
                 'type': self.button.type}
 

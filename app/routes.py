@@ -182,7 +182,7 @@ def get_rc_buttons(rc_id):
 def create_rc_button(rc_id):
     bh = ButtonHelper(rc_id)
     
-    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'command' in request.json or not 'radio_id' in request.json or not 'type' in request.json:
+    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'command' in request.json or not 'radio_id' in request.json or not 'node_id' in request.json or not 'type' in request.json:
         abort(400)
 
     button = bh.createButton(request.json)
@@ -208,7 +208,7 @@ def get_rc_button(rc_id, btn_id):
 def update_rc_button(rc_id, btn_id):
     bh = ButtonHelper(rc_id, btn_id)
     
-    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'command' in request.json or not 'radio_id' in request.json or not 'type' in request.json:
+    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'command' in request.json or not 'radio_id' in request.json or not 'node_id' in request.json or not 'type' in request.json:
         abort(400)
 
     button = bh.updateButton(request.json)
