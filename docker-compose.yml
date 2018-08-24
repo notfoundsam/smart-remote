@@ -22,6 +22,7 @@ services:
       - ./:/app
     ports:
       - "5000:5000"
+      - "5002:5002"
     privileged: true
     # devices:
     #   - "/dev/ttyUSB0:/dev/ttyUSB0"

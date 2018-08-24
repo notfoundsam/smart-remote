@@ -8,7 +8,7 @@ from app import app, db, lm, so
 from .models import User
 from config import status_code
 from threading import Lock
-from .helpers import RcHelper, ButtonHelper, NodeHelper
+from .helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, RadioHelper
 from .sensor import RadioSensor
 
 @lm.user_loader
@@ -18,7 +18,7 @@ def load_user(id):
 @lm.unauthorized_handler
 def unauthorized():
     print('received message:', file=sys.stderr)
-    return make_response(jsonify({'status_code': status_code['login_faild']}), 401)
+    return make_response(jsonify({'error': 'Unauthorized'}), 401)
 
 @app.before_request
 def before_request():
@@ -35,7 +35,7 @@ def not_found(error):
 @app.route('/api/v1/login', methods=['POST'])
 def login():
     if g.user is not None and g.user.is_authenticated:
-        return jsonify({'status_code': status_code['alredy_logedin']})
+        return jsonify({'result': True})
 
     if 'username' in request.form and 'password' in request.form:
         username = request.form['username']
@@ -46,80 +46,25 @@ def login():
         if user is not None and user.password == password:
             session['remember_me'] = True
             login_user(user)
-            return jsonify({'status_code': status_code['login_success']})
 
-        # return jsonify({'status_code': status_code['login_faild']}), 403
+            return jsonify({'result': True})
 
-    return jsonify({'status_code': status_code['login_faild']}), 403
+    return jsonify({'result': False}), 403
 
 @app.route('/api/v1/logout', methods=['GET'])
 def logout():
     logout_user()
     return jsonify({'result': True})
 
-# Nodes routes
-@app.route('/api/v1/nodes', methods=['GET'])
-# @login_required
-def get_nodes():
-    nh = NodeHelper()
-    return jsonify({'rcs': nh.getNodes()})
-
-@app.route('/api/v1/nodes', methods=['POST'])
-# @login_required
-def create_node():
-    if not request.json or not 'name' in request.json or not 'host_name' in request.json or not 'order' in request.json:
-        abort(400)
-
-    nh = NodeHelper()
-    node = nh.createNode(request.json)
-    return jsonify({'node': node}), 201
-
-@app.route('/api/v1/nodes/<int:node_id>', methods=['GET'])
-# @login_required
-def get_node(node_id):
-    nh = NodeHelper(node_id)
-    node = nh.getNode()
-
-    if node is None:
-        abort(404)
-
-    return jsonify({'node': node})
-
-@app.route('/api/v1/nodes/<int:node_id>', methods=['PUT'])
-# @login_required
-def update_node(node_id):
-    nh = NodeHelper(node_id)
-
-    if not request.json or not 'name' in request.json or not 'host_name' in request.json or not 'order' in request.json:
-        abort(400)
-    
-    node = nh.updateNode(request.json)
-
-    if node is None:
-        abort(404) 
-
-    return jsonify({'node': node})
-
-@app.route('/api/v1/nodes/<int:node_id>', methods=['DELETE'])
-# @login_required
-def delete_node(node_id):
-    nh = NodeHelper(node_id)
-    result = nh.deleteNode()
-
-    if result is None:
-        abort(404)
-    
-    return jsonify({'result': result})
-
 # Rc routes
 @app.route('/api/v1/rcs', methods=['GET'])
-# @login_required
+@login_required
 def get_rcs():
     rch = RcHelper()
     return jsonify({'rcs': rch.getRcs()})
 
 @app.route('/api/v1/rcs', methods=['POST'])
-# @login_required
+@login_required
 def create_rc():
     if not request.json or not 'name' in request.json or not 'icon' in request.json or not 'order' in request.json or not 'public' in request.json:
         abort(400)
@@ -129,7 +74,7 @@ def create_rc():
     return jsonify({'rc': rc}), 201
 
 @app.route('/api/v1/rcs/<int:rc_id>', methods=['GET'])
-# @login_required
+@login_required
 def get_rc(rc_id):
     rch = RcHelper(rc_id)
     rc = rch.getRc()
@@ -140,7 +85,7 @@ def get_rc(rc_id):
     return jsonify({'rc': rc})
 
 @app.route('/api/v1/rcs/<int:rc_id>', methods=['PUT'])
-# @login_required
+@login_required
 def update_rc(rc_id):
     rch = RcHelper(rc_id)
 
@@ -155,7 +100,7 @@ def update_rc(rc_id):
     return jsonify({'rc': rc})
 
 @app.route('/api/v1/rcs/<int:rc_id>', methods=['DELETE'])
-# @login_required
+@login_required
 def delete_rc(rc_id):
     rch = RcHelper(rc_id)
     result = rch.deleteRc()
@@ -165,9 +110,9 @@ def delete_rc(rc_id):
     
     return jsonify({'result': result})
 
-# Buttons routes
+# Button routes
 @app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['GET'])
-# @login_required
+@login_required
 def get_rc_buttons(rc_id):
     bh = ButtonHelper(rc_id)
     buttons = bh.getButtons()
@@ -175,14 +120,14 @@ def get_rc_buttons(rc_id):
     if buttons is None:
         abort(404)
 
-    return jsonify({'buttons': buttons}), 201
+    return jsonify({'buttons': buttons})
 
 @app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['POST'])
-# @login_required
+@login_required
 def create_rc_button(rc_id):
     bh = ButtonHelper(rc_id)
     
-    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'command' in request.json or not 'radio_id' in request.json or not 'node_id' in request.json or not 'type' in request.json:
+    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'execute' in request.json or not 'radio_id' in request.json or not 'node_id' in request.json or not 'arduino_id' in request.json or not 'type' in request.json:
         abort(400)
 
     button = bh.createButton(request.json)
@@ -193,7 +138,7 @@ def create_rc_button(rc_id):
     return jsonify({'button': button}), 201
 
 @app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['GET'])
-# @login_required
+@login_required
 def get_rc_button(rc_id, btn_id):
     bh = ButtonHelper(rc_id, btn_id)
     button = bh.getButton()
@@ -204,11 +149,11 @@ def get_rc_button(rc_id, btn_id):
     return jsonify({'button': button})
 
 @app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['PUT'])
-# @login_required
+@login_required
 def update_rc_button(rc_id, btn_id):
     bh = ButtonHelper(rc_id, btn_id)
     
-    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'command' in request.json or not 'radio_id' in request.json or not 'node_id' in request.json or not 'type' in request.json:
+    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'execute' in request.json or not 'radio_id' in request.json or not 'node_id' in request.json or not 'type' in request.json:
         abort(400)
 
     button = bh.updateButton(request.json)
@@ -219,7 +164,7 @@ def update_rc_button(rc_id, btn_id):
     return jsonify({'button': button})
 
 @app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['DELETE'])
-# @login_required
+@login_required
 def delete_rc_button(rc_id, btn_id):
     bh = ButtonHelper(rc_id, btn_id)
     result = bh.deleteButton()
@@ -227,6 +172,189 @@ def delete_rc_button(rc_id, btn_id):
     if result is None:
         abort(404)
 
+    return jsonify({'result': result})
+
+@app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>/push', methods=['GET'])
+@login_required
+def push_rc_button(rc_id, btn_id):
+    bh = ButtonHelper(rc_id, btn_id)
+    result = bh.pushButton()
+
+    if result is None:
+        abort(404)
+
+    return jsonify({'result': result})
+
+# Node routes
+@app.route('/api/v1/nodes', methods=['GET'])
+@login_required
+def get_nodes():
+    nh = NodeHelper()
+    return jsonify({'nodes': nh.getNodes()})
+
+@app.route('/api/v1/nodes', methods=['POST'])
+@login_required
+def create_node():
+    if not request.json or not 'name' in request.json or not 'host_name' in request.json or not 'order' in request.json:
+        abort(400)
+
+    nh = NodeHelper()
+    node = nh.createNode(request.json)
+    return jsonify({'node': node}), 201
+
+@app.route('/api/v1/nodes/<int:node_id>', methods=['GET'])
+@login_required
+def get_node(node_id):
+    nh = NodeHelper(node_id)
+    node = nh.getNode()
+
+    if node is None:
+        abort(404)
+
+    return jsonify({'node': node})
+
+@app.route('/api/v1/nodes/<int:node_id>', methods=['PUT'])
+@login_required
+def update_node(node_id):
+    nh = NodeHelper(node_id)
+
+    if not request.json or not 'name' in request.json or not 'host_name' in request.json or not 'order' in request.json:
+        abort(400)
+    
+    node = nh.updateNode(request.json)
+
+    if node is None:
+        abort(404) 
+
+    return jsonify({'node': node})
+
+@app.route('/api/v1/nodes/<int:node_id>', methods=['DELETE'])
+@login_required
+def delete_node(node_id):
+    nh = NodeHelper(node_id)
+    result = nh.deleteNode()
+
+    if result is None:
+        abort(404)
+    
+    return jsonify({'result': result})
+
+# Arduino routes
+@app.route('/api/v1/nodes/<int:node_id>/arduinos', methods=['GET'])
+@login_required
+def get_node_arduinos(node_id):
+    ah = ArduinoHelper(node_id)
+    arduinos = ah.getArduinos()
+
+    if arduinos is None:
+        abort(404)
+
+    return jsonify({'arduinos': arduinos})
+
+@app.route('/api/v1/nodes/<int:node_id>/arduinos', methods=['POST'])
+@login_required
+def create_node_arduino(node_id):
+    ah = ArduinoHelper(node_id)
+    
+    if not request.json or not 'usb' in request.json or not 'name' in request.json or not 'order' in request.json:
+        abort(400)
+
+    arduino = ah.createArduino(request.json)
+
+    if arduino is None:
+        abort(404)
+
+    return jsonify({'arduino': arduino}), 201
+
+@app.route('/api/v1/nodes/<int:node_id>/arduinos/<int:arduino_id>', methods=['GET'])
+@login_required
+def get_node_arduino(node_id, arduino_id):
+    ah = ArduinoHelper(node_id, arduino_id)
+    arduino = ah.getArduino()
+
+    if arduino is None:
+        abort(404)
+
+    return jsonify({'arduino': arduino})
+
+@app.route('/api/v1/nodes/<int:node_id>/buttons/<int:arduino_id>', methods=['PUT'])
+@login_required
+def update_node_arduino(node_id, arduino_id):
+    ah = ArduinoHelper(node_id, arduino_id)
+    
+    if not request.json or not 'usb' in request.json or not 'name' in request.json or not 'order' in request.json:
+        abort(400)
+
+    arduino = ah.updateArduino(request.json)
+
+    if arduino is None:
+        abort(404)
+
+    return jsonify({'arduino': arduino})
+
+@app.route('/api/v1/nodes/<int:node_id>/buttons/<int:arduino_id>', methods=['DELETE'])
+@login_required
+def delete_node_arduino(node_id, arduino_id):
+    ah = ArduinoHelper(node_id, arduino_id)
+    result = ah.deleteArduino()
+
+    if result is None:
+        abort(404)
+
+    return jsonify({'result': result})
+
+# Radio routes
+@app.route('/api/v1/radios', methods=['GET'])
+@login_required
+def get_radios():
+    rh = RadioHelper()
+    return jsonify({'radios': rh.getRadios()})
+
+@app.route('/api/v1/radios', methods=['POST'])
+@login_required
+def create_radio():
+    if not request.json or not 'arduino_id' in request.json or not 'pipe' in request.json or not 'name' in request.json or not 'enabled' in request.json or not 'order' in request.json:
+        abort(400)
+
+    rh = RadioHelper()
+    radio = rh.createRadio(request.json)
+    return jsonify({'radio': radio}), 201
+
+@app.route('/api/v1/radios/<int:radio_id>', methods=['GET'])
+@login_required
+def get_radio(radio_id):
+    rh = RadioHelper(radio_id)
+    radio = rh.getRadio()
+
+    if radio is None:
+        abort(404)
+
+    return jsonify({'radio': radio})
+
+@app.route('/api/v1/radios/<int:radio_id>', methods=['PUT'])
+@login_required
+def update_radio(radio_id):
+    rh = RadioHelper(radio_id)
+
+    if not request.json or not 'arduino_id' in request.json or not 'pipe' in request.json or not 'name' in request.json or not 'enabled' in request.json or not 'order' in request.json:
+        abort(400)
+    
+    radio = rh.updateRadio(request.json)
+
+    if radio is None:
+        abort(404) 
+
+    return jsonify({'radio': radio})
+
+@app.route('/api/v1/radios/<int:radio_id>', methods=['DELETE'])
+@login_required
+def delete_radio(radio_id):
+    rh = RadioHelper(radio_id)
+    result = rh.deleteRadio()
+
+    if result is None:
+        abort(404)
+    
     return jsonify({'result': result})
 
 # thread = None

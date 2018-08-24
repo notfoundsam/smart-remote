@@ -15,14 +15,15 @@ lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
 
-from app import routes, models, sockets
-from sensor import StateChecker
-import threading
+from app import routes
+# , models, sockets
+# from sensor import StateChecker
+# import threading
 # from drivers import wire_recive
-from run import arduino
+# from run import arduino
 
-@app.before_first_request
-def before_first_request():
-    arduino.startQueue()
-    status = StateChecker()
-    status.start()
+# @app.before_first_request
+# def before_first_request():
+#     arduino.startQueue()
+#     status = StateChecker()
+#     status.start()
