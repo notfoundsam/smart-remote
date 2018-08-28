@@ -14,6 +14,7 @@ arduino = Arduino.Instance()
 lirc = None
 
 if not debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    arduino.activateDiscoverService()
     if debug:
         print('RUN AS DEVELOPMENT', file=sys.stderr)
         arduino.connect('dev')

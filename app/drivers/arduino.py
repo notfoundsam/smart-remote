@@ -50,6 +50,7 @@ class Arduino():
     ser = None
     queue = None
     starter = None
+    dservice = None
 
     def startQueue(self):
         self.queue = ArduinoQueue(self.ser)
@@ -58,6 +59,11 @@ class Arduino():
     def activateQueueStarter(self):
         self.starter = ArduinoQueueStarter()
         self.starter.start()
+
+    def activateDiscoverService(self):
+        if self.dservice is None:
+            self.dservice = ArduinoDiscoverServer()
+            self.dservice.start()
 
     def send(self, btn, pipe, sid):
         self.queue.putItem(ArduinoQueueItem(self.ser, btn, pipe, sid, 1))
@@ -115,6 +121,22 @@ class ArduinoQueueStarter(threading.Thread):
         time.sleep(2)
         r = requests.get('http://127.0.0.1:5000/')
         print('Send first request', file=sys.stderr)
+
+
+class ArduinoDiscoverServer(threading.Thread):
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
+        while True:
+            message = "s-ip:%s" % socket.gethostbyname(socket.gethostname())
+            sock.sendto(message, ('255.255.255.255', 9090))
+            print('Discover', file=sys.stderr)
+            time.sleep(5)
 
 class ArduinoQueueItem():
 
