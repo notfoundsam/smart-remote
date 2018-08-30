@@ -122,22 +122,6 @@ class ArduinoQueueStarter(threading.Thread):
         r = requests.get('http://127.0.0.1:5000/')
         print('Send first request', file=sys.stderr)
 
-
-class ArduinoDiscoverServer(threading.Thread):
-
-    def __init__(self):
-        threading.Thread.__init__(self)
-
-    def run(self):
-        sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-
-        while True:
-            message = "s-ip:%s" % socket.gethostbyname(socket.gethostname())
-            sock.sendto(message, ('255.255.255.255', 9090))
-            print('Discover', file=sys.stderr)
-            time.sleep(5)
-
 class ArduinoQueueItem():
 
     def __init__(self, ser, btn, pipe, sid, priority):
