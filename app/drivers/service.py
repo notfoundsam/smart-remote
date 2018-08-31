@@ -89,6 +89,8 @@ class DiscoverService(threading.Thread):
 
 class NodeService(threading.Thread):
 
+    nodes = {}
+
     def __init__(self):
         threading.Thread.__init__(self)
 
@@ -101,6 +103,19 @@ class NodeService(threading.Thread):
             conn, addr = sock.accept()
             node = RpiNode(conn, addr)
             node.start()
+    
+    def addNode(self, node):
+        if node.getHostName() in self.nodes:
+            return False
+
+        self.nodes[node.getHostName()] = node
+        print(self.nodes, file=sys.stderr)
+        return True
+    
+    def removeNode(self, node):
+        if node.getHostName() in self.nodes:
+            del self.nodes[node.getHostName()]
+            print(self.nodes, file=sys.stderr)
 
 class RpiNode(threading.Thread):
 
@@ -108,21 +123,37 @@ class RpiNode(threading.Thread):
         threading.Thread.__init__(self)
         self.conn = conn
         self.addr = addr
+        self.hostname = None
+        self.service = Service.Instance()
+
+    def getHostName(self):
+        return self.hostname
 
     def run(self):
         print('New connection from ' + self.addr[0], file=sys.stderr)
 
-        try:
-            while True:
-                data = self.conn.recv(1024)
+        # try:
+        while True:
+            data = self.conn.recv(1024)
+            
+            if data:
+                udata = data.decode("utf-8")
+                splited_data = data.split(':')
+                print('received: ' + udata, file=sys.stderr)
                 
-                if data:
-                    udata = data.decode("utf-8")
-                    print('received: ' + udata, file=sys.stderr)
-                    self.conn.send(data.upper())
-                else:
-                    self.conn.close()
-                    print('Connection closed for ' + self.addr[0], file=sys.stderr)
-                    break
-        except:
-            conn.close()
+                if self.hostname == None:
+                    self.hostname = splited_data[0]
+                    
+                    if self.service.node_sevice.addNode(self) == False:
+                        print('hostname already exists', file=sys.stderr)
+                        self.conn.close()
+                        break;
+                self.conn.send(data.upper())
+            else:
+                self.service.node_sevice.removeNode(self)
+                self.conn.close()
+                print('Connection closed for ' + self.addr[0], file=sys.stderr)
+                break
+        # except:
+        #     self.service.node_sevice.removeNode(self)
+        #     self.conn.close()
