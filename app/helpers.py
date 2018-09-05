@@ -326,6 +326,9 @@ class NodeHelper:
         self.node = None
         return True
 
+    def getNodeByName(self, name):
+        return Node.query.filter_by(name = name).first()
+
 class ArduinoHelper:
 
     def __init__(self, node_id, arduino_id = None):

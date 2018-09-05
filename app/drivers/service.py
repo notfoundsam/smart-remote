@@ -6,6 +6,7 @@ import os, sys
 import threading, Queue
 import requests
 from app import so
+from app.helpers import NodeHelper
 
 class Singleton:
     """
@@ -105,10 +106,17 @@ class NodeService(threading.Thread):
             node.start()
     
     def addNode(self, node):
-        if node.getHostName() in self.nodes:
+        nh = NodeHelper()
+        host_name = node.getHostName()
+        
+        if host_name in self.nodes:
             return False
 
-        self.nodes[node.getHostName()] = node
+        if nh.getNodeByName(host_name) is None:
+            node = nh.createNode({'name': None, 'host_name': host_name, 'order': None})
+            print(node, file=sys.stderr)
+
+        self.nodes[host_name] = node
         print(self.nodes, file=sys.stderr)
         return True
     
