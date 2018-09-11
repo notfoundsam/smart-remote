@@ -96,6 +96,7 @@ class NodeService(threading.Thread):
 
     def run(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        time.sleep(2)
         sock.bind(('', 32001))
         sock.listen(5)
 
@@ -109,6 +110,7 @@ class NodeService(threading.Thread):
         host_name = node.getHostName()
         
         if host_name in self.nodes:
+            print(self.nodes, file=sys.stderr)
             return False
 
         if nh.getNodeByName(host_name) is None:
@@ -119,12 +121,14 @@ class NodeService(threading.Thread):
         print(self.nodes, file=sys.stderr)
         return True
 
-    def pushToNode(self, name):
-        if name in self.nodes:
-            self.nodes[name].push()
-            print(self.nodes[name], file=sys.stderr)
+    def pushToNode(self, host_name, button_id):
+        if host_name in self.nodes:
+            self.nodes[host_name].pushButton(button_id)
+            return True
+            # print(self.nodes[host_name], file=sys.stderr)
         else:
             print("no node", file=sys.stderr)
+            return False
 
     def removeNode(self, node):
         if node.getHostName() in self.nodes:
@@ -143,8 +147,11 @@ class RpiNode(threading.Thread):
     def getHostName(self):
         return self.hostname
 
-    def push(self):
-        self.conn.send('puuuuu')
+    def pushButton(self, button_id):
+        try:
+            self.conn.send('pb:%r' % button_id)
+        except:
+            self.service.node_sevice.removeNode(self)
 
     def run(self):
         print('New connection from ' + self.addr[0], file=sys.stderr)

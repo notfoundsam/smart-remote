@@ -277,7 +277,7 @@ def get_node_arduino(node_id, arduino_id):
 
     return jsonify({'arduino': arduino})
 
-@app.route('/api/v1/nodes/<int:node_id>/buttons/<int:arduino_id>', methods=['PUT'])
+@app.route('/api/v1/nodes/<int:node_id>/arduinos/<int:arduino_id>', methods=['PUT'])
 @login_required
 def update_node_arduino(node_id, arduino_id):
     ah = ArduinoHelper(node_id, arduino_id)
@@ -292,7 +292,7 @@ def update_node_arduino(node_id, arduino_id):
 
     return jsonify({'arduino': arduino})
 
-@app.route('/api/v1/nodes/<int:node_id>/buttons/<int:arduino_id>', methods=['DELETE'])
+@app.route('/api/v1/nodes/<int:node_id>/arduinos/<int:arduino_id>', methods=['DELETE'])
 @login_required
 def delete_node_arduino(node_id, arduino_id):
     ah = ArduinoHelper(node_id, arduino_id)

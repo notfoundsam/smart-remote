@@ -220,14 +220,13 @@ class ButtonHelper:
             return None
 
         node = Node.query.filter_by(id = self.button.node_id).first()
+        service = Service.Instance()
         
-        if node is not None:
-            # print(node, file=sys.stderr)
-            service = Service.Instance()
-            service.node_sevice.pushToNode(node.host_name)
+        if node is not None and service.node_sevice.pushToNode(node.host_name, self.button.id):
+            return True
 
+        return False
 
-        return True
 
     # def getRemoteName(self, rc_id):
     #     rc = Rc.query.filter_by(identificator = rc_id).first()
