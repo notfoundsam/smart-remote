@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_socketio import SocketIO
 from flask_cors import CORS
+# from .helpers import NodeHelper
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -14,9 +15,10 @@ so = SocketIO(app)
 lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
+# nh = NodeHelper()
 
 from app import routes
-from app.drivers.service import Service
+from app.service import Service
 
 @app.before_first_request
 def before_first_request():

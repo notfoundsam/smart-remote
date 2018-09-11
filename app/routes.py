@@ -9,7 +9,7 @@ from .models import User
 from config import status_code
 from threading import Lock
 from .helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, RadioHelper
-from .sensor import RadioSensor
+# from .sensor import RadioSensor
 
 @lm.user_loader
 def load_user(id):
@@ -153,7 +153,7 @@ def get_rc_button(rc_id, btn_id):
 def update_rc_button(rc_id, btn_id):
     bh = ButtonHelper(rc_id, btn_id)
     
-    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'execute' in request.json or not 'radio_id' in request.json or not 'node_id' in request.json or not 'type' in request.json:
+    if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'execute' in request.json or not 'radio_id' in request.json or not 'node_id' in request.json or not 'arduino_id' in request.json or not 'type' in request.json:
         abort(400)
 
     button = bh.updateButton(request.json)

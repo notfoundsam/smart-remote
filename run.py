@@ -2,8 +2,8 @@
 from __future__ import print_function
 import os, sys
 
-from app.drivers.arduino import Arduino
-from app.drivers.service import Service
+# from app.drivers.arduino import Arduino
+from app.service import Service
 from app.drivers.lirc import Lirc, LircDev
 
 if 'APP_ENV' in os.environ and os.environ['APP_ENV'] == 'development':
@@ -11,7 +11,7 @@ if 'APP_ENV' in os.environ and os.environ['APP_ENV'] == 'development':
 else:
     debug = False
 
-arduino = Arduino.Instance()
+# arduino = Arduino.Instance()
 service = Service.Instance()
 lirc = None
 
@@ -19,11 +19,11 @@ if not debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
     service.generateFirstRequest()
     if debug:
         print('RUN AS DEVELOPMENT', file=sys.stderr)
-        arduino.connect('dev')
+        # arduino.connect('dev')
         lirc = LircDev()
     else:
         print('RUN AS PRODUCTION', file=sys.stderr)
-        arduino.connect()
+        # arduino.connect()
         lirc = Lirc()
 
 from app import app
