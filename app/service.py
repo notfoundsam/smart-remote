@@ -156,28 +156,28 @@ class RpiNode(threading.Thread):
     def run(self):
         print('New connection from ' + self.addr[0], file=sys.stderr)
 
-        # try:
-        while True:
-            data = self.conn.recv(1024)
-            
-            if data:
-                udata = data.decode("utf-8")
-                splited_data = data.split(':')
-                print('received: ' + udata, file=sys.stderr)
+        try:
+            while True:
+                data = self.conn.recv(1024)
                 
-                if self.hostname == None:
-                    self.hostname = splited_data[0]
+                if data:
+                    udata = data.decode("utf-8")
+                    splited_data = data.split(':')
+                    print('received: ' + udata, file=sys.stderr)
                     
-                    if self.service.node_sevice.addNode(self) == False:
-                        print('hostname already exists', file=sys.stderr)
-                        self.conn.close()
-                        break;
-                self.conn.send(data.upper())
-            else:
-                self.service.node_sevice.removeNode(self)
-                self.conn.close()
-                print('Connection closed for ' + self.addr[0], file=sys.stderr)
-                break
-        # except:
-        #     self.service.node_sevice.removeNode(self)
-        #     self.conn.close()
+                    if self.hostname == None:
+                        self.hostname = splited_data[0]
+                        
+                        if self.service.node_sevice.addNode(self) == False:
+                            print('hostname already exists', file=sys.stderr)
+                            self.conn.close()
+                            break;
+                    self.conn.send(data.upper())
+                else:
+                    self.service.node_sevice.removeNode(self)
+                    self.conn.close()
+                    print('Connection closed for ' + self.addr[0], file=sys.stderr)
+                    break
+        except:
+            self.service.node_sevice.removeNode(self)
+            self.conn.close()
