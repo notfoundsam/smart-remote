@@ -212,14 +212,17 @@ class ButtonHelper:
         self.button = None
         return True
 
-    def pushButton(self):
+    def pushButton(self, event):
         if self.rc is None or self.button is None:
             return None
 
         node = Node.query.filter_by(id = self.button.node_id).first()
         service = Service.Instance()
+
+        event.host_name = node.host_name
+        event.button_id = self.button.id
         
-        if node is not None and service.node_sevice.pushToNode(node.host_name, self.button.id):
+        if node is not None and service.node_sevice.pushToNode(event):
             return True
 
         return False
@@ -504,3 +507,11 @@ class RadioHelper:
         db.session.commit()
         self.radio = None
         return True
+
+class SocketEvent:
+
+    def __init__(self):
+        self.user_id = None
+        self.host_name = None
+        self.button_id = None
+        

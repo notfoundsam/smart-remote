@@ -6,7 +6,7 @@ from app import app, db, lm, so
 from .models import User
 from config import status_code
 from threading import Lock
-from .helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, RadioHelper
+from .helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, RadioHelper, SocketEvent
 
 @lm.user_loader
 def load_user(id):
@@ -173,8 +173,11 @@ def delete_rc_button(rc_id, btn_id):
 @app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>/push', methods=['GET'])
 @login_required
 def push_rc_button(rc_id, btn_id):
+    # sys.stderr.write(str(g.user))
+    event = SocketEvent()
+    event.user_id = g.user.id
     bh = ButtonHelper(rc_id, btn_id)
-    result = bh.pushButton()
+    result = bh.pushButton(event)
 
     if result is None:
         abort(404)

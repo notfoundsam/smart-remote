@@ -116,9 +116,9 @@ class NodeService(threading.Thread):
         self.nodes[host_name] = node
         return True
 
-    def pushToNode(self, host_name, button_id):
-        if host_name in self.nodes:
-            self.nodes[host_name].pushButton(button_id)
+    def pushToNode(self, event):
+        if event.host_name in self.nodes:
+            self.nodes[event.host_name].pushButton(event)
             return True
         else:
             sys.stderr.write('no node\n')
@@ -140,9 +140,10 @@ class RpiNode(threading.Thread):
     def getHostName(self):
         return self.hostname
 
-    def pushButton(self, button_id):
+    def pushButton(self, event):
         try:
-            self.conn.send('pb:%r' % button_id)
+            data = json.dumps({'event': 'pb', 'user_id': event.user_id, 'button_id': event.button_id})
+            self.conn.send(data)
         except:
             self.service.node_sevice.removeNode(self)
 
