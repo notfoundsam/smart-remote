@@ -1,4 +1,3 @@
-from __future__ import print_function
 import serial
 import time, random, socket, json
 import array
@@ -70,8 +69,8 @@ class FirstRequest(threading.Thread):
 
     def run(self):
         time.sleep(2)
+        sys.stderr.write('Start discover service\n')
         r = requests.get('http://127.0.0.1:5000/')
-        print('Send first request to flask', file=sys.stderr)
 
 class DiscoverService(threading.Thread):
 
@@ -96,7 +95,6 @@ class NodeService(threading.Thread):
 
     def run(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        time.sleep(2)
         sock.bind(('', 32001))
         sock.listen(5)
 
@@ -110,30 +108,25 @@ class NodeService(threading.Thread):
         host_name = node.getHostName()
         
         if host_name in self.nodes:
-            print(self.nodes, file=sys.stderr)
             return False
 
         if nh.getNodeByName(host_name) is None:
             node = nh.createNode({'name': None, 'host_name': host_name, 'order': None})
-            print(node, file=sys.stderr)
 
         self.nodes[host_name] = node
-        print(self.nodes, file=sys.stderr)
         return True
 
     def pushToNode(self, host_name, button_id):
         if host_name in self.nodes:
             self.nodes[host_name].pushButton(button_id)
             return True
-            # print(self.nodes[host_name], file=sys.stderr)
         else:
-            print("no node", file=sys.stderr)
+            sys.stderr.write('no node\n')
             return False
 
     def removeNode(self, node):
         if node.getHostName() in self.nodes:
             del self.nodes[node.getHostName()]
-            print(self.nodes, file=sys.stderr)
 
 class RpiNode(threading.Thread):
 
@@ -154,7 +147,7 @@ class RpiNode(threading.Thread):
             self.service.node_sevice.removeNode(self)
 
     def run(self):
-        print('New connection from ' + self.addr[0], file=sys.stderr)
+        sys.stderr.write('New connection from %s\n' % self.addr[0])
 
         try:
             while True:
@@ -163,20 +156,21 @@ class RpiNode(threading.Thread):
                 if data:
                     udata = data.decode("utf-8")
                     splited_data = data.split(':')
-                    print('received: ' + udata, file=sys.stderr)
                     
                     if self.hostname == None:
                         self.hostname = splited_data[0]
                         
                         if self.service.node_sevice.addNode(self) == False:
-                            print('hostname already exists', file=sys.stderr)
+                            sys.stderr.write('hostname already exists\n')
                             self.conn.close()
                             break;
-                    self.conn.send(data.upper())
+                    else:
+                        sys.stderr.write('%s received: %s\n' % (self.hostname, udata))
+                        # self.conn.send(data.upper())
                 else:
                     self.service.node_sevice.removeNode(self)
                     self.conn.close()
-                    print('Connection closed for ' + self.addr[0], file=sys.stderr)
+                    sys.stderr.write('Connection closed for %s\n' % self.addr[0])
                     break
         except:
             self.service.node_sevice.removeNode(self)

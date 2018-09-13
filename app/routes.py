@@ -1,5 +1,3 @@
-# import config
-from __future__ import print_function
 import sys
 from flask import render_template, flash, redirect, session, url_for, request, \
     g, jsonify, make_response, abort
@@ -9,7 +7,6 @@ from .models import User
 from config import status_code
 from threading import Lock
 from .helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, RadioHelper
-# from .sensor import RadioSensor
 
 @lm.user_loader
 def load_user(id):
@@ -17,7 +14,6 @@ def load_user(id):
 
 @lm.unauthorized_handler
 def unauthorized():
-    print('received message:', file=sys.stderr)
     return make_response(jsonify({'error': 'Unauthorized'}), 401)
 
 @app.before_request

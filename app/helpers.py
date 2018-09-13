@@ -1,11 +1,8 @@
-from __future__ import print_function
 import sys, os
 from .models import Rc, Button, Node, Arduino, Radio
 from app.service import Service
 from app import db
-# import uuid
 from datetime import datetime
-# from run import arduino, lirc
 
 class RcHelper:
 

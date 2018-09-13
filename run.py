@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
 import os, sys
 
 # from app.drivers.arduino import Arduino
@@ -18,11 +17,11 @@ lirc = None
 if not debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
     service.generateFirstRequest()
     if debug:
-        print('RUN AS DEVELOPMENT', file=sys.stderr)
+        sys.stderr.write('RUN AS DEVELOPMENT\n')
         # arduino.connect('dev')
         lirc = LircDev()
     else:
-        print('RUN AS PRODUCTION', file=sys.stderr)
+        sys.stderr.write('RUN AS PRODUCTION\n')
         # arduino.connect()
         lirc = Lirc()
 
@@ -30,4 +29,3 @@ from app import app
 
 if __name__ == '__main__':
     app.run(debug=debug, host='0.0.0.0', threaded=True)
-    print('ENDED', file=sys.stderr)
