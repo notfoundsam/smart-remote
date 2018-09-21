@@ -167,6 +167,11 @@ class RpiNode(threading.Thread):
                             break;
                     else:
                         sys.stderr.write('%s received: %s\n' % (self.hostname, udata))
+                        json = '[{"tempValue":20.76,"humiValue":60.80, "batValue":3.6},{"type":"arduino", "id":"radio-1"}]'
+                        s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+                        s.connect(('node-red', 9090))
+                        s.send(json)
+                        s.close()
                         # self.conn.send(data.upper())
                 else:
                     self.service.node_sevice.removeNode(self)
