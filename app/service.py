@@ -150,8 +150,8 @@ class RpiNode(threading.Thread):
     def run(self):
         sys.stderr.write('New connection from %s\n' % self.addr[0])
 
-        try:
-            while True:
+        while True:
+            try:
                 data = self.conn.recv(1024)
                 
                 if data:
@@ -173,6 +173,8 @@ class RpiNode(threading.Thread):
                     self.conn.close()
                     sys.stderr.write('Connection closed for %s\n' % self.addr[0])
                     break
-        except:
-            self.service.node_sevice.removeNode(self)
-            self.conn.close()
+            except:
+                self.service.node_sevice.removeNode(self)
+                self.conn.close()
+                sys.stderr.write('Socket error, close connection\n')
+                break
