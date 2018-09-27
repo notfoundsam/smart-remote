@@ -166,13 +166,8 @@ class RpiNode(threading.Thread):
                             self.conn.close()
                             break;
                     else:
-                        sys.stderr.write('%s received: %s\n' % (self.hostname, udata))
-                        json = '[{"tempValue":20.76,"humiValue":60.80, "batValue":3.6},{"type":"arduino", "id":"radio-1"}]'
-                        s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-                        s.connect(('node-red', 9090))
-                        s.send(json)
-                        s.close()
-                        # self.conn.send(data.upper())
+                        sp = SocketParser(self.hostname, udata)
+                        sp.start()
                 else:
                     self.service.node_sevice.removeNode(self)
                     self.conn.close()
@@ -183,3 +178,44 @@ class RpiNode(threading.Thread):
                 self.conn.close()
                 sys.stderr.write('Socket error, close connection\n')
                 break
+
+class SocketParser(threading.Thread):
+
+    def __init__(self, hostname, data):
+        threading.Thread.__init__(self)
+        self.hostname = hostname
+        self.data = data
+        
+    def run(self):
+        data = json.loads(self.data)
+
+        if 'type' in data and data['type'] == 'response':
+            sys.stderr.write('%s received: %s\n' % (self.hostname, self.data))
+        elif 'type' in data and data['type'] == 'event':
+            sensors_data = dict(s.split(' ') for s in data['message'].split(','))
+            params = {}
+            tags = {
+                'hostname': self.hostname,
+            }
+
+            if 'port' in data:
+                tags['port'] = data['port']
+            if 'h' in sensors_data:
+                params['humiValue'] = float(sensors_data['h'])
+            if 't' in sensors_data:
+                params['tempValue'] = float(sensors_data['t'])
+            if 'b' in sensors_data:
+                params['batValue'] = float(sensors_data['b'])
+            if 'r' in sensors_data:
+                tags['radio'] = '0x%s' % sensors_data['r']
+
+            message = [params, tags]
+            dump = '%s\n' % json.dumps(message)
+            sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            sock.connect(('node-red', 9090))
+            sock.send(dump)
+
+    def parseMessage(data):
+        message = {}
+
+        return message
