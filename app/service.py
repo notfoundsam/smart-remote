@@ -198,14 +198,15 @@ class SocketParser(threading.Thread):
                 'hostname': self.hostname,
             }
 
-            if 'port' in data:
-                tags['port'] = data['port']
             if 'h' in sensors_data:
                 params['humiValue'] = float(sensors_data['h'])
             if 't' in sensors_data:
                 params['tempValue'] = float(sensors_data['t'])
             if 'b' in sensors_data:
                 params['batValue'] = float(sensors_data['b'])
+            
+            if 'port' in data:
+                tags['port'] = data['port']
             if 'r' in sensors_data:
                 tags['radio'] = '0x%s' % sensors_data['r']
 
