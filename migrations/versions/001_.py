@@ -49,7 +49,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('node_id', sa.Integer(), nullable=True),
     sa.Column('usb', sa.String(length=200), nullable=True),
-    sa.Column('role', sa.String(length=2), nullable=True),
+    sa.Column('mode', sa.String(length=2), nullable=True),
     sa.Column('name', sa.String(length=200), nullable=True),
     sa.Column('order', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),

@@ -362,7 +362,7 @@ class ArduinoHelper:
             a = {'id': arduino.id,
                 'node_id': arduino.node_id,
                 'usb': arduino.usb,
-                'role': arduino.role,
+                'mode': arduino.mode,
                 'name': arduino.name,
                 'order': arduino.order}
 
@@ -376,7 +376,7 @@ class ArduinoHelper:
 
         arduino = Arduino(node_id = self.node.id,
                         usb = params['usb'],
-                        role = params['role'],
+                        mode = params['mode'],
                         name = params['name'],
                         order = params['order'],
                         timestamp = datetime.utcnow())
@@ -387,7 +387,7 @@ class ArduinoHelper:
         return {'id': arduino.id,
                 'node_id': arduino.node_id,
                 'usb': arduino.usb,
-                'role': arduino.role,
+                'mode': arduino.mode,
                 'name': arduino.name,
                 'order': arduino.order}
 
@@ -398,7 +398,7 @@ class ArduinoHelper:
         return {'id': self.arduino.id,
                 'node_id': self.arduino.node_id,
                 'usb': self.arduino.usb,
-                'role': self.arduino.role,
+                'mode': self.arduino.mode,
                 'name': self.arduino.name,
                 'order': self.arduino.order}
 
@@ -407,6 +407,7 @@ class ArduinoHelper:
             return None
 
         self.arduino.usb = params['usb']
+        self.arduino.mode = params['mode']
         self.arduino.name = params['name']
         self.arduino.order = params['order']
         self.arduino.timestamp = datetime.utcnow()
@@ -416,7 +417,7 @@ class ArduinoHelper:
         return {'id': self.arduino.id,
                 'node_id': self.arduino.node_id,
                 'usb': self.arduino.usb,
-                'role': self.arduino.role,
+                'mode': self.arduino.mode,
                 'name': self.arduino.name,
                 'order': self.arduino.order}
 

@@ -255,7 +255,7 @@ def get_node_arduinos(node_id):
 def create_node_arduino(node_id):
     ah = ArduinoHelper(node_id)
     
-    if not request.json or not 'usb' in request.json or not 'role' in request.json or not 'name' in request.json or not 'order' in request.json:
+    if not request.json or not 'usb' in request.json or not 'mode' in request.json or not 'name' in request.json or not 'order' in request.json:
         abort(400)
 
     arduino = ah.createArduino(request.json)
@@ -281,7 +281,7 @@ def get_node_arduino(node_id, arduino_id):
 def update_node_arduino(node_id, arduino_id):
     ah = ArduinoHelper(node_id, arduino_id)
     
-    if not request.json or not 'usb' in request.json or not 'role' in request.json or not 'name' in request.json or not 'order' in request.json:
+    if not request.json or not 'usb' in request.json or not 'mode' in request.json or not 'name' in request.json or not 'order' in request.json:
         abort(400)
 
     arduino = ah.updateArduino(request.json)

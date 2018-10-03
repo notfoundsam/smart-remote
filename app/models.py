@@ -75,7 +75,7 @@ class Arduino(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     node_id = db.Column(db.Integer, db.ForeignKey('node.id'))
     usb = db.Column(db.String(200))
-    role = db.Column(db.String(2))
+    mode = db.Column(db.String(2))
     name = db.Column(db.String(200))
     order = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime)
