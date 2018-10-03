@@ -5,11 +5,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_socketio import SocketIO
 from flask_cors import CORS
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config.from_object('config')
 CORS(app)
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 so = SocketIO(app)
 lm = LoginManager()
 lm.init_app(app)

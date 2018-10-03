@@ -9,3 +9,8 @@ CSRF_ENABLED = True
 SECRET_KEY = 'you-will-never-guess'
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+# root = User(username = 'root', password = 'root', role = '1')
+
+# db.session.add(root)
+# db.session.commit()

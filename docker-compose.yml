@@ -20,6 +20,7 @@ services:
     environment:
       - APP_ENV=development
       - APP_DOCKER=true
+      - FLASK_APP=app/__init__.py
     volumes:
       - ./:/app
     ports:

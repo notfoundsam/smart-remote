@@ -46,19 +46,18 @@ class Singleton:
 
 @Singleton
 class Service():
+
     first_request = None
     node_sevice = None
     discover_service = None
 
     def activateDiscoverService(self):
-        if self.discover_service is None:
-            self.discover_service = DiscoverService()
-            self.discover_service.start()
+        self.discover_service = DiscoverService()
+        self.discover_service.start()
     
     def activateNodeService(self):
-        if self.node_sevice is None:
-            self.node_sevice = NodeService()
-            self.node_sevice.start()
+        self.node_sevice = NodeService()
+        self.node_sevice.start()
 
     def generateFirstRequest(self):
         if self.first_request is None:
@@ -72,7 +71,6 @@ class FirstRequest(threading.Thread):
 
     def run(self):
         time.sleep(2)
-        sys.stderr.write('Start discover service\n')
         r = requests.get('http://127.0.0.1:5000/')
 
 class DiscoverService(threading.Thread):
@@ -81,6 +79,7 @@ class DiscoverService(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
+        sys.stderr.write('Starting the discover service\n')
         sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
@@ -198,9 +197,7 @@ class SocketParser(threading.Thread):
         elif 'type' in data and data['type'] == 'event':
             sensors_data = dict(s.split(' ') for s in data['message'].split(','))
             params = {}
-            tags = {
-                'hostname': self.hostname,
-            }
+            tags = {'hostname': self.hostname}
 
             if 'h' in sensors_data:
                 params['humiValue'] = float(sensors_data['h'])

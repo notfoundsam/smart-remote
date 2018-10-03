@@ -16,8 +16,6 @@ nbproject/
 /node_modules/
 
 # application
-/db_repository/
-app.db
 ir_tmp_code.txt
 
 # node-red
