@@ -46,21 +46,24 @@ class Singleton:
 
 @Singleton
 class Service():
-    fr = None
+    first_request = None
     node_sevice = None
+    discover_service = None
 
     def activateDiscoverService(self):
-        dservice = DiscoverService()
-        dservice.start()
+        if self.discover_service is None:
+            self.discover_service = DiscoverService()
+            self.discover_service.start()
     
     def activateNodeService(self):
-        self.node_sevice = NodeService()
-        self.node_sevice.start()
+        if self.node_sevice is None:
+            self.node_sevice = NodeService()
+            self.node_sevice.start()
 
     def generateFirstRequest(self):
-        if self.fr is None:
-            self.fr = FirstRequest()
-            self.fr.start()
+        if self.first_request is None:
+            self.first_request = FirstRequest()
+            self.first_request.start()
 
 class FirstRequest(threading.Thread):
 
@@ -95,7 +98,8 @@ class NodeService(threading.Thread):
 
     def run(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind(('', 32001))
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind(('', 32001))        
         sock.listen(5)
 
         while True:
