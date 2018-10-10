@@ -6,6 +6,7 @@ int radio_retries = 15;
 int radio_delay = 5;
 
 boolean isSucces = false;
+byte mode = 2; // 1 - tx mode, 2 - rx mode
 
 void setup() {
   Serial.begin(500000);
@@ -21,6 +22,7 @@ void setup() {
   radio.setDataRate(RF24_1MBPS);     // (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS)
   radio.setPALevel(RF24_PA_MAX);       // (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
   radio.openReadingPipe(1, 0xAABBCCDD55LL);
+  radio.openReadingPipe(2, 0xAABBCCDD88LL);
   radio.startListening();
 }
 
@@ -28,7 +30,20 @@ void loop() {
   if (Serial.available() > 0) {
     isSucces = false;
 
+    income_pipe = 1;
     readSerial();
+    income_pipe = 2;
+
+    if (isSucces) {
+      Serial.print(":OK\n");
+    } else {
+      Serial.print(":FAIL\n");
+    }
+  }
+  if radio.available() {
+    isSucces = false;
+    
+    recive();
 
     if (isSucces) {
       Serial.print(":OK\n");
@@ -125,6 +140,7 @@ void readSerial() {
 void recive() {
   byte income_pipe;
   byte response[32];
+  boolean pipe_set = false;
   boolean ended = false;
   unsigned long started_at = millis();
   byte package = 48;
@@ -132,11 +148,18 @@ void recive() {
 
   while (millis() - started_at <= recive_limit) {
     if (radio.available(&income_pipe)) {
-      if (income_pipe == 1) {
+      if (income_pipe == mode) {
         radio.read(&response, sizeof(response));
 
         if (response[0] == 6) {
           continue;
+        }
+
+        // Get the pipe address from the package
+        if (mode == 2 && !pipe_set) {
+          pipe_set = true;
+          // pipe = getUInt64fromHex(pipe_buf);
+          // radio.openWritingPipe(pipe);
         }
 
         sendACK();
