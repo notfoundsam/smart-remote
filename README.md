@@ -28,6 +28,16 @@ Check it
 http://localhost:5000
 ```
 
+## Flask create migration
+```bash
+$ flask db migrate --rev-id 001
+```
+
+## Flask migrate db
+```bash
+$ flask db upgrade
+```
+
 ## Run development mode on docker
 
 ```bash
