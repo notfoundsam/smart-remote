@@ -4,7 +4,7 @@ from flask import render_template, flash, redirect, session, url_for, request, \
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app, db, lm, so
 from .models import User
-from config import status_code
+# from config import status_code
 from threading import Lock
 from .helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, RadioHelper, SocketEvent
 
@@ -53,11 +53,11 @@ def logout():
     return jsonify({'result': True})
 
 # Home
-@app.route('/api/v1/home', methods=['GET'])
-# @login_required
-def get_rcs():
-    rch = RcHelper()
-    return jsonify({'rcs': rch.getRcs()})
+# @app.route('/api/v1/home', methods=['GET'])
+# # @login_required
+# def get_rcs():
+#     rch = RcHelper()
+#     return jsonify({'rcs': rch.getRcs()})
 
 # Rc routes
 @app.route('/api/v1/rcs', methods=['GET'])
