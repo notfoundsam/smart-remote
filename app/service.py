@@ -2,7 +2,7 @@ import serial
 import time, random, socket, json
 import array
 import os, sys
-import threading, Queue
+import threading, queue
 import requests
 import helpers
 
