@@ -52,9 +52,16 @@ def logout():
     logout_user()
     return jsonify({'result': True})
 
+# Home
+@app.route('/api/v1/home', methods=['GET'])
+# @login_required
+def get_rcs():
+    rch = RcHelper()
+    return jsonify({'rcs': rch.getRcs()})
+
 # Rc routes
 @app.route('/api/v1/rcs', methods=['GET'])
-@login_required
+# @login_required
 def get_rcs():
     rch = RcHelper()
     return jsonify({'rcs': rch.getRcs()})

@@ -118,7 +118,9 @@ void sendStatus() {
   getBatteryVoltage();
   getDhtParams();
   // Add DHT params
-  String responce = "0h ";
+  String responce = "0"; // Package nubber
+  responce += "AABBCCDD99"; // Reading pipe of the station
+  responce += "h ";
   responce += hum;
   responce += ",t ";
   responce += temp;
