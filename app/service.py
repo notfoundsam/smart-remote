@@ -84,7 +84,7 @@ class DiscoverService(threading.Thread):
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
         while True:
-            message = "s-ip:%s" % socket.gethostbyname(socket.gethostname())
+            message = "s-hostname:%s" % socket.gethostname()
             sock.sendto(message, ('255.255.255.255', 32000))
             time.sleep(5)
 
