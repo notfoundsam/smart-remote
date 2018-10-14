@@ -73,6 +73,7 @@ void loop() {
 
   radio.powerUp();
   sendStatus();
+  // delay(3000);
 }
 
 void checkRadioSetting() {
@@ -115,28 +116,41 @@ void getBatteryVoltage() {
 }
 
 void sendStatus() {
+  // Serial.println("try to send");
   getBatteryVoltage();
   getDhtParams();
   // Add DHT params
-  String responce = "0"; // Package nubber
-  responce += "AABBCCDD99"; // Reading pipe of the station
-  responce += "h ";
-  responce += hum;
-  responce += ",t ";
-  responce += temp;
+  String pipe = "0"; // Package nubber
+  pipe += "AABBCCDD99"; // Reading pipe of the station
 
-  // Add Battery voltage
-  responce += ",b ";
-  responce += bat;
-  responce += "\n";
-
-  int rsize = responce.length();
+  int rsize = pipe.length();
 
   byte byte_arr[rsize+1];
-  responce.getBytes(byte_arr, rsize+1);
+  pipe.getBytes(byte_arr, rsize+1);
 
   if (!sendWithACK(byte_arr, rsize)) {
     // Serial.println("sendStatus failed");
+    return;
+  }
+
+  String response = "1"; // Package nubber
+  response += "h ";
+  response += hum;
+  response += ",t ";
+  response += temp;
+
+  // Add Battery voltage
+  response += ",b ";
+  response += bat;
+  response += "\n";
+
+  rsize = response.length();
+
+  byte byte_arr_2[rsize+1];
+  response.getBytes(byte_arr_2, rsize+1);
+
+  if (!sendWithACK(byte_arr_2, rsize)) {
+    // Serial.println("sendStatus failed2");
   }
 }
 

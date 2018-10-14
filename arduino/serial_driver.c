@@ -30,9 +30,9 @@ void loop() {
   if (Serial.available() > 0) {
     isSucces = false;
 
-    income_pipe = 1;
+    mode = 1;
     readSerial();
-    income_pipe = 2;
+    mode = 2;
 
     if (isSucces) {
       Serial.print(":OK\n");
@@ -40,7 +40,7 @@ void loop() {
       Serial.print(":FAIL\n");
     }
   }
-  if radio.available() {
+  if (radio.available()) {
     isSucces = false;
     
     recive();
@@ -141,10 +141,13 @@ void recive() {
   byte income_pipe;
   byte response[32];
   boolean pipe_set = false;
+  char pipe_buf[10];
+  int pipe_buf_i = 0;
   boolean ended = false;
   unsigned long started_at = millis();
   byte package = 48;
   int recive_limit = 500;
+  uint64_t pipe;
 
   while (millis() - started_at <= recive_limit) {
     if (radio.available(&income_pipe)) {
@@ -156,29 +159,65 @@ void recive() {
         }
 
         // Get the pipe address from the package
-        if (mode == 2 && !pipe_set) {
-          pipe_set = true;
-          // pipe = getUInt64fromHex(pipe_buf);
-          // radio.openWritingPipe(pipe);
-        }
+        if (mode == 2) {
 
-        sendACK();
+          if (response[0] == package) {
+            started_at = millis();
+            package++;
+            int i = 1;
 
-        if (response[0] == package) {
-          started_at = millis();
-          package++;
+            if (!pipe_set) {
+              for (i; i < 11; i++) {
+                pipe_buf[pipe_buf_i] = response[i];
+                pipe_buf_i++;
+              }
+              pipe = getUInt64fromHex(pipe_buf);
+              radio.openWritingPipe(pipe);
+              pipe_set = true;
 
-          for (int i = 1; i < sizeof(response); i++) {
-            if (response[i] == 10) {
-              ended = true;
-              recive_limit = 20;
-              break;
+              Serial.write(114);
+              Serial.write(32);
+              
+              for (int j = 0; j < sizeof(pipe_buf); j++) {
+                Serial.write(pipe_buf[j]);
+              }
+              Serial.write(44);
             }
+            
+            sendACK();
 
-            Serial.write(response[i]);
+            for (i; i < sizeof(response); i++) {
+              if (response[i] == 10) {
+                ended = true;
+                recive_limit = 20;
+                break;
+              }
+
+              Serial.write(response[i]);
+            }
+          } else {
+            sendACK();
+            // Serial.println("same package");
           }
         } else {
-          // Serial.println("same package");
+          sendACK();
+
+          if (response[0] == package) {
+            started_at = millis();
+            package++;
+
+            for (int i = 1; i < sizeof(response); i++) {
+              if (response[i] == 10) {
+                ended = true;
+                recive_limit = 20;
+                break;
+              }
+
+              Serial.write(response[i]);
+            }
+          } else {
+            // Serial.println("same package");
+          }
         }
       }
     }
