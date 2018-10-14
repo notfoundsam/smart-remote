@@ -214,7 +214,7 @@ class SocketParser(threading.Thread):
             message = [params, tags]
             dump = '%s\n' % json.dumps(message)
             sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-            sock.connect(('192.168.100.101', 9090))
+            sock.connect(('192.168.100.102', 9090))
             sock.send(dump)
 
     def parseMessage(data):
