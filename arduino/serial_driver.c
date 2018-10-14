@@ -177,7 +177,7 @@ void recive() {
 
               Serial.write(114);
               Serial.write(32);
-              
+
               for (int j = 0; j < sizeof(pipe_buf); j++) {
                 Serial.write(pipe_buf[j]);
               }
@@ -185,6 +185,10 @@ void recive() {
             }
             
             sendACK();
+
+            if (response[i] == 0) {
+              continue;
+            }
 
             for (i; i < sizeof(response); i++) {
               if (response[i] == 10) {

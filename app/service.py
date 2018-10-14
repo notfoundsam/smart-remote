@@ -190,7 +190,6 @@ class SocketParser(threading.Thread):
         self.data = data
         
     def run(self):
-        sys.stderr.write('%s\n' % self.data)
         data = json.loads(self.data)
 
         if 'type' in data and data['type'] == 'response':
@@ -214,7 +213,6 @@ class SocketParser(threading.Thread):
 
             message = [params, tags]
             dump = '%s\n' % json.dumps(message)
-            sys.stderr.write('%s\n' % dump)
             sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
             sock.connect(('192.168.100.100', 9090))
             sock.send(dump)

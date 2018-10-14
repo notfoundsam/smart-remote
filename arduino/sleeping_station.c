@@ -31,7 +31,7 @@ unsigned long sleep_at;
 void setup() {
   analogReference(INTERNAL);
   pinMode(radioSpeedPin, INPUT);
-  // Serial.begin(9600);
+  Serial.begin(9600);
   radio.begin();
   delay(100);
   radio.powerUp();
@@ -55,7 +55,7 @@ void setup() {
 void loop() {
   // checkRadioSetting();
 
-  wdt_enable(WDTO_4S); //Задаем интервал сторожевого таймера (30ms) WDTO_15MS, WDTO_30MS, WDTO_60MS, WDTO_120MS, WDTO_250MS, WDTO_500MS etc.
+  wdt_enable(WDTO_8S); //Задаем интервал сторожевого таймера (30ms) WDTO_15MS, WDTO_30MS, WDTO_60MS, WDTO_120MS, WDTO_250MS, WDTO_500MS etc.
   WDTCSR |= (1 << WDIE); //Устанавливаем бит WDIE регистра WDTCSR для разрешения прерываний от сторожевого таймера
   set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Устанавливаем интересующий нас режим
 
@@ -71,9 +71,12 @@ void loop() {
 
   sleep_mode(); // Переводим МК в спящий режим
 
+  getBatteryVoltage();
+  getDhtParams();
+  delay(300);
+  getDhtParams();
   radio.powerUp();
   sendStatus();
-  // delay(3000);
 }
 
 void checkRadioSetting() {
@@ -116,9 +119,6 @@ void getBatteryVoltage() {
 }
 
 void sendStatus() {
-  // Serial.println("try to send");
-  getBatteryVoltage();
-  getDhtParams();
   // Add DHT params
   String pipe = "0"; // Package nubber
   pipe += "AABBCCDD99"; // Reading pipe of the station
