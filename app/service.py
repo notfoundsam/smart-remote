@@ -190,6 +190,7 @@ class SocketParser(threading.Thread):
         self.data = data
         
     def run(self):
+        sys.stderr.write('%s\n' % self.data)
         data = json.loads(self.data)
 
         if 'type' in data and data['type'] == 'response':
