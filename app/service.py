@@ -213,6 +213,7 @@ class SocketParser(threading.Thread):
 
             message = [params, tags]
             dump = '%s\n' % json.dumps(message)
+            sys.stderr.write('%s\n' % dump)
             sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
             sock.connect(('192.168.100.100', 9090))
             sock.send(dump)
