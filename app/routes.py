@@ -6,7 +6,8 @@ from app import app, db, lm, so
 from .models import User
 # from config import status_code
 from threading import Lock
-from .helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, RadioHelper, SocketEvent
+# from .helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, RadioHelper, SocketEvent
+import app.helpers
 
 @lm.user_loader
 def load_user(id):

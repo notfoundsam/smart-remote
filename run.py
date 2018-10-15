@@ -2,7 +2,7 @@
 import os, sys
 
 # from app.drivers.arduino import Arduino
-from app.service import Service
+import starter
 from app.drivers.lirc import Lirc, LircDev
 
 if 'APP_ENV' in os.environ and os.environ['APP_ENV'] == 'development':
@@ -11,11 +11,13 @@ else:
     debug = False
 
 # arduino = Arduino.Instance()
-service = Service.Instance()
+# service = Starter.Instance()
 lirc = None
 
 if not debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-    service.generateFirstRequest()
+    first_request = starter.FirstRequest()
+    first_request.start()
+    
     if debug:
         sys.stderr.write('RUN AS DEVELOPMENT\n')
         # arduino.connect('dev')
