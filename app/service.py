@@ -1,67 +1,69 @@
+from __future__ import print_function
 import serial
 import time, random, socket, json
 import array
 import os, sys
 import threading
-import helpers
+from app import helpers
 
-# class Singleton:
-#     """
-#     A non-thread-safe helper class to ease implementing singletons.
-#     This should be used as a decorator -- not a metaclass -- to the
-#     class that should be a singleton.
+class Singleton:
+    """
+    A non-thread-safe helper class to ease implementing singletons.
+    This should be used as a decorator -- not a metaclass -- to the
+    class that should be a singleton.
 
-#     The decorated class can define one `__init__` function that
-#     takes only the `self` argument. Also, the decorated class cannot be
-#     inherited from. Other than that, there are no restrictions that apply
-#     to the decorated class.
+    The decorated class can define one `__init__` function that
+    takes only the `self` argument. Also, the decorated class cannot be
+    inherited from. Other than that, there are no restrictions that apply
+    to the decorated class.
 
-#     To get the singleton instance, use the `Instance` method. Trying
-#     to use `__call__` will result in a `TypeError` being raised.
+    To get the singleton instance, use the `Instance` method. Trying
+    to use `__call__` will result in a `TypeError` being raised.
 
-#     """
+    """
 
-#     def __init__(self, decorated):
-#         self._decorated = decorated
+    def __init__(self, decorated):
+        self._decorated = decorated
 
-#     def Instance(self):
-#         """
-#         Returns the singleton instance. Upon its first call, it creates a
-#         new instance of the decorated class and calls its `__init__` method.
-#         On all subsequent calls, the already created instance is returned.
+    def Instance(self):
+        """
+        Returns the singleton instance. Upon its first call, it creates a
+        new instance of the decorated class and calls its `__init__` method.
+        On all subsequent calls, the already created instance is returned.
 
-#         """
-#         try:
-#             return self._instance
-#         except AttributeError:
-#             self._instance = self._decorated()
-#             return self._instance
+        """
+        try:
+            return self._instance
+        except AttributeError:
+            self._instance = self._decorated()
+            return self._instance
 
-#     def __call__(self):
-#         raise TypeError('Singletons must be accessed through `Instance()`.')
+    def __call__(self):
+        raise TypeError('Singletons must be accessed through `Instance()`.')
 
-#     def __instancecheck__(self, inst):
-#         return isinstance(inst, self._decorated)
+    def __instancecheck__(self, inst):
+        return isinstance(inst, self._decorated)
 
 # @Singleton
-# class Service():
+class Service():
 
-#     first_request = None
-#     node_sevice = None
-#     discover_service = None
+    first_request = None
+    node_sevice = None
+    discover_service = None
 
-#     def activateDiscoverService(self):
-#         self.discover_service = DiscoverService()
-#         self.discover_service.start()
+
+    def activateDiscoverService(self):
+        self.discover_service = DiscoverService()
+        self.discover_service.start()
     
-#     def activateNodeService(self):
-#         self.node_sevice = NodeService()
-#         self.node_sevice.start()
+    def activateNodeService(self):
+        self.node_sevice = NodeService()
+        self.node_sevice.start()
 
-#     def generateFirstRequest(self):
-#         if self.first_request is None:
-#             self.first_request = FirstRequest()
-#             self.first_request.start()
+    def generateFirstRequest(self):
+        if self.first_request is None:
+            self.first_request = FirstRequest()
+            self.first_request.start()
 
 # class FirstRequest(threading.Thread):
 
@@ -84,7 +86,7 @@ class DiscoverService(threading.Thread):
 
         while True:
             message = "s-hostname:%s" % socket.gethostname()
-            sock.sendto(message, ('255.255.255.255', 32000))
+            sock.sendto(message.encode(), ('255.255.255.255', 32000))
             time.sleep(5)
 
 class NodeService(threading.Thread):
@@ -157,8 +159,8 @@ class RpiNode(threading.Thread):
                 data = self.conn.recv(1024)
                 
                 if data:
-                    udata = data.decode("utf-8")
-                    splited_data = data.split(':')
+                    udata = data.decode()
+                    splited_data = udata.split(':')
                     
                     if self.hostname == None:
                         self.hostname = splited_data[0]
@@ -175,10 +177,11 @@ class RpiNode(threading.Thread):
                     self.conn.close()
                     sys.stderr.write('Connection closed for %s\n' % self.addr[0])
                     break
-            except:
+            except Exception as e:
                 self.service.node_sevice.removeNode(self)
                 self.conn.close()
                 sys.stderr.write('Socket error, close connection\n')
+                raise e
                 break
 
 class SocketParser(threading.Thread):
@@ -214,7 +217,7 @@ class SocketParser(threading.Thread):
             dump = '%s\n' % json.dumps(message)
             sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
             sock.connect(('node-red', 9090))
-            sock.send(dump)
+            sock.send(dump.encode())
 
     def parseMessage(data):
         message = {}

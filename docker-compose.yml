@@ -18,7 +18,7 @@ services:
     command: bash -c "python run.py"
     working_dir: /app
     environment:
-      - APP_ENV=development
+      - FLASK_ENV=development
       - APP_DOCKER=true
       - FLASK_APP=app/__init__.py
     volumes:
@@ -32,6 +32,12 @@ services:
     #   - "/dev/ttyUSB0:/dev/ttyUSB0"
     networks:
       - rpi-net
+    depends_on:
+      - influxdb
+      - db
+      - node-red
+      - grafana
+      - mosquitto
   node-red:
     build:
       context: ./node-red

@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os, sys
 
 # from app.drivers.arduino import Arduino
-import starter
+from app.starter import FirstRequest
 from app.drivers.lirc import Lirc, LircDev
 
-if 'APP_ENV' in os.environ and os.environ['APP_ENV'] == 'development':
+if 'FLASK_ENV' in os.environ and os.environ['FLASK_ENV'] == 'development':
     debug = True
 else:
     debug = False
@@ -15,7 +15,7 @@ else:
 lirc = None
 
 if not debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-    first_request = starter.FirstRequest()
+    first_request = FirstRequest()
     first_request.start()
     
     if debug:
