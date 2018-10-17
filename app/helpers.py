@@ -1,6 +1,5 @@
 import sys, os
-from .models import Rc, Button, Node, Arduino, Radio
-# from app.service import Service
+from app.models import Rc, Button, Node, Arduino, Radio
 from app import db
 from datetime import datetime
 
@@ -212,18 +211,17 @@ class ButtonHelper:
         self.button = None
         return True
 
-    def pushButton(self, event):
+    def pushButton(self, node_sevice, event):
         if self.rc is None or self.button is None:
             return None
 
         node = Node.query.filter_by(id = self.button.node_id).first()
-        # service = Service.Instance()
 
         event.host_name = node.host_name
         event.button_id = self.button.id
         
-        # if node is not None and service.node_sevice.pushToNode(event):
-        #     return True
+        if node is not None and node_sevice.pushToNode(event):
+            return True
 
         return False
 

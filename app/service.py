@@ -6,51 +6,13 @@ import os, sys
 import threading
 from app import helpers
 
-class Singleton:
-    """
-    A non-thread-safe helper class to ease implementing singletons.
-    This should be used as a decorator -- not a metaclass -- to the
-    class that should be a singleton.
-
-    The decorated class can define one `__init__` function that
-    takes only the `self` argument. Also, the decorated class cannot be
-    inherited from. Other than that, there are no restrictions that apply
-    to the decorated class.
-
-    To get the singleton instance, use the `Instance` method. Trying
-    to use `__call__` will result in a `TypeError` being raised.
-
-    """
-
-    def __init__(self, decorated):
-        self._decorated = decorated
-
-    def Instance(self):
-        """
-        Returns the singleton instance. Upon its first call, it creates a
-        new instance of the decorated class and calls its `__init__` method.
-        On all subsequent calls, the already created instance is returned.
-
-        """
-        try:
-            return self._instance
-        except AttributeError:
-            self._instance = self._decorated()
-            return self._instance
-
-    def __call__(self):
-        raise TypeError('Singletons must be accessed through `Instance()`.')
-
-    def __instancecheck__(self, inst):
-        return isinstance(inst, self._decorated)
-
-# @Singleton
 class Service():
 
-    first_request = None
-    node_sevice = None
-    discover_service = None
-
+    def __init__(self, config):
+        self.config = config
+        self.first_request = None
+        self.node_sevice = None
+        self.discover_service = None
 
     def activateDiscoverService(self):
         self.discover_service = DiscoverService()
@@ -61,18 +23,8 @@ class Service():
         self.node_sevice.start()
 
     def generateFirstRequest(self):
-        if self.first_request is None:
-            self.first_request = FirstRequest()
-            self.first_request.start()
-
-# class FirstRequest(threading.Thread):
-
-#     def __init__(self):
-#         threading.Thread.__init__(self)
-
-#     def run(self):
-#         time.sleep(2)
-#         r = requests.get('http://127.0.0.1:5000/')
+        self.first_request = FirstRequest()
+        self.first_request.start()
 
 class DiscoverService(threading.Thread):
 
@@ -104,7 +56,7 @@ class NodeService(threading.Thread):
 
         while True:
             conn, addr = sock.accept()
-            node = RpiNode(conn, addr)
+            node = RpiNode(self, conn, addr)
             node.start()
     
     def addNode(self, node):
@@ -121,6 +73,7 @@ class NodeService(threading.Thread):
         return True
 
     def pushToNode(self, event):
+        sys.stderr.write(str(self.nodes))
         if event.host_name in self.nodes:
             self.nodes[event.host_name].pushButton(event)
             return True
@@ -134,12 +87,12 @@ class NodeService(threading.Thread):
 
 class RpiNode(threading.Thread):
 
-    def __init__(self, conn, addr):
+    def __init__(self, service, conn, addr):
         threading.Thread.__init__(self)
         self.conn = conn
         self.addr = addr
         self.hostname = None
-        self.service = Service.Instance()
+        self.service = service
 
     def getHostName(self):
         return self.hostname
@@ -147,9 +100,10 @@ class RpiNode(threading.Thread):
     def pushButton(self, event):
         try:
             data = json.dumps({'event': 'pb', 'user_id': event.user_id, 'button_id': event.button_id})
-            self.conn.send(data)
-        except:
-            self.service.node_sevice.removeNode(self)
+            self.conn.send(data.encode())
+        except Exception as e:
+            self.conn.close()
+            self.service.removeNode(self)
 
     def run(self):
         sys.stderr.write('New connection from %s\n' % self.addr[0])
@@ -165,7 +119,7 @@ class RpiNode(threading.Thread):
                     if self.hostname == None:
                         self.hostname = splited_data[0]
                         
-                        if self.service.node_sevice.addNode(self) == False:
+                        if self.service.addNode(self) == False:
                             sys.stderr.write('hostname already exists\n')
                             self.conn.close()
                             break;
@@ -173,16 +127,16 @@ class RpiNode(threading.Thread):
                         sp = SocketParser(self.hostname, udata)
                         sp.start()
                 else:
-                    self.service.node_sevice.removeNode(self)
+                    self.service.removeNode(self)
                     self.conn.close()
                     sys.stderr.write('Connection closed for %s\n' % self.addr[0])
                     break
             except Exception as e:
-                self.service.node_sevice.removeNode(self)
+                self.service.removeNode(self)
                 self.conn.close()
                 sys.stderr.write('Socket error, close connection\n')
                 raise e
-                break
+                # break
 
 class SocketParser(threading.Thread):
 

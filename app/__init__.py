@@ -1,29 +1,29 @@
-import os, sys
-from flask import Flask, render_template, flash, redirect, session, url_for, request, \
-    g, jsonify, make_response, abort
+from flask import Flask, redirect, session, request, g, jsonify, make_response, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from flask_migrate import Migrate
+from app.starter import Config
 
-app = Flask(__name__)
-app.config['TRAP_HTTP_EXCEPTIONS']=True
-app.config.from_object('config')
-CORS(app)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-so = SocketIO(app)
+flask_app = Flask(__name__)
+config = Config(flask_app)
+CORS(flask_app)
+
+db = SQLAlchemy(flask_app)
+mg = Migrate(flask_app, db)
+so = SocketIO(flask_app)
 lm = LoginManager()
-lm.init_app(app)
-lm.login_view = 'login'
+lm.init_app(flask_app)
 
 from app import service
 from app.helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, RadioHelper, SocketEvent
+from app.models import User
 
-@app.before_first_request
+serv = service.Service(config)
+
+@flask_app.before_first_request
 def before_first_request():
-    serv = service.Service()
     serv.activateDiscoverService()
     serv.activateNodeService()
 
@@ -35,19 +35,19 @@ def load_user(id):
 def unauthorized():
     return make_response(jsonify({'error': 'Unauthorized'}), 401)
 
-@app.before_request
+@flask_app.before_request
 def before_request():
     g.user = current_user
 
-@app.errorhandler(404)
+@flask_app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
-@app.errorhandler(400)
+@flask_app.errorhandler(400)
 def not_found(error):
     return make_response(jsonify({'error': 'Bad request'}), 400)
 
-@app.route('/api/v1/login', methods=['POST'])
+@flask_app.route('/api/v1/login', methods=['POST'])
 def login():
     if g.user is not None and g.user.is_authenticated:
         return jsonify({'result': True})
@@ -66,26 +66,26 @@ def login():
 
     return jsonify({'result': False}), 403
 
-@app.route('/api/v1/logout', methods=['GET'])
+@flask_app.route('/api/v1/logout', methods=['GET'])
 def logout():
     logout_user()
     return jsonify({'result': True})
 
 # Home
-# @app.route('/api/v1/home', methods=['GET'])
+# @flask_app.route('/api/v1/home', methods=['GET'])
 # # @login_required
 # def get_rcs():
 #     rch = RcHelper()
 #     return jsonify({'rcs': rch.getRcs()})
 
 # Rc routes
-@app.route('/api/v1/rcs', methods=['GET'])
+@flask_app.route('/api/v1/rcs', methods=['GET'])
 # @login_required
 def get_rcs():
     rch = RcHelper()
     return jsonify({'rcs': rch.getRcs()})
 
-@app.route('/api/v1/rcs', methods=['POST'])
+@flask_app.route('/api/v1/rcs', methods=['POST'])
 @login_required
 def create_rc():
     if not request.json or not 'name' in request.json or not 'icon' in request.json or not 'order' in request.json or not 'public' in request.json:
@@ -95,7 +95,7 @@ def create_rc():
     rc = rch.createRc(request.json)
     return jsonify({'rc': rc}), 201
 
-@app.route('/api/v1/rcs/<int:rc_id>', methods=['GET'])
+@flask_app.route('/api/v1/rcs/<int:rc_id>', methods=['GET'])
 @login_required
 def get_rc(rc_id):
     rch = RcHelper(rc_id)
@@ -106,7 +106,7 @@ def get_rc(rc_id):
 
     return jsonify({'rc': rc})
 
-@app.route('/api/v1/rcs/<int:rc_id>', methods=['PUT'])
+@flask_app.route('/api/v1/rcs/<int:rc_id>', methods=['PUT'])
 @login_required
 def update_rc(rc_id):
     rch = RcHelper(rc_id)
@@ -121,7 +121,7 @@ def update_rc(rc_id):
 
     return jsonify({'rc': rc})
 
-@app.route('/api/v1/rcs/<int:rc_id>', methods=['DELETE'])
+@flask_app.route('/api/v1/rcs/<int:rc_id>', methods=['DELETE'])
 @login_required
 def delete_rc(rc_id):
     rch = RcHelper(rc_id)
@@ -133,7 +133,7 @@ def delete_rc(rc_id):
     return jsonify({'result': result})
 
 # Button routes
-@app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['GET'])
+@flask_app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['GET'])
 @login_required
 def get_rc_buttons(rc_id):
     bh = ButtonHelper(rc_id)
@@ -144,7 +144,7 @@ def get_rc_buttons(rc_id):
 
     return jsonify({'buttons': buttons})
 
-@app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['POST'])
+@flask_app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['POST'])
 @login_required
 def create_rc_button(rc_id):
     bh = ButtonHelper(rc_id)
@@ -159,7 +159,7 @@ def create_rc_button(rc_id):
 
     return jsonify({'button': button}), 201
 
-@app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['GET'])
+@flask_app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['GET'])
 @login_required
 def get_rc_button(rc_id, btn_id):
     bh = ButtonHelper(rc_id, btn_id)
@@ -170,7 +170,7 @@ def get_rc_button(rc_id, btn_id):
 
     return jsonify({'button': button})
 
-@app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['PUT'])
+@flask_app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['PUT'])
 @login_required
 def update_rc_button(rc_id, btn_id):
     bh = ButtonHelper(rc_id, btn_id)
@@ -185,7 +185,7 @@ def update_rc_button(rc_id, btn_id):
 
     return jsonify({'button': button})
 
-@app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['DELETE'])
+@flask_app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>', methods=['DELETE'])
 @login_required
 def delete_rc_button(rc_id, btn_id):
     bh = ButtonHelper(rc_id, btn_id)
@@ -196,14 +196,14 @@ def delete_rc_button(rc_id, btn_id):
 
     return jsonify({'result': result})
 
-@app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>/push', methods=['GET'])
+@flask_app.route('/api/v1/rcs/<int:rc_id>/buttons/<int:btn_id>/push', methods=['GET'])
 @login_required
 def push_rc_button(rc_id, btn_id):
     # sys.stderr.write(str(g.user))
     event = SocketEvent()
     event.user_id = g.user.id
     bh = ButtonHelper(rc_id, btn_id)
-    result = bh.pushButton(event)
+    result = bh.pushButton(serv.node_sevice, event)
 
     if result is None:
         abort(404)
@@ -211,13 +211,13 @@ def push_rc_button(rc_id, btn_id):
     return jsonify({'result': result})
 
 # Node routes
-@app.route('/api/v1/nodes', methods=['GET'])
+@flask_app.route('/api/v1/nodes', methods=['GET'])
 @login_required
 def get_nodes():
     nh = NodeHelper()
     return jsonify({'nodes': nh.getNodes()})
 
-@app.route('/api/v1/nodes', methods=['POST'])
+@flask_app.route('/api/v1/nodes', methods=['POST'])
 @login_required
 def create_node():
     if not request.json or not 'name' in request.json or not 'host_name' in request.json or not 'order' in request.json:
@@ -227,7 +227,7 @@ def create_node():
     node = nh.createNode(request.json)
     return jsonify({'node': node}), 201
 
-@app.route('/api/v1/nodes/<int:node_id>', methods=['GET'])
+@flask_app.route('/api/v1/nodes/<int:node_id>', methods=['GET'])
 @login_required
 def get_node(node_id):
     nh = NodeHelper(node_id)
@@ -238,7 +238,7 @@ def get_node(node_id):
 
     return jsonify({'node': node})
 
-@app.route('/api/v1/nodes/<int:node_id>', methods=['PUT'])
+@flask_app.route('/api/v1/nodes/<int:node_id>', methods=['PUT'])
 @login_required
 def update_node(node_id):
     nh = NodeHelper(node_id)
@@ -253,7 +253,7 @@ def update_node(node_id):
 
     return jsonify({'node': node})
 
-@app.route('/api/v1/nodes/<int:node_id>', methods=['DELETE'])
+@flask_app.route('/api/v1/nodes/<int:node_id>', methods=['DELETE'])
 @login_required
 def delete_node(node_id):
     nh = NodeHelper(node_id)
@@ -265,7 +265,7 @@ def delete_node(node_id):
     return jsonify({'result': result})
 
 # Arduino routes
-@app.route('/api/v1/nodes/<int:node_id>/arduinos', methods=['GET'])
+@flask_app.route('/api/v1/nodes/<int:node_id>/arduinos', methods=['GET'])
 @login_required
 def get_node_arduinos(node_id):
     ah = ArduinoHelper(node_id)
@@ -276,7 +276,7 @@ def get_node_arduinos(node_id):
 
     return jsonify({'arduinos': arduinos})
 
-@app.route('/api/v1/nodes/<int:node_id>/arduinos', methods=['POST'])
+@flask_app.route('/api/v1/nodes/<int:node_id>/arduinos', methods=['POST'])
 @login_required
 def create_node_arduino(node_id):
     ah = ArduinoHelper(node_id)
@@ -291,7 +291,7 @@ def create_node_arduino(node_id):
 
     return jsonify({'arduino': arduino}), 201
 
-@app.route('/api/v1/nodes/<int:node_id>/arduinos/<int:arduino_id>', methods=['GET'])
+@flask_app.route('/api/v1/nodes/<int:node_id>/arduinos/<int:arduino_id>', methods=['GET'])
 @login_required
 def get_node_arduino(node_id, arduino_id):
     ah = ArduinoHelper(node_id, arduino_id)
@@ -302,7 +302,7 @@ def get_node_arduino(node_id, arduino_id):
 
     return jsonify({'arduino': arduino})
 
-@app.route('/api/v1/nodes/<int:node_id>/arduinos/<int:arduino_id>', methods=['PUT'])
+@flask_app.route('/api/v1/nodes/<int:node_id>/arduinos/<int:arduino_id>', methods=['PUT'])
 @login_required
 def update_node_arduino(node_id, arduino_id):
     ah = ArduinoHelper(node_id, arduino_id)
@@ -317,7 +317,7 @@ def update_node_arduino(node_id, arduino_id):
 
     return jsonify({'arduino': arduino})
 
-@app.route('/api/v1/nodes/<int:node_id>/arduinos/<int:arduino_id>', methods=['DELETE'])
+@flask_app.route('/api/v1/nodes/<int:node_id>/arduinos/<int:arduino_id>', methods=['DELETE'])
 @login_required
 def delete_node_arduino(node_id, arduino_id):
     ah = ArduinoHelper(node_id, arduino_id)
@@ -329,13 +329,13 @@ def delete_node_arduino(node_id, arduino_id):
     return jsonify({'result': result})
 
 # Radio routes
-@app.route('/api/v1/radios', methods=['GET'])
+@flask_app.route('/api/v1/radios', methods=['GET'])
 @login_required
 def get_radios():
     rh = RadioHelper()
     return jsonify({'radios': rh.getRadios()})
 
-@app.route('/api/v1/radios', methods=['POST'])
+@flask_app.route('/api/v1/radios', methods=['POST'])
 @login_required
 def create_radio():
     if not request.json or not 'arduino_id' in request.json or not 'pipe' in request.json or not 'name' in request.json or not 'enabled' in request.json or not 'order' in request.json:
@@ -345,7 +345,7 @@ def create_radio():
     radio = rh.createRadio(request.json)
     return jsonify({'radio': radio}), 201
 
-@app.route('/api/v1/radios/<int:radio_id>', methods=['GET'])
+@flask_app.route('/api/v1/radios/<int:radio_id>', methods=['GET'])
 @login_required
 def get_radio(radio_id):
     rh = RadioHelper(radio_id)
@@ -356,7 +356,7 @@ def get_radio(radio_id):
 
     return jsonify({'radio': radio})
 
-@app.route('/api/v1/radios/<int:radio_id>', methods=['PUT'])
+@flask_app.route('/api/v1/radios/<int:radio_id>', methods=['PUT'])
 @login_required
 def update_radio(radio_id):
     rh = RadioHelper(radio_id)
@@ -371,7 +371,7 @@ def update_radio(radio_id):
 
     return jsonify({'radio': radio})
 
-@app.route('/api/v1/radios/<int:radio_id>', methods=['DELETE'])
+@flask_app.route('/api/v1/radios/<int:radio_id>', methods=['DELETE'])
 @login_required
 def delete_radio(radio_id):
     rh = RadioHelper(radio_id)
@@ -381,3 +381,28 @@ def delete_radio(radio_id):
         abort(404)
     
     return jsonify({'result': result})
+
+# thread = None
+# thread_lock = Lock()
+
+# def background_thread():
+#     """Example of how to send server generated events to clients."""
+#     count = 0
+#     while True:
+#         so.sleep(20)
+#         count += 1
+#         so.emit('json',
+#                       {'data': 'Server generated event', 'count': count},
+#                       namespace='/remotes')
+
+# @so.on('connect', namespace='/remotes')
+# def test_connect():
+#     global thread
+#     with thread_lock:
+#         if thread is None:
+#             thread = so.start_background_task(target=background_thread)
+#     emit('json', {'data': 'Connected', 'count': 0})
+
+# @so.on('message', namespace='/remotes')
+# def handle_message(message):
+#     print('received message: ' + message, file=sys.stderr)
