@@ -4,7 +4,7 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from flask_migrate import Migrate
-from app.starter import Config
+from app.bootstrap import Config
 
 flask_app = Flask(__name__)
 config = Config(flask_app)
@@ -23,7 +23,7 @@ from app.models import User
 serv = service.Service(config)
 
 @flask_app.before_first_request
-def before_first_request():
+def activate_services():
     serv.activateDiscoverService()
     serv.activateNodeService()
 

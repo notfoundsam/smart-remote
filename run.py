@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os, sys
 
-from app.starter import FirstRequest
+from app.bootstrap import FirstRequest
 from app.drivers.lirc import Lirc, LircDev
 from app import flask_app
 

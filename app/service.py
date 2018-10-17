@@ -15,20 +15,17 @@ class Service():
         self.discover_service = None
 
     def activateDiscoverService(self):
-        self.discover_service = DiscoverService()
+        self.discover_service = DiscoverService(self.config)
         self.discover_service.start()
     
     def activateNodeService(self):
-        self.node_sevice = NodeService()
+        self.node_sevice = NodeService(self.config)
         self.node_sevice.start()
-
-    def generateFirstRequest(self):
-        self.first_request = FirstRequest()
-        self.first_request.start()
 
 class DiscoverService(threading.Thread):
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         threading.Thread.__init__(self)
 
     def run(self):
@@ -38,21 +35,22 @@ class DiscoverService(threading.Thread):
 
         while True:
             message = "s-hostname:%s" % socket.gethostname()
-            sock.sendto(message.encode(), ('255.255.255.255', 32000))
-            time.sleep(5)
+            sock.sendto(message.encode(), (self.config.BROADCAST_MASK, self.config.BROADCAST_PORT))
+            time.sleep(self.config.BROADCAST_INTERVAL)
 
 class NodeService(threading.Thread):
 
     nodes = {}
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         threading.Thread.__init__(self)
 
     def run(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind(('', 32001))        
-        sock.listen(5)
+        sock.bind((self.config.SOCKET_BIND_ADDRESS, self.config.SOCKET_BIND_PORT))        
+        sock.listen(self.config.SOCKET_CONNECTIONS)
 
         while True:
             conn, addr = sock.accept()
@@ -73,7 +71,6 @@ class NodeService(threading.Thread):
         return True
 
     def pushToNode(self, event):
-        sys.stderr.write(str(self.nodes))
         if event.host_name in self.nodes:
             self.nodes[event.host_name].pushButton(event)
             return True
@@ -124,7 +121,7 @@ class RpiNode(threading.Thread):
                             self.conn.close()
                             break;
                     else:
-                        sp = SocketParser(self.hostname, udata)
+                        sp = SocketParser(self, udata)
                         sp.start()
                 else:
                     self.service.removeNode(self)
@@ -135,15 +132,15 @@ class RpiNode(threading.Thread):
                 self.service.removeNode(self)
                 self.conn.close()
                 sys.stderr.write('Socket error, close connection\n')
-                raise e
-                # break
+                break
 
 class SocketParser(threading.Thread):
 
-    def __init__(self, hostname, data):
+    def __init__(self, rpi_node, data):
         threading.Thread.__init__(self)
-        self.hostname = hostname
+        self.hostname = rpi_node.hostname
         self.data = data
+        self.service = rpi_node.service
         
     def run(self):
         data = json.loads(self.data)
@@ -170,7 +167,7 @@ class SocketParser(threading.Thread):
             message = [params, tags]
             dump = '%s\n' % json.dumps(message)
             sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-            sock.connect(('node-red', 9090))
+            sock.connect((self.service.config.NODE_RED_HOST, self.service.config.NODE_RED_PORT))
             sock.send(dump.encode())
 
     def parseMessage(data):
