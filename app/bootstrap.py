@@ -16,6 +16,7 @@ class Config:
   def __init__(self, app):
     self.app = app
 
+    # Application settings
     if 'APP_DOCKER' in os.environ:
         self.NODE_RED_HOST = 'node-red'
         self.NODE_RED_PORT = 9090
@@ -43,6 +44,7 @@ class Config:
     self.SOCKET_BIND_PORT    = 32001
     self.SOCKET_CONNECTIONS  = 5
 
+    # Flask settings
     self.app.config['TRAP_HTTP_EXCEPTIONS']           = True
     self.app.config['CSRF_ENABLED']                   = True
     self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
