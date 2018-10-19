@@ -8,7 +8,7 @@ from app.bootstrap import Config
 
 flask_app = Flask(__name__)
 config = Config(flask_app)
-CORS(flask_app)
+CORS(flask_app, supports_credentials=True)
 
 db = SQLAlchemy(flask_app)
 mg = Migrate(flask_app, db)
@@ -52,9 +52,9 @@ def login():
     if g.user is not None and g.user.is_authenticated:
         return jsonify({'result': True})
 
-    if 'username' in request.form and 'password' in request.form:
-        username = request.form['username']
-        password = request.form['password']
+    if request.json and 'username' in request.json and 'password' in request.json:
+        username = request.json['username']
+        password = request.json['password']
 
         user = User.query.filter_by(username=username).first()
 
@@ -80,7 +80,7 @@ def logout():
 
 # Rc routes
 @flask_app.route('/api/v1/rcs', methods=['GET'])
-# @login_required
+@login_required
 def get_rcs():
     rch = RcHelper()
     return jsonify({'rcs': rch.getRcs()})
