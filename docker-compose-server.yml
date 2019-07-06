@@ -1,46 +1,16 @@
-version: '2'
+version: '3'
 services:
   db:
-    image: mysql:5.7
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    image: mysql:5.6
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=smart_remote
     volumes:
       - mysql-data:/var/lib/mysql
     ports:
-      - "3390:3306"
+      - "3306:3306"
     networks:
       - rpi-net
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: ["python3","-u","run.py"]
-    working_dir: /app
-    environment:
-      - FLASK_ENV=development
-      - FLASK_DEBUG=1
-      - APP_DOCKER=true
-      - FLASK_APP=app/__init__.py
-    volumes:
-      - ./:/app
-    ports:
-      - "5000:5000"
-      - "5002:5002"
-      # - "9090:9090"
-    privileged: true
-    # devices:
-    #   - "/dev/ttyUSB0:/dev/ttyUSB0"
-    networks:
-      - rpi-net
-    # network_mode: host
-    depends_on:
-      - influxdb
-      - db
-      - node-red
-      - grafana
-      - mosquitto
   node-red:
     build:
       context: ./node-red

@@ -1,0 +1,97 @@
+version: '3.3'
+services:
+  db:
+    image: mysql:5.6
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=smart_remote
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - rpi-net
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+  node-red:
+    build:
+      context: ./node-red
+      dockerfile: Dockerfile
+    image: notfoundsam/node-red-swarm
+    environment:
+      - FLOWS=smart_remote.json
+    ports:
+      - "1880:1880"
+      - "9090:9090"
+    user: node-red
+    networks:
+      - rpi-net
+    deploy:
+      replicas: 1
+  influxdb:
+    image: influxdb
+    environment:
+      - INFLUXDB_DB=smart_remote
+    ports:
+      - "8086:8086"
+    volumes:
+      - influx-data:/var/lib/influxdb
+    networks:
+      - rpi-net
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - rpi-net
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+  mosquitto:
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    networks:
+      - rpi-net
+    deploy:
+      replicas: 1
+  
+  cadvisor:
+    image: google/cadvisor
+    hostname: '{{.Node.Hostname}}'
+    command: -logtostderr -docker_only -storage_driver=influxdb -storage_driver_db=smart_remote -storage_driver_host=influxdb:8086
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      # - /dev/disk/:/dev/disk:ro
+    ports:
+      - "8080:8080"
+    networks:
+      - rpi-net
+    deploy:
+      mode: global
+
+networks:
+  rpi-net:
+    driver: overlay
+    attachable: true
+
+volumes:
+  influx-data:
+  mysql-data:
+  grafana-data:
