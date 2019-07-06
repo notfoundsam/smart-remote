@@ -1,40 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_SMART_REMOTE",
-      "label": "smart_remote",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "influxdb",
-      "pluginName": "InfluxDB"
-    }
-  ],
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "5.1.3"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph",
-      "version": "5.0.0"
-    },
-    {
-      "type": "datasource",
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "version": "5.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "singlestat",
-      "name": "Singlestat",
-      "version": "5.0.0"
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -51,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
+  "id": 1,
   "links": [],
   "panels": [
     {
@@ -59,7 +23,8 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_SMART_REMOTE}",
+      "datasource": "smart_remote",
+      "decimals": 2,
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -76,7 +41,7 @@
         "hideZero": false,
         "max": false,
         "min": false,
-        "rightSide": true,
+        "rightSide": false,
         "show": true,
         "total": false,
         "values": true
@@ -85,6 +50,7 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "connected",
+      "options": {},
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -95,140 +61,11 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "My room",
-          "groupBy": [
-            {
-              "params": [
-                "1m"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "weather",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "humiValue"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "id",
-              "operator": "=",
-              "value": "station_1"
-            }
-          ]
-        },
-        {
-          "alias": "Living",
-          "groupBy": [
-            {
-              "params": [
-                "1m"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "weather",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "humiValue"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "id",
-              "operator": "=",
-              "value": "station_2"
-            }
-          ]
-        },
-        {
           "alias": "Outside",
           "groupBy": [
             {
               "params": [
-                "1m"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "weather",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "humiValue"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "id",
-              "operator": "=",
-              "value": "station_outside"
-            }
-          ]
-        },
-        {
-          "alias": "Living arduino",
-          "groupBy": [
-            {
-              "params": [
-                "1m"
+                "5m"
               ],
               "type": "time"
             },
@@ -260,21 +97,102 @@
           ],
           "tags": [
             {
-              "key": "type",
+              "key": "radio_pipe",
               "operator": "=",
-              "value": "arduino"
+              "value": "48"
+            }
+          ]
+        },
+        {
+          "alias": "Hall",
+          "groupBy": [
+            {
+              "params": [
+                "5m"
+              ],
+              "type": "time"
             },
             {
-              "condition": "AND",
-              "key": "id",
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "weather",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "humiValue"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "radio_pipe",
               "operator": "=",
-              "value": "0xAABBCCDD44"
+              "value": "49"
+            }
+          ]
+        },
+        {
+          "alias": "Living top",
+          "groupBy": [
+            {
+              "params": [
+                "5m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "weather",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "humiValue"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "radio_pipe",
+              "operator": "=",
+              "value": "50"
             }
           ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
       "title": "Humidity",
       "tooltip": {
@@ -319,7 +237,8 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_SMART_REMOTE}",
+      "datasource": "smart_remote",
+      "decimals": 2,
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -334,7 +253,7 @@
         "current": true,
         "max": false,
         "min": false,
-        "rightSide": true,
+        "rightSide": false,
         "show": true,
         "total": false,
         "values": true
@@ -343,6 +262,7 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "connected",
+      "options": {},
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -353,140 +273,11 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "My room",
-          "groupBy": [
-            {
-              "params": [
-                "1m"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "weather",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "tempValue"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "id",
-              "operator": "=",
-              "value": "station_1"
-            }
-          ]
-        },
-        {
-          "alias": "Living",
-          "groupBy": [
-            {
-              "params": [
-                "1m"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "weather",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "tempValue"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "id",
-              "operator": "=",
-              "value": "station_2"
-            }
-          ]
-        },
-        {
           "alias": "Outside",
           "groupBy": [
             {
               "params": [
-                "1m"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "weather",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "tempValue"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "id",
-              "operator": "=",
-              "value": "station_outside"
-            }
-          ]
-        },
-        {
-          "alias": "Living arduino",
-          "groupBy": [
-            {
-              "params": [
-                "1m"
+                "5m"
               ],
               "type": "time"
             },
@@ -518,21 +309,102 @@
           ],
           "tags": [
             {
-              "key": "type",
+              "key": "radio_pipe",
               "operator": "=",
-              "value": "arduino"
+              "value": "48"
+            }
+          ]
+        },
+        {
+          "alias": "Hall",
+          "groupBy": [
+            {
+              "params": [
+                "5m"
+              ],
+              "type": "time"
             },
             {
-              "condition": "AND",
-              "key": "id",
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "weather",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "tempValue"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "radio_pipe",
               "operator": "=",
-              "value": "0xAABBCCDD44"
+              "value": "49"
+            }
+          ]
+        },
+        {
+          "alias": "Living top",
+          "groupBy": [
+            {
+              "params": [
+                "5m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "weather",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "tempValue"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "radio_pipe",
+              "operator": "=",
+              "value": "50"
             }
           ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
       "title": "Temperature",
       "tooltip": {
@@ -577,22 +449,23 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_SMART_REMOTE}",
+      "datasource": "smart_remote",
+      "decimals": 2,
       "fill": 1,
       "gridPos": {
         "h": 9,
-        "w": 12,
+        "w": 6,
         "x": 0,
         "y": 9
       },
-      "id": 8,
+      "id": 12,
       "legend": {
         "alignAsTable": true,
         "avg": false,
-        "current": true,
-        "max": false,
-        "min": false,
-        "rightSide": true,
+        "current": false,
+        "max": true,
+        "min": true,
+        "rightSide": false,
         "show": true,
         "total": false,
         "values": true
@@ -601,6 +474,7 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "connected",
+      "options": {},
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -611,7 +485,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Battery outside",
+          "alias": "Hall",
           "groupBy": [
             {
               "params": [
@@ -626,7 +500,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "battery",
+          "measurement": "weather",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -635,7 +509,7 @@
             [
               {
                 "params": [
-                  "batValue"
+                  "presValue"
                 ],
                 "type": "field"
               },
@@ -647,18 +521,145 @@
           ],
           "tags": [
             {
-              "key": "id",
+              "key": "radio_pipe",
               "operator": "=",
-              "value": "station_outside"
+              "value": "49"
             }
           ]
         },
         {
-          "alias": "Battery living",
+          "alias": "Outside",
           "groupBy": [
             {
               "params": [
                 "5m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "weather",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "presValue"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "radio_pipe",
+              "operator": "=",
+              "value": "50"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Pressure",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": 2,
+          "format": "pressurehpa",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "decimals": null,
+          "format": "none",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "smart_remote",
+      "decimals": 2,
+      "fill": 1,
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 6,
+        "y": 9
+      },
+      "id": 8,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "connected",
+      "options": {},
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "Outside",
+          "groupBy": [
+            {
+              "params": [
+                "10m"
               ],
               "type": "time"
             },
@@ -690,21 +691,59 @@
           ],
           "tags": [
             {
-              "key": "type",
+              "key": "radio_pipe",
               "operator": "=",
-              "value": "arduino"
+              "value": "49"
+            }
+          ]
+        },
+        {
+          "alias": "Hall",
+          "groupBy": [
+            {
+              "params": [
+                "10m"
+              ],
+              "type": "time"
             },
             {
-              "condition": "AND",
-              "key": "id",
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "weather",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "batValue"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "radio_pipe",
               "operator": "=",
-              "value": "0xAABBCCDD44"
+              "value": "50"
             }
           ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
       "title": "Batteries",
       "tooltip": {
@@ -753,7 +792,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#299c46"
       ],
-      "datasource": "${DS_SMART_REMOTE}",
+      "datasource": "smart_remote",
       "decimals": 2,
       "format": "none",
       "gauge": {
@@ -786,6 +825,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -821,7 +861,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "battery",
+          "measurement": "weather",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -842,9 +882,9 @@
           ],
           "tags": [
             {
-              "key": "id",
+              "key": "radio_pipe",
               "operator": "=",
-              "value": "station_outside"
+              "value": "50"
             }
           ]
         }
@@ -872,7 +912,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#299c46"
       ],
-      "datasource": "${DS_SMART_REMOTE}",
+      "datasource": "smart_remote",
       "decimals": 2,
       "format": "none",
       "gauge": {
@@ -905,6 +945,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -928,7 +969,7 @@
           "groupBy": [
             {
               "params": [
-                "2m"
+                "1m"
               ],
               "type": "time"
             },
@@ -960,22 +1001,16 @@
           ],
           "tags": [
             {
-              "key": "type",
+              "key": "radio_pipe",
               "operator": "=",
-              "value": "arduino"
-            },
-            {
-              "condition": "AND",
-              "key": "id",
-              "operator": "=",
-              "value": "0xAABBCCDD44"
+              "value": "49"
             }
           ]
         }
       ],
       "thresholds": "2.5,3,4.2",
       "timeFrom": null,
-      "title": "Battery living",
+      "title": "Battery hall",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
@@ -989,14 +1024,14 @@
     }
   ],
   "refresh": "10s",
-  "schemaVersion": 16,
+  "schemaVersion": 18,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {
@@ -1027,5 +1062,5 @@
   "timezone": "",
   "title": "weather",
   "uid": "nCkI-iigz",
-  "version": 3
+  "version": 2
 }
