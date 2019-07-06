@@ -1,7 +1,7 @@
 from __future__ import print_function
 import time
 import os, sys
-from ..models import Remote
+from ..models import Rc
 
 class Common():
 
@@ -29,7 +29,7 @@ class Common():
     
     def regenerateLircCommands(self):
 
-        ir_remotes = Remote.query.all()
+        ir_remotes = Rc.query.all()
 
         if ir_remotes is not None:
             print('---REGENERATE START---', file=sys.stderr)
