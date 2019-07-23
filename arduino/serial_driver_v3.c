@@ -224,8 +224,8 @@ void serialFlush(){
 uint64_t getUInt64fromHex(char const *str)
 {
   uint64_t accumulator = 0;
-  for (size_t i = 0 ; isxdigit((unsigned char)str[i]) ; ++i)
-  {
+  
+  for (size_t i = 0 ; isxdigit((unsigned char)str[i]) ; ++i) {
     char c = str[i];
     accumulator *= 16;
     if (isdigit(c)) /* '0' .. '9'*/

@@ -8,44 +8,35 @@ $ git clone https://github.com/notfoundsam/smart-remote.git
 $ cd smart-remote
 ```
 
-## Run services on local machine by docker or create each service by yourself (mysql, node-red, influxdb, grafana, mosquitto)
-```bash
-$ docker-compose -f docker-compose-server.yml up -d
-```
+## Production
 
-## Install python requirements
-```bash
-$ pip install --no-cache-dir -r requirements.txt
-```
+### Run services on a local machine by docker or create each service by yourself (mysql, node-red, influxdb, grafana, mosquitto)
+`$ make up-server` or `$ docker-compose -f docker-compose-server.yml up -d`
 
-Run the application
-```bash
-$ python run.py
-```
+### Install python requirements
+`$ pip install --no-cache-dir -r requirements.txt`
 
-Check it
-```bash
-http://localhost:5000
-```
+### Run the application
+`$ python3 run.py`
 
-## Flask create migration
-```bash
-$ flask db migrate --rev-id 001
-```
+### Or run it in background
+`$ nohup python3 run.py > output.log &`
 
-## Flask migrate db
-```bash
-$ flask db upgrade
-$ flask db downgrade
-```
+## Development
 
-## Run development mode on docker
+### Run the development mode on docker
+`$ make up-dev` or `$ docker-compose up`
 
-```bash
-$ docker-compose up
-```
+### Flask create migration
+`$ flask db migrate --rev-id 001`
 
-## Swarm mode
+### Flask db migrate dev/prod
+`$ make migrate` or `$ flask db upgrade`
+
+### Flask db rollback dev/prod
+`$ make rollback` or `$ flask db downgrade`
+
+### Swarm mode
 ```bash
 $ docker stack deploy --compose-file docker-compose-swarm.yml smart-home
 ```
@@ -64,4 +55,7 @@ $ docker stack deploy --compose-file docker-compose-swarm.yml smart-home
 `pip list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U`
 
 ### generate requirements
-pip freeze > requirements.txt
+`$ pip freeze > requirements.txt`
+
+### find running process
+`$ ps ax | grep run.py`

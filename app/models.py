@@ -89,6 +89,13 @@ class Arduino(db.Model):
     name = db.Column(db.String(50))
     order = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime)
+    use_radio = db.Column(db.Boolean(True))
+    radio_channel = db.Column(db.Integer)
+    radio_crc_length = db.Column(db.Integer)
+    radio_data_rate = db.Column(db.Integer)
+    radio_pa_level = db.Column(db.Integer)
+    radio_w_pipe = db.Column(db.String(10))
+    radio_r_pipe = db.Column(db.String(10))
     radios = db.relationship('Radio', backref = 'arduino', lazy = 'dynamic')
 
     def __repr__(self):
