@@ -16,26 +16,34 @@ EspMQTTClient client(
 #define MQTT_MAX_PACKET_SIZE 256
 
 EspMQTTClient client(
-  "",                 // Wifi ssid
-  "",                 // Wifi password
-  onConnectionEstablished,// Connection established callback
-  "192.168.100.111",                   // MQTT broker ip
-  1883,                   // MQTT broker port
-  "",              // MQTT username
-  "",             // MQTT password
+  "",                      // Wifi ssid
+  "",                      // Wifi password
+  onConnectionEstablished, // Connection established callback
+  "192.168.100.111",       // MQTT broker ip
+  1883,                    // MQTT broker port
+  "",                      // MQTT username
+  "",                      // MQTT password
   "esp02",                 // Client name
   false,                   // Enable web updater
   false                    // Enable debug messages
 );
 
-const uint16_t kIrLed = 4;  // ESP8266 GPIO pin to use. Recommended: 4 (D2).
+const uint8_t IR_LED_PIN = 4;  // ESP8266 GPIO pin to use. Recommended: 4 (D2).
+const uint8_t RED_LED_PIN = 0;  // ESP8266 GPIO pin to use.
 
-IRsend irsend(kIrLed);  // Set the GPIO to be used to sending the message.
+const uint8_t RED_ON_CODE = 11;
+const uint8_t RED_OFF_CODE = 10;
+
+unsigned long status_timer;
+
+IRsend irsend(IR_LED_PIN);  // Set the GPIO to be used to sending the message.
 
 // uint16_t raw_signal[400];
 
 void setup()
 {
+  pinMode(RED_LED_PIN, OUTPUT);
+  digitalWrite(RED_LED_PIN, LOW);
   irsend.begin();
   Serial.begin(115200);
 }
@@ -43,12 +51,32 @@ void setup()
 void onConnectionEstablished()
 {
   // Subscribe to "mytopic/test" and display received message to Serial
-  client.subscribe("alexa/esp1", [](const String & code) {
-    Serial.println("event");
+  client.subscribe("alexa/esp1/red_led", [](const String & command) {
+    uint16_t rsize = command.length();
+    char buffer[rsize+1];
+
+    for (int i = 0; i < rsize; i++) {
+      buffer[i] = command[i];
+    }
+
+    int code = atoi(buffer);
+
+    if (code == RED_ON_CODE) {
+      digitalWrite(RED_LED_PIN, HIGH);
+      Serial.println("LED ON");
+    } else if (code == RED_OFF_CODE) {
+      digitalWrite(RED_LED_PIN, LOW);
+      Serial.println("LED OFF");
+    }
+  });
+
+  // Subscribe to "mytopic/test" and display received message to Serial
+  client.subscribe("alexa/esp1/ir", [](const String & code) {
+    // Serial.println("ir");
     if (code[0] != 50) {
       return;
     }
-    Serial.println("start");
+    // Serial.println("start");
 
     int zero = 0;
     int one = 0;
@@ -130,8 +158,8 @@ void onConnectionEstablished()
       }
     }
 
-    Serial.println(code);
-    Serial.println(rsize);
+    // Serial.println(code);
+    // Serial.println(rsize);
     irsend.sendRaw(raw_signal, raw_index, 38);
   });
 
@@ -147,4 +175,12 @@ void onConnectionEstablished()
 void loop()
 {
   client.loop();
+  // Send status periodically
+  if (client.isConnected() && millis() - status_timer > 8000) {
+    // sendStatus();
+    status_timer = millis();
+
+    // Publish a message to "mytopic/test"
+    client.publish("app/mqtt", "This is a message");
+  }
 }

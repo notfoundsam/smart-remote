@@ -1,14 +1,21 @@
-from app import db
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, SmallInteger, String, Boolean, DateTime, Text
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
+
+Base = declarative_base()
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.String(50), unique = True)
-    password = db.Column(db.String(255))
-    role = db.Column(db.SmallInteger, default = ROLE_ADMIN)
-    email = db.Column(db.String(190), unique = True)
+class User(Base):
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key = True)
+    username = Column(String(50), unique = True)
+    password = Column(String(255))
+    role = Column(SmallInteger, default = ROLE_ADMIN)
+    email = Column(String(190), unique = True)
 
     @property
     def is_authenticated(self):
@@ -29,84 +36,101 @@ class User(db.Model):
             return str(self.id)  # python 3
 
     def __repr__(self):
-        return '<User %r>' % (self.username)
+        return '<User (id=%r, username=%s)>' % (self.id, self.username)
 
-class Rc(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(50))
-    public = db.Column(db.Boolean)
-    order = db.Column(db.Integer)
-    icon = db.Column(db.String(200))
-    timestamp = db.Column(db.DateTime)
-    buttons = db.relationship('Button', backref = 'rc', lazy = 'dynamic')
-    # bgroups = db.relationship('Bgroup', backref = 'rc', lazy = 'dynamic')
+class Rc(Base):
+    __tablename__ = 'rc'
+
+    id = Column(Integer, primary_key = True)
+    name = Column(String(50))
+    public = Column(Boolean)
+    order = Column(Integer)
+    icon = Column(String(200))
+    timestamp = Column(DateTime)
+    buttons = relationship('Button', backref = 'rc', lazy = 'dynamic')
 
     def __repr__(self):
-        return '<Rc %r>' % (self.id)
+        return '<Rc (id=%r, name=%s)>' % (self.id, self.name)
 
-# class Bgroup(db.Model):
-#     id = db.Column(db.Integer, primary_key = True)
-#     rc_id = db.Column(db.Integer, db.ForeignKey('rc.id'))
-#     name = db.Column(db.String(200))
-#     order = db.Column(db.Integer)
-#     timestamp = db.Column(db.DateTime)
-#     buttons = db.relationship('Button', backref = 'bgroup', lazy = 'dynamic')
+class Button(Base):
+    __tablename__ = 'button'
 
-#     def __repr__(self):
-#         return '<Bgroup %r>' % (self.id)
-
-class Button(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    rc_id = db.Column(db.Integer, db.ForeignKey('rc.id'))
-    radio_id = db.Column(db.Integer)
-    name = db.Column(db.String(50))
-    order_hor = db.Column(db.Integer)
-    order_ver = db.Column(db.Integer)
-    color = db.Column(db.String(10))
+    id = Column(Integer, primary_key = True)
+    rc_id = Column(Integer, ForeignKey('rc.id'))
+    radio_id = Column(Integer)
+    name = Column(String(50))
+    order_hor = Column(Integer)
+    order_ver = Column(Integer)
+    color = Column(String(10))
     # radio / mqtt
-    type = db.Column(db.String(20))
-    message = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime)
+    type = Column(String(20))
+    mqtt_topic = Column(String(200))
+    message = Column(Text)
+    timestamp = Column(DateTime)
 
     def __repr__(self):
-        return '<Button %r>' % (self.id)
+        return '<Button (id=%r, name=%s)>' % (self.id, self.name)
 
-class Node(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(50))
-    host_name = db.Column(db.String(100))
-    order = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime)
-    arduinos = db.relationship('Arduino', backref = 'node', lazy = 'dynamic')
+class Node(Base):
+    __tablename__ = 'node'
 
-    def __repr__(self):
-        return '<Node %r>' % (self.id)
-
-class Arduino(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    node_id = db.Column(db.Integer, db.ForeignKey('node.id'))
-    usb = db.Column(db.String(20))
-    name = db.Column(db.String(50))
-    order = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime)
-    radios = db.relationship('Radio', backref = 'arduino', lazy = 'dynamic')
+    id = Column(Integer, primary_key = True)
+    name = Column(String(50))
+    host_name = Column(String(100))
+    order = Column(Integer)
+    timestamp = Column(DateTime)
+    arduinos = relationship('Arduino', backref = 'node', lazy = 'dynamic')
 
     def __repr__(self):
-        return '<Arduino %r>' % (self.id)
+        return '<Node (id=%r, name=%s)>' % (self.id, self.name)
 
-class Radio(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    arduino_id = db.Column(db.Integer, db.ForeignKey('arduino.id'))
-    pipe = db.Column(db.String(12))
+class Arduino(Base):
+    __tablename__ = 'arduino'
+
+    id = Column(Integer, primary_key = True)
+    node_id = Column(Integer, ForeignKey('node.id'))
+    usb = Column(String(20))
+    name = Column(String(50))
+    order = Column(Integer)
+    timestamp = Column(DateTime)
+    use_radio = Column(Boolean(True))
+    radio_channel = Column(Integer)
+    radio_crc_length = Column(Integer)
+    radio_data_rate = Column(Integer)
+    radio_pa_level = Column(Integer)
+    radio_w_pipe = Column(String(10))
+    radio_r_pipe = Column(String(10))
+    radios = relationship('Radio', backref = 'arduino', lazy = 'dynamic')
+
+    def __repr__(self):
+        return '<Arduino (id=%r, name=%s, usb=%s)>' % (self.id, self.name, self.usb)
+
+class Radio(Base):
+    __tablename__ = 'radio'
+
+    id = Column(Integer, primary_key = True)
+    arduino_id = Column(Integer, ForeignKey('arduino.id'))
+    pipe = Column(String(12))
     # broadcast / unicast
-    type = db.Column(db.String(20))
-    name = db.Column(db.String(50))
-    enabled = db.Column(db.Boolean(True))
-    order = db.Column(db.Integer)
-    on_request = db.Column(db.Boolean(False))
-    expired_after = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime)
-    # buttons = db.relationship('Button', backref = 'radio', lazy = 'dynamic')
+    type = Column(String(20))
+    name = Column(String(50))
+    enabled = Column(Boolean(True))
+    order = Column(Integer)
+    on_request = Column(Boolean(False))
+    expired_after = Column(Integer)
+    timestamp = Column(DateTime)
 
     def __repr__(self):
-        return '<Radio %r>' % (self.id)
+        return '<Radio (id=%r, name=%s)>' % (self.id, self.name)
+
+class Mqtt(Base):
+    __tablename__ = 'mqtt'
+
+    id = Column(Integer, primary_key = True)
+    name = Column(String(50))
+    topic = Column(String(200))
+    order = Column(Integer)
+    timestamp = Column(DateTime)
+
+    def __repr__(self):
+        return '<Mqtt (id=%r, name=%s)>' % (self.id, self.name)

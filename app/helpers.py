@@ -1,23 +1,24 @@
 import logging
-from app.models import Rc, Button, Node, Arduino, Radio
-from app import db
+from app.models import Rc, Button, Node, Arduino, Radio, Mqtt
+# from app import db
 from datetime import datetime
 
 class RcHelper:
 
-    def __init__(self, rc_id = None):
+    def __init__(self, session, rc_id = None):
+        self.session = session
         self.set(rc_id)
 
     def get(self):
         return self.rc
 
     def set(self, rc_id):
-        self.rc = Rc.query.filter_by(id = rc_id).first()
+        self.rc = self.session.query(Rc).filter_by(id = rc_id).first()
 
     def getRcs(self):
         rcs = []
 
-        for rc in Rc.query.order_by(Rc.order).all():
+        for rc in self.session.query(Rc).order_by(Rc.order).all():
             r = {
                 'id': rc.id,
                 'name': rc.name,
@@ -37,8 +38,8 @@ class RcHelper:
                 public = params['public'],
                 timestamp = datetime.utcnow())
 
-        db.session.add(rc)
-        db.session.commit()
+        self.session.add(rc)
+        self.session.commit()
 
         return {'id': rc.id,
                 'name': rc.name,
@@ -66,7 +67,7 @@ class RcHelper:
         self.rc.public = params['public']
         self.rc.timestamp = datetime.utcnow()
 
-        db.session.commit()
+        self.session.commit()
         
         return {'id': self.rc.id,
                 'name': self.rc.name,
@@ -79,11 +80,11 @@ class RcHelper:
             return None
 
         for btn in self.rc.buttons:
-            db.session.delete(btn)
+            self.session.delete(btn)
 
-        db.session.commit()
-        db.session.delete(self.rc)
-        db.session.commit()
+        self.session.commit()
+        self.session.delete(self.rc)
+        self.session.commit()
         self.rc = None
 
         return True
@@ -108,119 +109,33 @@ class RcHelper:
             buttons.append(b)
 
         return buttons
-class BgroupHelper:
-
-    def __init__(self, rc_id, group_id = None):
-        self.rc = Rc.query.filter_by(id = rc_id).first()
-        self.set(group_id)
-
-    def get(self):
-        return self.rc
-
-    def set(self, group_id):
-        if self.rc is None:
-            self.button = None
-        else:
-            self.button = self.rc.bgroups.filter((Bgroup.id == group_id)).first()
-
-    # def getRcs(self):
-    #     rcs = []
-
-    #     for rc in Rc.query.order_by(Rc.order).all():
-    #         r = {
-    #             'id': rc.id,
-    #             'name': rc.name,
-    #             'icon': rc.icon,
-    #             'order': rc.order,
-    #             'public': rc.public
-    #         }
-
-    #         rcs.append(r)
-
-    #     return rcs
-
-    # def createRc(self, params):
-    #     rc = Rc(name = params['name'],
-    #             icon = params['icon'],
-    #             order = params['order'],
-    #             public = params['public'],
-    #             timestamp = datetime.utcnow())
-
-    #     db.session.add(rc)
-    #     db.session.commit()
-
-    #     return {'id': rc.id,
-    #             'name': rc.name,
-    #             'icon': rc.icon,
-    #             'order': rc.order,
-    #             'public': rc.public}
-
-    # def getRc(self):
-    #     if self.rc is None:
-    #         return None
-        
-    #     return {'id': self.rc.id,
-    #             'name': self.rc.name,
-    #             'icon': self.rc.icon,
-    #             'order': self.rc.order,
-    #             'public': self.rc.public}
-    
-    # def updateRc(self, params):
-    #     if self.rc is None:
-    #         return None
-
-    #     self.rc.name = params['name']
-    #     self.rc.icon = params['icon']
-    #     self.rc.order = params['order']
-    #     self.rc.public = params['public']
-    #     self.rc.timestamp = datetime.utcnow()
-
-    #     db.session.commit()
-        
-    #     return {'id': self.rc.id,
-    #             'name': self.rc.name,
-    #             'icon': self.rc.icon,
-    #             'order': self.rc.order,
-    #             'public': self.rc.public}
-
-    # def deleteRc(self):
-    #     if self.rc is None:
-    #         return None
-
-    #     for btn in self.rc.buttons:
-    #         db.session.delete(btn)
-
-    #     db.session.commit()
-    #     db.session.delete(self.rc)
-    #     db.session.commit()
-    #     self.rc = None
-
-    #     return True
 
 class ButtonHelper:
 
-    def __init__(self, btn_id = None):
+    def __init__(self, session, btn_id = None):
+        self.session = session
         self.set(btn_id)
 
     def get(self):
         return self.button
 
     def set(self, btn_id):
-        self.button = Button.query.filter_by(id = btn_id).first() if btn_id else None
+        self.button = self.session.query(Button).filter_by(id = btn_id).first() if btn_id else None
 
     def createButton(self, params):
         btn = Button(rc_id = params['rc_id'],
-                    radio_id = params['radio_id'],
+                    radio_id = params['radio_id'] if params['radio_id'] else None,
                     name = params['name'],
                     order_hor = params['order_hor'],
                     order_ver = params['order_ver'],
                     color = params['color'],
                     type = params['type'],
+                    mqtt_topic = params['mqtt_topic'] if params['mqtt_topic'] else None,
                     message = params['message'],
                     timestamp = datetime.utcnow())
 
-        db.session.add(btn)
-        db.session.commit()
+        self.session.add(btn)
+        self.session.commit()
 
         self.button = btn
 
@@ -232,6 +147,7 @@ class ButtonHelper:
                 'order_ver': btn.order_ver,
                 'color': btn.color,
                 'type': btn.type,
+                'mqtt_topic': btn.mqtt_topic,
                 'message': btn.message}
 
     def getButton(self):
@@ -245,23 +161,25 @@ class ButtonHelper:
                 'order_hor': self.button.order_hor,
                 'order_ver': self.button.order_ver,
                 'color': self.button.color,
-                'message': self.button.message,
-                'type': self.button.type}
+                'type': self.button.type,
+                'mqtt_topic': self.button.mqtt_topic,
+                'message': self.button.message}
 
     def updateButton(self, params):
         if self.button is None:
             return None
 
-        self.button.radio_id = params['radio_id']
+        self.button.radio_id = params['radio_id'] if params['radio_id'] else None
         self.button.name = params['name']
         self.button.order_hor = params['order_hor']
         self.button.order_ver = params['order_ver']
         self.button.color = params['color']
         self.button.type = params['type']
+        self.button.mqtt_topic = params['mqtt_topic'] if params['mqtt_topic'] else None
         self.button.message = params['message']
         self.button.timestamp = datetime.utcnow()
 
-        db.session.commit()
+        self.session.commit()
 
         return {'id': self.button.id,
                 'rc_id' : self.button.rc_id,
@@ -271,6 +189,7 @@ class ButtonHelper:
                 'order_ver': self.button.order_ver,
                 'color': self.button.color,
                 'type': self.button.type,
+                'mqtt_topic': self.button.mqtt_topic,
                 'message': self.button.message}
 
     def deleteButton(self):
@@ -285,10 +204,11 @@ class ButtonHelper:
                 'order_ver': self.button.order_ver,
                 'color': self.button.color,
                 'type': self.button.type,
+                'mqtt_topic': self.button.mqtt_topic,
                 'message': self.button.message}
 
-        db.session.delete(self.button)
-        db.session.commit()
+        self.session.delete(self.button)
+        self.session.commit()
         self.button = None
         return button
 
@@ -299,7 +219,7 @@ class ButtonHelper:
     #     return Node.query.filter_by(id = self.button.node_id).first()
 
     def catchIrSignal(self, node_sevice, event):
-        node = Node.query.filter_by(id = self.button.node_id).first()
+        node = self.session.query(Node).filter_by(id = self.button.node_id).first()
 
         event.host_name = node.host_name
         event.button_id = self.button.id
@@ -313,24 +233,25 @@ class ButtonHelper:
         if self.button is None:
             return None
 
-        radio = Radio.query.filter_by(id = self.button.radio_id).first()
+        radio = self.session.query(Radio).filter_by(id = self.button.radio_id).first()
         return radio.arduino.node.host_name
 
 class NodeHelper:
 
-    def __init__(self, node_id = None):
+    def __init__(self, session, node_id = None):
+        self.session = session
         self.set(node_id)
 
     def get(self):
         return self.node
 
     def set(self, node_id):
-        self.node = Node.query.filter_by(id = node_id).first() if node_id else None
+        self.node = self.session.query(Node).filter_by(id = node_id).first() if node_id else None
 
     def getNodes(self):
         nodes = []
 
-        for node in Node.query.order_by(Node.order).all():
+        for node in self.session.query(Node).order_by(Node.order).all():
             n = {'id': node.id,
                 'name': node.name,
                 'host_name': node.host_name,
@@ -347,8 +268,8 @@ class NodeHelper:
                     order = params['order'],
                     timestamp = datetime.utcnow())
 
-        db.session.add(node)
-        db.session.commit()
+        self.session.add(node)
+        self.session.commit()
 
         return {'id': node.id,
                 'name': node.name,
@@ -373,7 +294,7 @@ class NodeHelper:
         self.node.order = params['order']
         self.node.timestamp = datetime.utcnow()
 
-        db.session.commit()
+        self.session.commit()
         
         return {'id': self.node.id,
                 # 'name': self.node.name,
@@ -385,28 +306,23 @@ class NodeHelper:
             return None
 
         for arduino in self.node.arduinos:
-            db.session.delete(arduino)
+            self.session.delete(arduino)
 
-        db.session.commit()
-        db.session.delete(self.node)
-        db.session.commit()
+        self.session.commit()
+        self.session.delete(self.node)
+        self.session.commit()
         self.node = None
         return True
 
     def getNodeByName(self, host_name):
-        try:
-            node = Node.query.filter_by(host_name = host_name).first()
-        except Exception as e:
-            db.session.rollback()
-            logging.error('[helpers] db session error. rolled back')
-            logging.error(str(e))
-            return False
+        node = self.session.query(Node).filter_by(host_name = host_name).first()
 
         return node
 
 class ArduinoHelper:
 
-    def __init__(self, arduino_id = None):
+    def __init__(self, session, arduino_id = None):
+        self.session = session
         self.set(arduino_id)
 
     def get(self):
@@ -419,12 +335,12 @@ class ArduinoHelper:
         return self.arduino.node
 
     def set(self, arduino_id):
-        self.arduino = Arduino.query.filter_by(id = arduino_id).first() if arduino_id else None
+        self.arduino = self.session.query(Arduino).filter_by(id = arduino_id).first() if arduino_id else None
 
     def getArduinos(self):
         arduinos = []
 
-        for arduino in Arduino.query.order_by(Arduino.order).all():
+        for arduino in self.session.query(Arduino).order_by(Arduino.order).all():
             a = {'id': arduino.id,
                 'node_id': arduino.node_id,
                 'usb': arduino.usb,
@@ -442,8 +358,8 @@ class ArduinoHelper:
                         order = params['order'],
                         timestamp = datetime.utcnow())
 
-        db.session.add(arduino)
-        db.session.commit()
+        self.session.add(arduino)
+        self.session.commit()
 
         self.arduino = arduino
 
@@ -472,7 +388,7 @@ class ArduinoHelper:
         self.arduino.order = params['order']
         self.arduino.timestamp = datetime.utcnow()
 
-        db.session.commit()
+        self.session.commit()
 
         return {'id': self.arduino.id,
                 'node_id': self.arduino.node_id,
@@ -490,26 +406,27 @@ class ArduinoHelper:
                 'name': self.arduino.name,
                 'order': self.arduino.order}
 
-        db.session.delete(self.arduino)
-        db.session.commit()
+        self.session.delete(self.arduino)
+        self.session.commit()
         self.arduino = None
         return arduino
 
 class RadioHelper:
 
-    def __init__(self, radio_id = None):
+    def __init__(self, session, radio_id = None):
+        self.session = session
         self.set(radio_id)
 
     def get(self):
         return self.radio
 
     def set(self, radio_id):
-        self.radio = Radio.query.filter_by(id = radio_id).first()
+        self.radio = self.session.query(Radio).filter_by(id = radio_id).first()
 
     def getRadios(self):
         radios = []
 
-        for radio in Radio.query.order_by(Radio.order).all():
+        for radio in self.session.query(Radio).order_by(Radio.order).all():
             r = {'id': radio.id,
                 'arduino_id': radio.arduino_id,
                 'type': radio.type,
@@ -535,8 +452,8 @@ class RadioHelper:
                     order = params['order'],
                     timestamp = datetime.utcnow())
 
-        db.session.add(radio)
-        db.session.commit()
+        self.session.add(radio)
+        self.session.commit()
 
         return {'id': radio.id,
                 'arduino_id': radio.arduino_id,
@@ -576,7 +493,7 @@ class RadioHelper:
         self.radio.order = params['order']
         self.radio.timestamp = datetime.utcnow()
 
-        db.session.commit()
+        self.session.commit()
         
         return {'id': self.radio.id,
                 'arduino_id': self.radio.arduino_id,
@@ -592,10 +509,88 @@ class RadioHelper:
         if self.radio is None:
             return None
 
-        db.session.delete(self.radio)
-        db.session.commit()
+        self.session.delete(self.radio)
+        self.session.commit()
         self.radio = None
         return True
         
     def getByPipe(self, pipe):
-        return Radio.query.filter_by(pipe = pipe).first()
+        return self.session.query(Radio).filter_by(pipe = pipe).first()
+
+class MqttHelper:
+
+    def __init__(self, session, mqtt_id = None):
+        self.session = session
+        self.set(mqtt_id)
+
+    def get(self):
+        return self.mqtt
+
+    def set(self, mqtt_id):
+        self.mqtt = self.session.query(Mqtt).filter_by(id = mqtt_id).first() if mqtt_id else None
+
+    def getMqtts(self):
+        mqtts = []
+
+        for mqtt in self.session.query(Mqtt).order_by(Mqtt.order).all():
+            n = {'id': mqtt.id,
+                'name': mqtt.name,
+                'topic': mqtt.topic,
+                'order': mqtt.order}
+
+            mqtts.append(n)
+
+        return mqtts
+
+    def createMqtt(self, params):
+        mqtt = mqtt(
+                    name = params['name'],
+                    topic = params['topic'],
+                    order = params['order'],
+                    timestamp = datetime.utcnow())
+
+        self.session.add(mqtt)
+        self.session.commit()
+
+        return {'id': mqtt.id,
+                'name': mqtt.name,
+                'topic': mqtt.topic,
+                'order': mqtt.order}
+
+    def getMqtt(self):
+        if self.mqtt is None:
+            return None
+        
+        return {'id': self.mqtt.id,
+                'name': self.mqtt.name,
+                'topic': self.mqtt.topic,
+                'order': self.mqtt.order}
+
+    def updateMqtt(self, params):
+        if self.mqtt is None:
+            return None
+
+        self.mqtt.name = params['name']
+        self.mqtt.topic = params['topic']
+        self.mqtt.order = params['order']
+        self.mqtt.timestamp = datetime.utcnow()
+
+        self.session.commit()
+        
+        return {'id': self.mqtt.id,
+                'name': self.mqtt.name,
+                'topic': self.mqtt.topic,
+                'order': self.mqtt.order}
+
+    def deleteMqtt(self):
+        if self.mqtt is None:
+            return None
+
+        for arduino in self.mqtt.arduinos:
+            self.session.delete(arduino)
+
+        self.session.commit()
+        self.session.delete(self.mqtt)
+        self.session.commit()
+        self.mqtt = None
+        return True

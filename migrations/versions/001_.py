@@ -1,9 +1,7 @@
 """empty message
-
 Revision ID: 001
 Revises: 
 Create Date: 2019-04-04 12:32:11.992577
-
 """
 from alembic import op
 import sqlalchemy as sa
@@ -83,6 +81,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['arduino_id'], ['arduino.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+
+    # Add a root user
+    op.execute("INSERT INTO `smart_remote`.`user` (`username`, `password`, `role`) VALUES ('root', 'root', '1')")
     # ### end Alembic commands ###
 
 

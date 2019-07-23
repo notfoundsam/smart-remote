@@ -1,28 +1,26 @@
 import serial, socket, threading
 import time, random, json, array
 import os, sys, logging
-from app import helpers, so
+from app import helpers, so, config, cache
 
 class Service():
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
         self.first_request = None
         self.node_sevice = None
         self.discover_service = None
 
     def activateDiscoverService(self):
-        self.discover_service = DiscoverService(self.config)
+        self.discover_service = DiscoverService()
         self.discover_service.start()
     
     def activateNodeService(self):
-        self.node_sevice = NodeService(self.config)
+        self.node_sevice = NodeService()
         self.node_sevice.start()
 
 class DiscoverService(threading.Thread):
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
         threading.Thread.__init__(self)
 
     def run(self):
@@ -32,34 +30,34 @@ class DiscoverService(threading.Thread):
 
         while True:
             message = "s-hostname:%s" % socket.gethostname()
-            sock.sendto(message.encode(), (self.config.BROADCAST_MASK, self.config.BROADCAST_PORT))
-            time.sleep(self.config.BROADCAST_INTERVAL)
+            sock.sendto(message.encode(), (config.BROADCAST_MASK, config.BROADCAST_PORT))
+            time.sleep(config.BROADCAST_INTERVAL)
 
 class NodeService(threading.Thread):
 
-    nodes = {}
-
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
+        self.nodes = {}
         threading.Thread.__init__(self)
 
     def run(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind((self.config.SOCKET_BIND_ADDRESS, self.config.SOCKET_BIND_PORT))        
-        sock.listen(self.config.SOCKET_CONNECTIONS)
+        sock.bind((config.SOCKET_BIND_ADDRESS, config.SOCKET_BIND_PORT))        
+        sock.listen(config.SOCKET_CONNECTIONS)
 
         while True:
             conn, addr = sock.accept()
             node = RpiNode(self, conn, addr)
             node.start()
-    
+
     def addNode(self, node):
-        nh = helpers.NodeHelper()
+        db_session = config.getNewDbSession()
+        nh = helpers.NodeHelper(db_session)
         host_name = node.hostname
         logging.info('try to add node %s' % host_name)
         
         if host_name in self.nodes:
+            db_session.close()
             return False
 
         db_node = nh.getNodeByName(host_name)
@@ -67,15 +65,18 @@ class NodeService(threading.Thread):
         if db_node == None:
             logging.info('try to create a node with name %s' % host_name)
             if nh.createNode({'name': None, 'host_name': host_name, 'order': None}) == None:
+                db_session.close()
                 return False
             so.emit('updateNodes', {'nodes': nh.getNodes()}, broadcast=True)
         elif db_node == False:
             logging.error('Fail to create a node')
+            db_session.close()
             return False
         else:
-            logging.error('Node found in DB')
+            logging.info('Node found in DB')
 
         self.nodes[host_name] = node
+        db_session.close()
         return True
 
     def pushToNode(self, event):
@@ -141,27 +142,31 @@ class RpiNode(threading.Thread):
 
                             handshake = 'accept'
                             self.conn.send(handshake.encode())
-                    else:
+                    else:                        
                         sp = SocketParser(self, message_buff)
-                        sp.start()
+                        sp.run()
 
                     message_buff = ''
                 else:
                     logging.info('Connection closed for %s' % self.addr[0])
-                    self.service.removeNode(self.hostname)
-                    self.conn.close()
+                    # self.service.removeNode(self.hostname)
+                    # self.conn.close()
                     break
             except Exception as e:
                 logging.error('Socket error, close connection')
                 logging.error(e)
-                self.service.removeNode(self.hostname)
-                self.conn.close()
+                # self.service.removeNode(self.hostname)
+                # self.conn.close()
                 break
 
-class SocketParser(threading.Thread):
+        self.service.removeNode(self.hostname)
+        self.conn.close()
+        # self.db_session.close()
+
+class SocketParser():
 
     def __init__(self, rpi_node, data):
-        threading.Thread.__init__(self)
+        # threading.Thread.__init__(self)
         self.hostname = rpi_node.hostname
         self.data = data
         self.service = rpi_node.service
@@ -178,6 +183,15 @@ class SocketParser(threading.Thread):
 
         if 'type' in data and data['type'] == 'response':
             logging.debug('%s received: %s' % (self.hostname, self.data))
+
+            if 'origin_event' in data and data['origin_event'] is not None and 'room' in data['origin_event']:
+                if data['result'] == 'error':
+                    # so.emit('notification', {'result': data['result'], 'error': data['error']}, broadcast=True)
+                    so.emit('notification', {'result': data['result'], 'error': data['error']}, room=data['origin_event']['room'])
+                else:
+                    # so.emit('notification', {'result': data['result']}, broadcast=True)
+                    so.emit('notification', {'result': data['result']}, room=data['origin_event']['room'])
+
         elif 'type' in data and data['type'] == 'event':
             params = {}
             tags = {'hostname': self.hostname}
@@ -208,25 +222,34 @@ class SocketParser(threading.Thread):
                 logging.error('%s received: %s' % (self.hostname, data['message']))
 
             if params:
-                message = [params, tags]
-                dump = '%s\n' % json.dumps(message)
+                message = {'type': 'log', 'message': [params, tags]}
+                dump = '%s' % json.dumps(message)
 
                 try:
                     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-                    sock.connect((self.service.config.NODE_RED_HOST, self.service.config.NODE_RED_PORT))
+                    sock.connect((config.NODE_RED_HOST, config.NODE_RED_PORT))
                     sock.send(dump.encode())
                 except Exception as e:
                     logging.error('Node-red is offline')
 
-                rh = helpers.RadioHelper()
+                db_session = config.getNewDbSession()
+                rh = helpers.RadioHelper(db_session)
                 radio = rh.getByPipe(data['radio_pipe'])
+                db_session.close()
                 
                 if radio:
+                    logging.debug(radio.id)
+                    logging.debug(params)
                     so.emit('updateRadio', {'radio_id': radio.id, 'params': params}, broadcast=True)
+                    cache.setRadioParams(radio.id, params)
                     
         elif 'type' in data and data['type'] == 'ir':
-            logging.debug(data['ir_signal'])
-            so.emit('recievedIr', {'result': 'success', 'ir_signal': data['ir_signal']}, broadcast=True)
+            if 'origin_event' in data and data['origin_event'] is not None and 'room' in data['origin_event']:
+                logging.debug('-- ir event --')
+                if data['result'] == 'success':
+                    so.emit('recievedIr', {'result': 'success', 'ir_signal': data['ir_signal']}, room=data['origin_event']['room'])
+                elif data['result'] == 'error':
+                    so.emit('recievedIr', {'result': 'error', 'error': data['error']}, room=data['origin_event']['room'])
 
     def parseMessage(data):
         message = {}
