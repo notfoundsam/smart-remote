@@ -29,8 +29,15 @@ def activate_services():
     serv.activateDiscoverService()
     serv.activateNodeService()
 
+# @flask_app.teardown_request
+# def checkin_db(exc):
+#     user_store.db_session.remove()
+
 @lm.user_loader
 def load_user(id):
+    # if not id:
+    #     return make_response(jsonify({'error': 'Unauthorized'}), 401)
+
     return User.query.get(int(id))
 
 @lm.unauthorized_handler

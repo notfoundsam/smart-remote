@@ -27,7 +27,7 @@ $ cd smart-remote
 ### Run the development mode on docker
 `$ make up-dev` or `$ docker-compose up`
 
-### Flask create migration
+### Flask create a migration
 `$ flask db migrate --rev-id 001`
 
 ### Flask db migrate dev/prod
@@ -48,8 +48,6 @@ $ docker stack deploy --compose-file docker-compose-swarm.yml smart-home
 <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
 <meta name="msapplication-TileColor" content="#da532c">
 <meta name="theme-color" content="#ffffff">
-
-### node red as volume in ubuntu, set chmod 777 to mounted folder
 
 ### pip update packages
 `pip list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U`

@@ -15,7 +15,7 @@ class Config:
 
     def __init__(self, app):
         self.app = app
-        self.debug = True
+        self.debug = False
 
         # Application settings
         if 'APP_DOCKER' in os.environ:
