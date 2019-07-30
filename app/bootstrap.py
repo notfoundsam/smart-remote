@@ -1,6 +1,8 @@
 import os, logging
 import requests, time
 import threading
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 class FirstRequest(threading.Thread):
 
@@ -48,8 +50,9 @@ class Config:
         # Flask settings
         self.app.config['TRAP_HTTP_EXCEPTIONS']           = True
         self.app.config['CSRF_ENABLED']                   = True
-        self.app.config['SQLALCHEMY_POOL_RECYCLE']        = 280
+        self.app.config['SQLALCHEMY_POOL_RECYCLE']        = 60
         self.app.config['SQLALCHEMY_POOL_SIZE']           = 20
+        # self.app.config['SQLALCHEMY_MAX_OVERFLOW']        = 10
         self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
         self.app.config['SECRET_KEY']                     = 'you-will-never-guess'
         self.app.config['SQLALCHEMY_DATABASE_URI']        = self.createDbUri()
@@ -59,6 +62,10 @@ class Config:
             self.app.config['SQLALCHEMY_ECHO']               = True
             self.app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = True
             self.app.config['SQLALCHEMY_RECORD_QUERIES']     = True
+
+        # DB engine
+        self.engine = create_engine(self.createDbUri(), echo=self.debug, pool_recycle=3600)
+        self.Session = sessionmaker(bind=self.engine)
 
         # Logging settings
         logging.basicConfig(

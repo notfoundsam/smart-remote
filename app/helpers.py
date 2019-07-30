@@ -1,23 +1,24 @@
 import logging
 from app.models import Rc, Button, Node, Arduino, Radio
-from app import db
+# from app import db
 from datetime import datetime
 
 class RcHelper:
 
-    def __init__(self, rc_id = None):
+    def __init__(self, session, rc_id = None):
+        self.session = session
         self.set(rc_id)
 
     def get(self):
         return self.rc
 
     def set(self, rc_id):
-        self.rc = Rc.query.filter_by(id = rc_id).first()
+        self.rc = self.session.query(Rc).filter_by(id = rc_id).first()
 
     def getRcs(self):
         rcs = []
 
-        for rc in Rc.query.order_by(Rc.order).all():
+        for rc in self.session.query(Rc).order_by(Rc.order).all():
             r = {
                 'id': rc.id,
                 'name': rc.name,
@@ -37,8 +38,8 @@ class RcHelper:
                 public = params['public'],
                 timestamp = datetime.utcnow())
 
-        db.session.add(rc)
-        db.session.commit()
+        self.session.add(rc)
+        self.session.commit()
 
         return {'id': rc.id,
                 'name': rc.name,
@@ -66,7 +67,7 @@ class RcHelper:
         self.rc.public = params['public']
         self.rc.timestamp = datetime.utcnow()
 
-        db.session.commit()
+        self.session.commit()
         
         return {'id': self.rc.id,
                 'name': self.rc.name,
@@ -79,11 +80,11 @@ class RcHelper:
             return None
 
         for btn in self.rc.buttons:
-            db.session.delete(btn)
+            self.session.delete(btn)
 
-        db.session.commit()
-        db.session.delete(self.rc)
-        db.session.commit()
+        self.session.commit()
+        self.session.delete(self.rc)
+        self.session.commit()
         self.rc = None
 
         return True
@@ -108,6 +109,7 @@ class RcHelper:
             buttons.append(b)
 
         return buttons
+
 class BgroupHelper:
 
     def __init__(self, rc_id, group_id = None):
@@ -199,14 +201,15 @@ class BgroupHelper:
 
 class ButtonHelper:
 
-    def __init__(self, btn_id = None):
+    def __init__(self, session, btn_id = None):
+        self.session = session
         self.set(btn_id)
 
     def get(self):
         return self.button
 
     def set(self, btn_id):
-        self.button = Button.query.filter_by(id = btn_id).first() if btn_id else None
+        self.button = self.session.query(Button).filter_by(id = btn_id).first() if btn_id else None
 
     def createButton(self, params):
         btn = Button(rc_id = params['rc_id'],
@@ -219,8 +222,8 @@ class ButtonHelper:
                     message = params['message'],
                     timestamp = datetime.utcnow())
 
-        db.session.add(btn)
-        db.session.commit()
+        self.session.add(btn)
+        self.session.commit()
 
         self.button = btn
 
@@ -261,7 +264,7 @@ class ButtonHelper:
         self.button.message = params['message']
         self.button.timestamp = datetime.utcnow()
 
-        db.session.commit()
+        self.session.commit()
 
         return {'id': self.button.id,
                 'rc_id' : self.button.rc_id,
@@ -287,8 +290,8 @@ class ButtonHelper:
                 'type': self.button.type,
                 'message': self.button.message}
 
-        db.session.delete(self.button)
-        db.session.commit()
+        self.session.delete(self.button)
+        self.session.commit()
         self.button = None
         return button
 
@@ -299,7 +302,7 @@ class ButtonHelper:
     #     return Node.query.filter_by(id = self.button.node_id).first()
 
     def catchIrSignal(self, node_sevice, event):
-        node = Node.query.filter_by(id = self.button.node_id).first()
+        node = self.session.query(Node).filter_by(id = self.button.node_id).first()
 
         event.host_name = node.host_name
         event.button_id = self.button.id
@@ -313,24 +316,25 @@ class ButtonHelper:
         if self.button is None:
             return None
 
-        radio = Radio.query.filter_by(id = self.button.radio_id).first()
+        radio = self.session.query(Radio).filter_by(id = self.button.radio_id).first()
         return radio.arduino.node.host_name
 
 class NodeHelper:
 
-    def __init__(self, node_id = None):
+    def __init__(self, session, node_id = None):
+        self.session = session
         self.set(node_id)
 
     def get(self):
         return self.node
 
     def set(self, node_id):
-        self.node = Node.query.filter_by(id = node_id).first() if node_id else None
+        self.node = self.session.query(Node).filter_by(id = node_id).first() if node_id else None
 
     def getNodes(self):
         nodes = []
 
-        for node in Node.query.order_by(Node.order).all():
+        for node in self.session.query(Node).order_by(Node.order).all():
             n = {'id': node.id,
                 'name': node.name,
                 'host_name': node.host_name,
@@ -347,8 +351,8 @@ class NodeHelper:
                     order = params['order'],
                     timestamp = datetime.utcnow())
 
-        db.session.add(node)
-        db.session.commit()
+        self.session.add(node)
+        self.session.commit()
 
         return {'id': node.id,
                 'name': node.name,
@@ -373,7 +377,7 @@ class NodeHelper:
         self.node.order = params['order']
         self.node.timestamp = datetime.utcnow()
 
-        db.session.commit()
+        self.session.commit()
         
         return {'id': self.node.id,
                 # 'name': self.node.name,
@@ -385,19 +389,19 @@ class NodeHelper:
             return None
 
         for arduino in self.node.arduinos:
-            db.session.delete(arduino)
+            self.session.delete(arduino)
 
-        db.session.commit()
-        db.session.delete(self.node)
-        db.session.commit()
+        self.session.commit()
+        self.session.delete(self.node)
+        self.session.commit()
         self.node = None
         return True
 
     def getNodeByName(self, host_name):
         try:
-            node = Node.query.filter_by(host_name = host_name).first()
+            node = self.session.query(Node).filter_by(host_name = host_name).first()
         except Exception as e:
-            db.session.rollback()
+            self.session.rollback()
             logging.error('[helpers] db session error. rolled back')
             logging.error(str(e))
             return False
@@ -406,7 +410,8 @@ class NodeHelper:
 
 class ArduinoHelper:
 
-    def __init__(self, arduino_id = None):
+    def __init__(self, session, arduino_id = None):
+        self.session = session
         self.set(arduino_id)
 
     def get(self):
@@ -419,12 +424,12 @@ class ArduinoHelper:
         return self.arduino.node
 
     def set(self, arduino_id):
-        self.arduino = Arduino.query.filter_by(id = arduino_id).first() if arduino_id else None
+        self.arduino = self.session.query(Arduino).filter_by(id = arduino_id).first() if arduino_id else None
 
     def getArduinos(self):
         arduinos = []
 
-        for arduino in Arduino.query.order_by(Arduino.order).all():
+        for arduino in self.session.query(Arduino).order_by(Arduino.order).all():
             a = {'id': arduino.id,
                 'node_id': arduino.node_id,
                 'usb': arduino.usb,
@@ -442,8 +447,8 @@ class ArduinoHelper:
                         order = params['order'],
                         timestamp = datetime.utcnow())
 
-        db.session.add(arduino)
-        db.session.commit()
+        self.session.add(arduino)
+        self.session.commit()
 
         self.arduino = arduino
 
@@ -472,7 +477,7 @@ class ArduinoHelper:
         self.arduino.order = params['order']
         self.arduino.timestamp = datetime.utcnow()
 
-        db.session.commit()
+        self.session.commit()
 
         return {'id': self.arduino.id,
                 'node_id': self.arduino.node_id,
@@ -490,26 +495,27 @@ class ArduinoHelper:
                 'name': self.arduino.name,
                 'order': self.arduino.order}
 
-        db.session.delete(self.arduino)
-        db.session.commit()
+        self.session.delete(self.arduino)
+        self.session.commit()
         self.arduino = None
         return arduino
 
 class RadioHelper:
 
-    def __init__(self, radio_id = None):
+    def __init__(self, session, radio_id = None):
+        self.session = session
         self.set(radio_id)
 
     def get(self):
         return self.radio
 
     def set(self, radio_id):
-        self.radio = Radio.query.filter_by(id = radio_id).first()
+        self.radio = self.session.query(Radio).filter_by(id = radio_id).first()
 
     def getRadios(self):
         radios = []
 
-        for radio in Radio.query.order_by(Radio.order).all():
+        for radio in self.session.query(Radio).order_by(Radio.order).all():
             r = {'id': radio.id,
                 'arduino_id': radio.arduino_id,
                 'type': radio.type,
@@ -535,8 +541,8 @@ class RadioHelper:
                     order = params['order'],
                     timestamp = datetime.utcnow())
 
-        db.session.add(radio)
-        db.session.commit()
+        self.session.add(radio)
+        self.session.commit()
 
         return {'id': radio.id,
                 'arduino_id': radio.arduino_id,
@@ -576,7 +582,7 @@ class RadioHelper:
         self.radio.order = params['order']
         self.radio.timestamp = datetime.utcnow()
 
-        db.session.commit()
+        self.session.commit()
         
         return {'id': self.radio.id,
                 'arduino_id': self.radio.arduino_id,
@@ -592,10 +598,10 @@ class RadioHelper:
         if self.radio is None:
             return None
 
-        db.session.delete(self.radio)
-        db.session.commit()
+        self.session.delete(self.radio)
+        self.session.commit()
         self.radio = None
         return True
         
     def getByPipe(self, pipe):
-        return Radio.query.filter_by(pipe = pipe).first()
+        return self.session.query(Radio).filter_by(pipe = pipe).first()

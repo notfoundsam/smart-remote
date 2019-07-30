@@ -41,6 +41,7 @@ class NodeService(threading.Thread):
 
     def __init__(self, config):
         self.config = config
+        self.session = self.config.Session()
         threading.Thread.__init__(self)
 
     def run(self):
@@ -53,9 +54,11 @@ class NodeService(threading.Thread):
             conn, addr = sock.accept()
             node = RpiNode(self, conn, addr)
             node.start()
+
+        self.session.close()
     
     def addNode(self, node):
-        nh = helpers.NodeHelper()
+        nh = helpers.NodeHelper(self.session)
         host_name = node.hostname
         logging.info('try to add node %s' % host_name)
         
@@ -73,7 +76,7 @@ class NodeService(threading.Thread):
             logging.error('Fail to create a node')
             return False
         else:
-            logging.error('Node found in DB')
+            logging.info('Node found in DB')
 
         self.nodes[host_name] = node
         return True
@@ -101,6 +104,7 @@ class RpiNode(threading.Thread):
         self.addr = addr
         self.hostname = None
         self.service = service
+        self.session = self.service.config.Session()
 
     def getHostName(self):
         return self.hostname
@@ -143,28 +147,33 @@ class RpiNode(threading.Thread):
                             self.conn.send(handshake.encode())
                     else:
                         sp = SocketParser(self, message_buff)
-                        sp.start()
+                        sp.run()
 
                     message_buff = ''
                 else:
                     logging.info('Connection closed for %s' % self.addr[0])
-                    self.service.removeNode(self.hostname)
-                    self.conn.close()
+                    # self.service.removeNode(self.hostname)
+                    # self.conn.close()
                     break
             except Exception as e:
                 logging.error('Socket error, close connection')
                 logging.error(e)
-                self.service.removeNode(self.hostname)
-                self.conn.close()
+                # self.service.removeNode(self.hostname)
+                # self.conn.close()
                 break
 
-class SocketParser(threading.Thread):
+        self.service.removeNode(self.hostname)
+        self.conn.close()
+        self.session.close()
+
+class SocketParser():
 
     def __init__(self, rpi_node, data):
-        threading.Thread.__init__(self)
+        # threading.Thread.__init__(self)
         self.hostname = rpi_node.hostname
         self.data = data
         self.service = rpi_node.service
+        self.session = rpi_node.session
         
     def run(self):
         try:
@@ -218,7 +227,7 @@ class SocketParser(threading.Thread):
                 except Exception as e:
                     logging.error('Node-red is offline')
 
-                rh = helpers.RadioHelper()
+                rh = helpers.RadioHelper(self.session)
                 radio = rh.getByPipe(data['radio_pipe'])
                 
                 if radio:
