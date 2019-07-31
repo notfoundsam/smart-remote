@@ -81,6 +81,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['arduino_id'], ['arduino.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+
+    # Add a root user
+    op.execute("INSERT INTO `smart_remote`.`user` (`username`, `password`, `role`) VALUES ('root', 'root', '1')")
     # ### end Alembic commands ###
 
 
