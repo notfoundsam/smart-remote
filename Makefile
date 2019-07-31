@@ -10,6 +10,10 @@ up-server:
 stop:
 	docker-compose stop
 migrate:
-	docker-compose exec web flask db upgrade
+	docker-compose exec web alembic upgrade +1
 rollback:
-	docker-compose exec web flask db downgrade
+	docker-compose exec web alembic downgrade -1
+migrate-all:
+	docker-compose exec web alembic upgrade head
+rollback-all:
+	docker-compose exec web alembic downgrade base
