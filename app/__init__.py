@@ -23,7 +23,7 @@ from app.helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, Radio
 from app.models import User
 
 serv = service.Service(config)
-db_session = config.Session()
+db_session = config.getNewDbSession()
 
 @flask_app.before_first_request
 def activate_services():

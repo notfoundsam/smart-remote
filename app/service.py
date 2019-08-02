@@ -41,7 +41,6 @@ class NodeService(threading.Thread):
 
     def __init__(self, config):
         self.config = config
-        self.session = self.config.Session()
         threading.Thread.__init__(self)
 
     def run(self):
@@ -55,14 +54,14 @@ class NodeService(threading.Thread):
             node = RpiNode(self, conn, addr)
             node.start()
 
-        self.session.close()
-    
     def addNode(self, node):
-        nh = helpers.NodeHelper(self.session)
+        db_session = self.config.getNewDbSession()
+        nh = helpers.NodeHelper(db_session)
         host_name = node.hostname
         logging.info('try to add node %s' % host_name)
         
         if host_name in self.nodes:
+            db_session.close()
             return False
 
         db_node = nh.getNodeByName(host_name)
@@ -70,15 +69,18 @@ class NodeService(threading.Thread):
         if db_node == None:
             logging.info('try to create a node with name %s' % host_name)
             if nh.createNode({'name': None, 'host_name': host_name, 'order': None}) == None:
+                db_session.close()
                 return False
             so.emit('updateNodes', {'nodes': nh.getNodes()}, broadcast=True)
         elif db_node == False:
             logging.error('Fail to create a node')
+            db_session.close()
             return False
         else:
             logging.info('Node found in DB')
 
         self.nodes[host_name] = node
+        db_session.close()
         return True
 
     def pushToNode(self, event):
@@ -104,7 +106,6 @@ class RpiNode(threading.Thread):
         self.addr = addr
         self.hostname = None
         self.service = service
-        self.session = self.service.config.Session()
 
     def getHostName(self):
         return self.hostname
@@ -146,8 +147,10 @@ class RpiNode(threading.Thread):
                             handshake = 'accept'
                             self.conn.send(handshake.encode())
                     else:
-                        sp = SocketParser(self, message_buff)
+                        db_session = self.service.config.getNewDbSession()
+                        sp = SocketParser(self, db_session, message_buff)
                         sp.run()
+                        db_session.close()
 
                     message_buff = ''
                 else:
@@ -164,16 +167,16 @@ class RpiNode(threading.Thread):
 
         self.service.removeNode(self.hostname)
         self.conn.close()
-        self.session.close()
+        # self.db_session.close()
 
 class SocketParser():
 
-    def __init__(self, rpi_node, data):
+    def __init__(self, rpi_node, db_session, data):
         # threading.Thread.__init__(self)
         self.hostname = rpi_node.hostname
         self.data = data
         self.service = rpi_node.service
-        self.session = rpi_node.session
+        self.db_session = db_session
         
     def run(self):
         try:
@@ -227,7 +230,7 @@ class SocketParser():
                 except Exception as e:
                     logging.error('Node-red is offline')
 
-                rh = helpers.RadioHelper(self.session)
+                rh = helpers.RadioHelper(self.db_session)
                 radio = rh.getByPipe(data['radio_pipe'])
                 
                 if radio:

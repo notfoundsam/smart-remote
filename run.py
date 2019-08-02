@@ -10,7 +10,7 @@ if __name__ == '__main__':
     first_request = FirstRequest()
     first_request.start()
 
-    if 'FLASK_ENV' in os.environ and os.environ['FLASK_ENV'] == 'development':
+    if False and 'FLASK_ENV' in os.environ and os.environ['FLASK_ENV'] == 'development':
         flask_app.run(host='0.0.0.0', threaded=True)
     else:
         http_server = WSGIServer(('', 5000), flask_app)

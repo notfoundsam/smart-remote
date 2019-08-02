@@ -50,22 +50,12 @@ class Config:
         # Flask settings
         self.app.config['TRAP_HTTP_EXCEPTIONS']           = True
         self.app.config['CSRF_ENABLED']                   = True
-        self.app.config['SQLALCHEMY_POOL_RECYCLE']        = 60
-        self.app.config['SQLALCHEMY_POOL_SIZE']           = 20
-        # self.app.config['SQLALCHEMY_MAX_OVERFLOW']        = 10
-        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
         self.app.config['SECRET_KEY']                     = 'you-will-never-guess'
-        self.app.config['SQLALCHEMY_DATABASE_URI']        = self.createDbUri()
         
         if 'FLASK_ENV' in os.environ and os.environ['FLASK_ENV'] == 'development':
             self.debug                                       = True
-            self.app.config['SQLALCHEMY_ECHO']               = True
             self.app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = True
             self.app.config['SQLALCHEMY_RECORD_QUERIES']     = True
-
-        # DB engine
-        self.engine = create_engine(self.createDbUri(), echo=self.debug, pool_recycle=3600)
-        self.Session = sessionmaker(bind=self.engine)
 
         # Logging settings
         logging.basicConfig(
@@ -76,6 +66,20 @@ class Config:
                 logging.FileHandler("app.log"),
                 logging.StreamHandler()
             ])
+
+        engine = create_engine(self.createDbUri(), echo=self.debug, pool_recycle=3600, pool_pre_ping=True)
+        # engine = create_engine(self.createDbUri(),
+        #                             echo=self.debug,
+        #                             pool_recycle=28880,
+        #                             pool_size=5,
+        #                             max_overflow=10,
+        #                             pool_timeout=30,
+        #                             pool_pre_ping=True)
+
+        self.db_session = sessionmaker(bind=engine)
+
+    def getNewDbSession(self):
+        return self.db_session()
 
     def createDbUri(self):
         return 'mysql+mysqlconnector://%s:%s@%s:%s/%s' % (self.DB_USER,self.DB_PASS,self.DB_HOST,self.DB_PORT,self.DB_NAME)
