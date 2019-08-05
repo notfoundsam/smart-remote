@@ -3,6 +3,8 @@ build-dev:
 	docker-compose -f docker-compose.yml build
 build-server:
 	docker-compose -f docker-compose-server.yml build
+up:
+	nohup python3 run.py > output.log &
 up-dev:
 	docker-compose -f docker-compose.yml up -d
 up-server:
@@ -17,3 +19,5 @@ migrate-all:
 	docker-compose exec web alembic upgrade head
 rollback-all:
 	docker-compose exec web alembic downgrade base
+ps:
+	ps ax | grep run.py
