@@ -21,3 +21,5 @@ rollback-all:
 	docker-compose exec web alembic downgrade base
 ps:
 	ps ax | grep run.py
+log:
+	tail -F app.log
