@@ -2,7 +2,7 @@ import os, functools, json, logging
 from flask import Flask, redirect, session, request, g, jsonify, make_response, abort, send_from_directory
 # from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, disconnect
 from flask_cors import CORS
 # from flask_migrate import Migrate
 from app.bootstrap import Config
@@ -25,14 +25,12 @@ from app.models import User
 serv = service.Service(config)
 db_session = config.getNewDbSession()
 
+so_clients = {}
+
 @flask_app.before_first_request
 def activate_services():
     serv.activateDiscoverService()
     serv.activateNodeService()
-
-# @flask_app.teardown_request
-# def checkin_db(exc):
-#     user_store.db_session.remove()
 
 @lm.user_loader
 def load_user(id):
@@ -71,7 +69,7 @@ def login():
         username = request.json['username']
         password = request.json['password']
 
-        user = User.query.filter_by(username=username).first()
+        user = db_session.query(User).filter_by(username=username).first()
 
         if user is not None and user.password == password:
             session['remember_me'] = True
@@ -227,10 +225,11 @@ def push_button(btn_id):
         abort(404)
 
     if bh.get().type == 'radio':
-        logging.info(bh.getHostName())
+
         event = {
             'event': 'pushButton',
-            'user_id': g.user.id,
+            'user_id': current_user.id,
+            'room': so_clients[current_user.id],
             'button_id': bh.get().id,
             'host_name': bh.getHostName()
         }
@@ -458,10 +457,16 @@ def authenticated_only(f):
     return wrapped
 
 @so.on('connect')
+@authenticated_only
 def handle_connect():
-    id = request.sid
-    logging.info("%s socket connected" % id)
-    emit('customEmit', {'data': 'Connected', 'count': 0}, broadcast=True)
+    so_clients[current_user.id] = request.sid
+    logging.info("Add user %s to socketio" % current_user.id)
+
+@so.on('disconnect')
+@authenticated_only
+def handle_disconnect():
+    logging.info("Delete user %s from socketio" % current_user.id)
+    # del so_clients[current_user.id]
 
 @so.on('json')
 @authenticated_only

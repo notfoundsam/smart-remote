@@ -190,6 +190,15 @@ class SocketParser():
 
         if 'type' in data and data['type'] == 'response':
             logging.debug('%s received: %s' % (self.hostname, self.data))
+
+            if 'origin_event' in data and data['origin_event'] is not None and 'room' in data['origin_event']:
+                if data['result'] == 'error':
+                    # so.emit('notification', {'result': data['result'], 'error': data['error']}, broadcast=True)
+                    so.emit('notification', {'result': data['result'], 'error': data['error']}, room=data['origin_event']['room'])
+                else:
+                    # so.emit('notification', {'result': data['result']}, broadcast=True)
+                    so.emit('notification', {'result': data['result']}, room=data['origin_event']['room'])
+
         elif 'type' in data and data['type'] == 'event':
             params = {}
             tags = {'hostname': self.hostname}

@@ -4,24 +4,16 @@
 
 // Radio setting
 RF24 radio(9, 10); // For nano pin 9 and 10
-// int radioSpeedPin = 2;
-// int radioChannelPin1 = 3;
-// int radioChannelPin2 = 4;
-int radio_retries = 15;
+
+int radio_retries = 10;
 int radio_delay = 10;
 
 uint8_t radio_id = 51;
-
-// LED settings
-// int led_pin_blue = A1;
-// int led_pin_red = A2;
+unsigned long status_timer;
 
 void setup() {
   delay(3000); // Sleep 3s before loop.
 
-  // pinMode(LED_BUILTIN, OUTPUT);
-  // pinMode(led_pin_red, OUTPUT);
-  // pinMode(led_pin_blue, OUTPUT);
   Serial.begin(9600);
   radio.begin();
   delay(100);
@@ -43,7 +35,9 @@ void loop() {
     radio.read(&payload, sizeof(payload));
 
     if (payload[0] == radio_id && payload[1] == 48) {
-      sendACK(radio_id);
+      delay(250);
+      sendACK();
+      Serial.println("fp ack");
 
       // If recive IR signal (it starts with i)
       if (payload[2] == 105) {
@@ -59,10 +53,17 @@ void loop() {
       }
     }
   }
+
+
+  // Send status periodically
+  if (millis() - status_timer > 5000) {
+    sendStatus();
+    status_timer = millis();
+  }
 }
 
-void readCommand(byte * code) {
-  byte data[32];
+void readCommand(uint8_t *code) {
+  uint8_t payload[32];
   unsigned long started_at = millis();
 
   char buffer[32] = "";
@@ -79,37 +80,29 @@ void readCommand(byte * code) {
 
   while (millis() - started_at <= radio_retries * radio_delay) {
     if (radio.available()) {
-      radio.read(&data, sizeof(data));
+      radio.read(&payload, sizeof(payload));
 
-      if (data[0] != radio_id) {
+      if (payload[0] != radio_id) {
         Serial.println("wtf2");
         continue;
       }
       
-      sendACK(radio_id);
+      sendACK();
       started_at = millis();
 
-
-      if (data[0] == 48) {
-        started_at = millis();
-      } else {
+      if (payload[1] == 48) {
         Serial.println("same package");
+        started_at = millis();
       }
     }
   }
 
   if (strcmp(buffer, "led_on") == 0) {
-    // digitalWrite(LED_BUILTIN, HIGH);
     Serial.println("led_on");
   } else if (strcmp(buffer, "led_off") == 0) {
-    // digitalWrite(LED_BUILTIN, LOW);
     Serial.println("led_off");
-  } else if (strcmp(buffer, "empty") == 0) {
-    // Serial.println("go to sleep");
-    // sendStatus();
-    // return;
   } else {
-    // unsupportedCommand();
+    Serial.println("unknown command");
   }
 }
 
@@ -127,11 +120,54 @@ void unsupportedCommand() {
   }
 }
 
-boolean sendWithACK(byte * data, int size) {
+void sendStatus() {
+  uint8_t radio_buff[32];
+  uint8_t radio_buff_index = 2;
+  uint8_t radio_package = 48;
+
+  // Max payload size in one package is 32 bytes
+  String payload = "tp ev,";
+  payload += "h ";
+  payload += "50.00";
+  payload += ",t ";
+  payload += "26.50";
+  payload += ",p ";
+  payload += "1010.00";
+  payload += ",b ";
+  payload += "4.12";
+  payload += "\n";
+
+  int rsize = payload.length();
+
+  radio_buff[0] = radio_id;
+  radio_buff[1] = radio_package;
+
+  for (int i = 0; i < rsize; i++) {
+    radio_buff[radio_buff_index] = payload[i];
+    radio_buff_index++;
+
+    if (radio_buff_index == 32 || payload[i] == 10) {
+      radio_buff[1] = radio_package;
+
+      if (!sendWithACK(radio_buff, radio_buff_index)) {
+        Serial.print("fail\n");
+        return;
+      } else {
+        // delay(15);
+        Serial.print("success\n");
+      }
+
+      radio_package++;
+      radio_buff_index = 2;
+    }
+  }
+}
+
+boolean sendWithACK(uint8_t *data, uint8_t size) {
   byte response[32];
   unsigned long ack_started_at;
 
-  for (int i = 0; i <= radio_retries; i++) {
+  for (uint8_t i = 0; i <= radio_retries; i++) {
     radio.stopListening();
     radio.writeFast(data, size);
     radio.txStandBy();
@@ -153,9 +189,9 @@ boolean sendWithACK(byte * data, int size) {
   return false;
 }
 
-void sendACK(uint8_t radio_node) {
+void sendACK() {
   uint8_t ack[2];
-  ack[0] = radio_node;
+  ack[0] = radio_id;
   ack[1] = 6;
   radio.stopListening();
   radio.writeFast(ack, sizeof(ack));
