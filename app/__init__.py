@@ -23,7 +23,6 @@ from app.helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, Radio
 from app.models import User
 
 serv = service.Service(config)
-db_session = config.getNewDbSession()
 
 so_clients = {}
 
@@ -34,10 +33,13 @@ def activate_services():
 
 @lm.user_loader
 def load_user(id):
+    db_session = config.getNewDbSession()
     # if not id:
     #     return make_response(jsonify({'error': 'Unauthorized'}), 401)
 
-    return db_session.query(User).get(int(id))
+    user = db_session.query(User).get(int(id))
+    db_session.close()
+    return user
 
 @lm.unauthorized_handler
 def unauthorized():
@@ -69,7 +71,9 @@ def login():
         username = request.json['username']
         password = request.json['password']
 
+        db_session = config.getNewDbSession()
         user = db_session.query(User).filter_by(username=username).first()
+        db_session.close()
 
         if user is not None and user.password == password:
             session['remember_me'] = True
@@ -93,8 +97,11 @@ def get_user():
 @flask_app.route('/api/v1/rcs', methods=['GET'])
 @login_required
 def get_rcs():
+    db_session = config.getNewDbSession()
     rch = RcHelper(db_session)
-    return jsonify({'rcs': rch.getRcs()})
+    rcs = rch.getRcs()
+    db_session.close()
+    return jsonify({'rcs': rcs})
 
 @flask_app.route('/api/v1/rcs', methods=['POST'])
 @login_required
@@ -102,16 +109,22 @@ def create_rc():
     if not request.json or not 'name' in request.json or not 'icon' in request.json or not 'order' in request.json or not 'public' in request.json:
         abort(400)
 
+    db_session = config.getNewDbSession()
     rch = RcHelper(db_session)
     rc = rch.createRc(request.json)
-    so.emit('updateRcs', {'rcs': rch.getRcs()}, broadcast=True)
+    rcs = rch.getRcs()
+    db_session.close()
+
+    so.emit('updateRcs', {'rcs': rcs}, broadcast=True)
     return jsonify({'rc': rc}), 201
 
 @flask_app.route('/api/v1/rcs/<int:rc_id>', methods=['GET'])
 @login_required
 def get_rc(rc_id):
+    db_session = config.getNewDbSession()
     rch = RcHelper(db_session, rc_id)
     rc = rch.getRc()
+    db_session.close()
 
     if rc is None:
         abort(404)
@@ -121,36 +134,43 @@ def get_rc(rc_id):
 @flask_app.route('/api/v1/rcs/<int:rc_id>', methods=['PUT'])
 @login_required
 def update_rc(rc_id):
-    rch = RcHelper(db_session, rc_id)
-
     if not request.json or not 'name' in request.json or not 'icon' in request.json or not 'order' in request.json or not 'public' in request.json:
         abort(400)
-    
+
+    db_session = config.getNewDbSession()
+    rch = RcHelper(db_session, rc_id)    
     rc = rch.updateRc(request.json)
+    rcs = rch.getRcs()
+    db_session.close()
 
     if rc is None:
         abort(404) 
 
-    so.emit('updateRcs', {'rcs': rch.getRcs()}, broadcast=True)
+    so.emit('updateRcs', {'rcs': rcs}, broadcast=True)
     return jsonify({'rc': rc})
 
 @flask_app.route('/api/v1/rcs/<int:rc_id>', methods=['DELETE'])
 @login_required
 def delete_rc(rc_id):
+    db_session = config.getNewDbSession()
     rch = RcHelper(db_session, rc_id)
     result = rch.deleteRc()
+    rcs = rch.getRcs()
+    db_session.close()
 
     if result is None:
         abort(404)
     
-    so.emit('updateRcs', {'rcs': rch.getRcs()}, broadcast=True)
+    so.emit('updateRcs', {'rcs': rcs}, broadcast=True)
     return jsonify({'result': result})
 
 @flask_app.route('/api/v1/rcs/<int:rc_id>/buttons', methods=['GET'])
 @login_required
 def get_rc_buttons(rc_id):
+    db_session = config.getNewDbSession()
     rch = RcHelper(db_session, rc_id)
     buttons = rch.getButtons()
+    db_session.close()
 
     if buttons is None:
         abort(404)
@@ -161,25 +181,29 @@ def get_rc_buttons(rc_id):
 @flask_app.route('/api/v1/buttons', methods=['POST'])
 @login_required
 def create_button():
-    bh = ButtonHelper(db_session)
-    
     if not request.json or not 'rc_id' in request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'message' in request.json or not 'type' in request.json or not 'radio_id' in request.json:
         abort(400)
-
+    
+    db_session = config.getNewDbSession()
+    bh = ButtonHelper(db_session)
     button = bh.createButton(request.json)
+    rch = RcHelper(db_session, request.json['rc_id'])
+    buttons = rch.getButtons()
+    db_session.close()
 
     if button is None:
         abort(404)
 
-    rch = RcHelper(db_session, request.json['rc_id'])
-    so.emit('updateButtons', {'rc_id': button['rc_id'], 'buttons': rch.getButtons()}, broadcast=True)
+    so.emit('updateButtons', {'rc_id': button['rc_id'], 'buttons': buttons}, broadcast=True)
     return jsonify({'button': button}), 201
 
 @flask_app.route('/api/v1/buttons/<int:btn_id>', methods=['GET'])
 @login_required
 def get_button(btn_id):
+    db_session = config.getNewDbSession()
     bh = ButtonHelper(db_session, btn_id)
     button = bh.getButton()
+    db_session.close()
 
     if button is None:
         abort(404)
@@ -189,39 +213,46 @@ def get_button(btn_id):
 @flask_app.route('/api/v1/buttons/<int:btn_id>', methods=['PUT'])
 @login_required
 def update_button(btn_id):
-    bh = ButtonHelper(db_session, btn_id)
-    
     if not request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'message' in request.json or not 'type' in request.json or not 'radio_id' in request.json:
         abort(400)
-
+    
+    db_session = config.getNewDbSession()
+    bh = ButtonHelper(db_session, btn_id)
     button = bh.updateButton(request.json)
+    rch = RcHelper(db_session, bh.get().rc_id)
+    buttons = rch.getButtons()
+    db_session.close()
 
     if button is None:
         abort(404)
 
-    rch = RcHelper(db_session, bh.get().rc_id)
-    so.emit('updateButtons', {'rc_id': button['rc_id'], 'buttons': rch.getButtons()}, broadcast=True)
+    so.emit('updateButtons', {'rc_id': button['rc_id'], 'buttons': buttons}, broadcast=True)
     return jsonify({'button': button})
 
 @flask_app.route('/api/v1/buttons/<int:btn_id>', methods=['DELETE'])
 @login_required
 def delete_button(btn_id):
+    db_session = config.getNewDbSession()
     bh = ButtonHelper(db_session, btn_id)
     button = bh.deleteButton()
+    buttons = bh.getButtons()
+    db_session.close()
 
     if button is None:
         abort(404)
 
-    so.emit('updateButtons', {'rc_id': button['rc_id'], 'buttons': bh.getButtons()}, broadcast=True)
+    so.emit('updateButtons', {'rc_id': button['rc_id'], 'buttons': buttons}, broadcast=True)
     return jsonify({'result': True})
 
 @flask_app.route('/api/v1/buttons/<int:btn_id>/push', methods=['GET'])
 @login_required
 def push_button(btn_id):
+    db_session = config.getNewDbSession()
     bh = ButtonHelper(db_session, btn_id)
     button = bh.getButton()
 
     if bh.get() is None:
+        db_session.close()
         abort(404)
 
     if bh.get().type == 'radio':
@@ -235,14 +266,18 @@ def push_button(btn_id):
         }
         result = serv.node_sevice.pushToNode(event)
 
+    db_session.close()
     return jsonify({'result': result})
 
 # Node routes
 @flask_app.route('/api/v1/nodes', methods=['GET'])
 @login_required
 def get_nodes():
+    db_session = config.getNewDbSession()
     nh = NodeHelper(db_session)
-    return jsonify({'nodes': nh.getNodes()})
+    nodes = nh.getNodes()
+    db_session.close()
+    return jsonify({'nodes': nodes})
 
 @flask_app.route('/api/v1/nodes', methods=['POST'])
 @login_required
@@ -250,16 +285,21 @@ def create_node():
     if not request.json or not 'name' in request.json or not 'host_name' in request.json or not 'order' in request.json:
         abort(400)
 
+    db_session = config.getNewDbSession()
     nh = NodeHelper(db_session)
     node = nh.createNode(request.json)
-    so.emit('updateNodes', {'nodes': nh.getNodes()}, broadcast=True)
+    nodes = nh.getNodes()
+    db_session.close()
+    so.emit('updateNodes', {'nodes': nodes}, broadcast=True)
     return jsonify({'node': node}), 201
 
 @flask_app.route('/api/v1/nodes/<int:node_id>', methods=['GET'])
 @login_required
 def get_node(node_id):
+    db_session = config.getNewDbSession()
     nh = NodeHelper(db_session, node_id)
     node = nh.getNode()
+    db_session.close()
 
     if node is None:
         abort(404)
@@ -269,37 +309,44 @@ def get_node(node_id):
 @flask_app.route('/api/v1/nodes/<int:node_id>', methods=['PUT'])
 @login_required
 def update_node(node_id):
-    nh = NodeHelper(db_session, node_id)
-
     if not request.json or not 'host_name' in request.json or not 'order' in request.json:
         abort(400)
-    
+
+    db_session = config.getNewDbSession()
+    nh = NodeHelper(db_session, node_id)
     node = nh.updateNode(request.json)
+    nodes = nh.getNodes()
+    db_session.close()
 
     if node is None:
         abort(404) 
 
-    so.emit('updateNodes', {'nodes': nh.getNodes()}, broadcast=True)
+    so.emit('updateNodes', {'nodes': nodes}, broadcast=True)
     return jsonify({'node': node})
 
 @flask_app.route('/api/v1/nodes/<int:node_id>', methods=['DELETE'])
 @login_required
 def delete_node(node_id):
+    db_session = config.getNewDbSession()
     nh = NodeHelper(db_session, node_id)
     result = nh.deleteNode()
+    nodes = nh.getNodes()
+    db_session.close()
 
     if result is None:
         abort(404)
     
-    so.emit('updateNodes', {'nodes': nh.getNodes()}, broadcast=True)
+    so.emit('updateNodes', {'nodes': nodes}, broadcast=True)
     return jsonify({'result': result})
 
 # Arduino routes
 @flask_app.route('/api/v1/arduinos', methods=['GET'])
 @login_required
 def get_arduinos():
+    db_session = config.getNewDbSession()
     ah = ArduinoHelper(db_session)
     arduinos = ah.getArduinos()
+    db_session.close()
 
     if arduinos is None:
         abort(404)
@@ -309,21 +356,25 @@ def get_arduinos():
 @flask_app.route('/api/v1/arduinos', methods=['POST'])
 @login_required
 def create_arduino():
-    ah = ArduinoHelper(db_session)
-    
     if not request.json or not 'usb' in request.json or not 'node_id' in request.json or not 'name' in request.json or not 'order' in request.json:
         abort(400)
-
+    
+    db_session = config.getNewDbSession()
+    ah = ArduinoHelper(db_session)
     arduino = ah.createArduino(request.json)
+    arduinos = ah.getArduinos()
 
     if arduino is None:
+        db_session.close()
         abort(404)
 
-    so.emit('updateArduinos', {'node_id': arduino['node_id'], 'arduinos': ah.getArduinos()}, broadcast=True)
+    so.emit('updateArduinos', {'node_id': arduino['node_id'], 'arduinos': arduinos}, broadcast=True)
     event = {
         'event': 'restart',
         'host_name': ah.getNode().host_name
     }
+    db_session.close()
+
     if serv.node_sevice.pushToNode(event) == False:
         pass
         # so.emit('recievedIr', {'result': 'error', 'errors': 'Node is offline'})
@@ -333,8 +384,10 @@ def create_arduino():
 @flask_app.route('/api/v1/arduinos/<int:arduino_id>', methods=['GET'])
 @login_required
 def get_arduino(arduino_id):
+    db_session = config.getNewDbSession()
     ah = ArduinoHelper(db_session, arduino_id)
     arduino = ah.getArduino()
+    db_session.close()
 
     if arduino is None:
         abort(404)
@@ -344,21 +397,25 @@ def get_arduino(arduino_id):
 @flask_app.route('/api/v1/arduinos/<int:arduino_id>', methods=['PUT'])
 @login_required
 def update_arduino(arduino_id):
-    ah = ArduinoHelper(db_session, arduino_id)
-    
     if not request.json or not 'usb' in request.json or not 'node_id' in request.json or not 'name' in request.json or not 'order' in request.json:
         abort(400)
-
+    
+    db_session = config.getNewDbSession()
+    ah = ArduinoHelper(db_session, arduino_id)
     arduino = ah.updateArduino(request.json)
+    arduinos = ah.getArduinos()
 
     if arduino is None:
+        db_session.close()
         abort(404)
 
-    so.emit('updateArduinos', {'node_id': arduino['node_id'], 'arduinos': ah.getArduinos()}, broadcast=True)
+    so.emit('updateArduinos', {'node_id': arduino['node_id'], 'arduinos': arduinos}, broadcast=True)
     event = {
         'event': 'restart',
         'host_name': ah.getNode().host_name
     }
+    db_session.close()
+
     if serv.node_sevice.pushToNode(event) == False:
         pass
         # so.emit('recievedIr', {'result': 'error', 'errors': 'Node is offline'})
@@ -368,14 +425,17 @@ def update_arduino(arduino_id):
 @flask_app.route('/api/v1/arduinos/<int:arduino_id>', methods=['DELETE'])
 @login_required
 def delete_arduino(arduino_id):
+    db_session = config.getNewDbSession()
     ah = ArduinoHelper(db_session, arduino_id)
     host_name = ah.getNode().host_name
     arduino = ah.deleteArduino()
+    arduinos = ah.getArduinos()
+    db_session.close()
 
     if arduino is None:
         abort(404)
 
-    so.emit('updateArduinos', {'node_id': arduino['node_id'], 'arduinos': ah.getArduinos()}, broadcast=True)
+    so.emit('updateArduinos', {'node_id': arduino['node_id'], 'arduinos': arduinos}, broadcast=True)
     event = {
         'event': 'restart',
         'host_name': host_name
@@ -390,8 +450,11 @@ def delete_arduino(arduino_id):
 @flask_app.route('/api/v1/radios', methods=['GET'])
 @login_required
 def get_radios():
+    db_session = config.getNewDbSession()
     rh = RadioHelper(db_session)
-    return jsonify({'radios': rh.getRadios()})
+    radios = rh.getRadios()
+    db_session.close()
+    return jsonify({'radios': radios})
 
 @flask_app.route('/api/v1/radios', methods=['POST'])
 @login_required
@@ -399,17 +462,22 @@ def create_radio():
     if not request.json or not 'arduino_id' in request.json or not 'type' in request.json or not 'name' in request.json or not 'pipe' in request.json or not 'order' in request.json or not 'on_request' in request.json or not 'expired_after' in request.json or not 'enabled' in request.json:
         abort(400)
 
+    db_session = config.getNewDbSession()
     rh = RadioHelper(db_session)
     radio = rh.createRadio(request.json)
+    radios = rh.getRadios()
+    db_session.close()
 
-    so.emit('updateRadios', {'radios': rh.getRadios()}, broadcast=True)
+    so.emit('updateRadios', {'radios': radios}, broadcast=True)
     return jsonify({'radio': radio}), 201
 
 @flask_app.route('/api/v1/radios/<int:radio_id>', methods=['GET'])
 @login_required
 def get_radio(radio_id):
+    db_session = config.getNewDbSession()
     rh = RadioHelper(db_session, radio_id)
     radio = rh.getRadio()
+    db_session.close()
 
     if radio is None:
         abort(404)
@@ -419,29 +487,34 @@ def get_radio(radio_id):
 @flask_app.route('/api/v1/radios/<int:radio_id>', methods=['PUT'])
 @login_required
 def update_radio(radio_id):
-    rh = RadioHelper(db_session, radio_id)
-
     if not request.json or not 'pipe' in request.json or not 'name' in request.json or not 'enabled' in request.json or not 'order' in request.json:
         abort(400)
-    
+
+    db_session = config.getNewDbSession()
+    rh = RadioHelper(db_session, radio_id)
     radio = rh.updateRadio(request.json)
+    radios = rh.getRadios()
+    db_session.close()
 
     if radio is None:
         abort(404) 
 
-    so.emit('updateRadios', {'radios': rh.getRadios()}, broadcast=True)
+    so.emit('updateRadios', {'radios': radios}, broadcast=True)
     return jsonify({'radio': radio})
 
 @flask_app.route('/api/v1/radios/<int:radio_id>', methods=['DELETE'])
 @login_required
 def delete_radio(radio_id):
+    db_session = config.getNewDbSession()
     rh = RadioHelper(db_session, radio_id)
     result = rh.deleteRadio()
+    radios = rh.getRadios()
+    db_session.close()
 
     if result is None:
         abort(404)
     
-    so.emit('updateRadios', {'radios': rh.getRadios()}, broadcast=True)
+    so.emit('updateRadios', {'radios': radios}, broadcast=True)
     return jsonify({'result': result})
 
 #############
@@ -527,7 +600,9 @@ def handle_catch_ir(json_data):
     data = json.loads(json_data)
 
     if 'node_id' in data:
+        db_session = config.getNewDbSession()
         node = NodeHelper(db_session, data['node_id']).get()
+        db_session.close()
 
         if node is not None:
             event = {

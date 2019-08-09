@@ -35,7 +35,7 @@ void loop() {
     radio.read(&payload, sizeof(payload));
 
     if (payload[0] == radio_id && payload[1] == 48) {
-      delay(250);
+      // delay(250);
       sendACK();
       Serial.println("fp ack");
 
@@ -149,6 +149,11 @@ void sendStatus() {
     if (radio_buff_index == 32 || payload[i] == 10) {
       radio_buff[1] = radio_package;
 
+      for (int j = 0; j < radio_buff_index; j++) {
+        Serial.write(radio_buff[j]);
+      }
+      Serial.print("\n");
+
       if (!sendWithACK(radio_buff, radio_buff_index)) {
         Serial.print("fail\n");
         return;
@@ -177,6 +182,7 @@ boolean sendWithACK(uint8_t *data, uint8_t size) {
     // Wait 15ms for responce
     while (millis() - ack_started_at <= radio_delay) {
       if (radio.available()) {
+        Serial.print("came\n");
         radio.read(&response, sizeof(response));
 
         if (data[0] == response[0] && response[1] == 6) {
@@ -184,6 +190,7 @@ boolean sendWithACK(uint8_t *data, uint8_t size) {
         }
       }
     }
+    Serial.print(".");
   }
 
   return false;
