@@ -622,6 +622,7 @@ def handle_catch_ir(json_data):
             event = {
                 'event': 'catchIr',
                 'user_id': current_user.id,
+                'room': so_clients[current_user.id],
                 'host_name': node.host_name
             }
 
