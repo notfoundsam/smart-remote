@@ -1,28 +1,26 @@
 import serial, socket, threading
 import time, random, json, array
 import os, sys, logging
-from app import helpers, so
+from app import helpers, so, config, cache
 
 class Service():
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
         self.first_request = None
         self.node_sevice = None
         self.discover_service = None
 
     def activateDiscoverService(self):
-        self.discover_service = DiscoverService(self.config)
+        self.discover_service = DiscoverService()
         self.discover_service.start()
     
     def activateNodeService(self):
-        self.node_sevice = NodeService(self.config)
+        self.node_sevice = NodeService()
         self.node_sevice.start()
 
 class DiscoverService(threading.Thread):
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
         threading.Thread.__init__(self)
 
     def run(self):
@@ -32,22 +30,20 @@ class DiscoverService(threading.Thread):
 
         while True:
             message = "s-hostname:%s" % socket.gethostname()
-            sock.sendto(message.encode(), (self.config.BROADCAST_MASK, self.config.BROADCAST_PORT))
-            time.sleep(self.config.BROADCAST_INTERVAL)
+            sock.sendto(message.encode(), (config.BROADCAST_MASK, config.BROADCAST_PORT))
+            time.sleep(config.BROADCAST_INTERVAL)
 
 class NodeService(threading.Thread):
 
-    nodes = {}
-
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
+        self.nodes = {}
         threading.Thread.__init__(self)
 
     def run(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind((self.config.SOCKET_BIND_ADDRESS, self.config.SOCKET_BIND_PORT))        
-        sock.listen(self.config.SOCKET_CONNECTIONS)
+        sock.bind((config.SOCKET_BIND_ADDRESS, config.SOCKET_BIND_PORT))        
+        sock.listen(config.SOCKET_CONNECTIONS)
 
         while True:
             conn, addr = sock.accept()
@@ -55,7 +51,7 @@ class NodeService(threading.Thread):
             node.start()
 
     def addNode(self, node):
-        db_session = self.config.getNewDbSession()
+        db_session = config.getNewDbSession()
         nh = helpers.NodeHelper(db_session)
         host_name = node.hostname
         logging.info('try to add node %s' % host_name)
@@ -146,11 +142,9 @@ class RpiNode(threading.Thread):
 
                             handshake = 'accept'
                             self.conn.send(handshake.encode())
-                    else:
-                        db_session = self.service.config.getNewDbSession()
-                        sp = SocketParser(self, db_session, message_buff)
+                    else:                        
+                        sp = SocketParser(self, message_buff)
                         sp.run()
-                        db_session.close()
 
                     message_buff = ''
                 else:
@@ -171,12 +165,11 @@ class RpiNode(threading.Thread):
 
 class SocketParser():
 
-    def __init__(self, rpi_node, db_session, data):
+    def __init__(self, rpi_node, data):
         # threading.Thread.__init__(self)
         self.hostname = rpi_node.hostname
         self.data = data
         self.service = rpi_node.service
-        self.db_session = db_session
         
     def run(self):
         try:
@@ -234,16 +227,19 @@ class SocketParser():
 
                 try:
                     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-                    sock.connect((self.service.config.NODE_RED_HOST, self.service.config.NODE_RED_PORT))
+                    sock.connect((config.NODE_RED_HOST, config.NODE_RED_PORT))
                     sock.send(dump.encode())
                 except Exception as e:
                     logging.error('Node-red is offline')
 
-                rh = helpers.RadioHelper(self.db_session)
+                db_session = config.getNewDbSession()
+                rh = helpers.RadioHelper(db_session)
                 radio = rh.getByPipe(data['radio_pipe'])
+                db_session.close()
                 
                 if radio:
                     so.emit('updateRadio', {'radio_id': radio.id, 'params': params}, broadcast=True)
+                    cache.setRadioParams(radio.id, params)
                     
         elif 'type' in data and data['type'] == 'ir':
             logging.debug(data['ir_signal'])

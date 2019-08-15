@@ -83,3 +83,21 @@ class Config:
 
     def createDbUri(self):
         return 'mysql+mysqlconnector://%s:%s@%s:%s/%s' % (self.DB_USER,self.DB_PASS,self.DB_HOST,self.DB_PORT,self.DB_NAME)
+
+class Cache:
+
+    def __init__(self):
+        self.radios_params = {}
+
+    def getRadioParams(self, radio_id):
+        if radio_id in self.radios_params:
+            return self.radios_params[radio_id]
+        
+        return {}
+
+    def setRadioParams(self, radio_id, params):
+        self.radios_params[radio_id] = params
+    
+    def clearRadioParams(self, radio_id, params):
+        if radio_id in self.radios_params:
+            del self.radios_params[radio_id]

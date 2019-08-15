@@ -5,11 +5,12 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 from flask_socketio import SocketIO, emit, disconnect
 from flask_cors import CORS
 # from flask_migrate import Migrate
-from app.bootstrap import Config
+from app.bootstrap import Config, Cache
 from threading import Lock
 
 flask_app = Flask(__name__)
 config = Config(flask_app)
+cache = Cache()
 CORS(flask_app, supports_credentials=True)
 
 # db = SQLAlchemy(flask_app)
@@ -22,7 +23,7 @@ from app import service
 from app.helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, RadioHelper
 from app.models import User
 
-serv = service.Service(config)
+serv = service.Service()
 
 so_clients = {}
 
@@ -454,6 +455,10 @@ def get_radios():
     rh = RadioHelper(db_session)
     radios = rh.getRadios()
     db_session.close()
+
+    for r in radios:
+        r['params'] = cache.getRadioParams(r['id'])
+
     return jsonify({'radios': radios})
 
 @flask_app.route('/api/v1/radios', methods=['POST'])
@@ -467,6 +472,9 @@ def create_radio():
     radio = rh.createRadio(request.json)
     radios = rh.getRadios()
     db_session.close()
+
+    for r in radios:
+        r['params'] = cache.getRadioParams(r['id'])
 
     so.emit('updateRadios', {'radios': radios}, broadcast=True)
     return jsonify({'radio': radio}), 201
@@ -499,6 +507,9 @@ def update_radio(radio_id):
     if radio is None:
         abort(404) 
 
+    for r in radios:
+        r['params'] = cache.getRadioParams(r['id'])
+
     so.emit('updateRadios', {'radios': radios}, broadcast=True)
     return jsonify({'radio': radio})
 
@@ -514,6 +525,9 @@ def delete_radio(radio_id):
     if result is None:
         abort(404)
     
+    for r in radios:
+        r['params'] = cache.getRadioParams(r['id'])
+
     so.emit('updateRadios', {'radios': radios}, broadcast=True)
     return jsonify({'result': result})
 
