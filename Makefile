@@ -20,8 +20,8 @@ migrate-all:
 rollback-all:
 	docker-compose exec web alembic downgrade base
 ps:
-	ps ax | grep [r]un.py
+	ps ax | grep run.[py]
 kill:
-	ps -ef | grep [r]un.py | awk '{print $$2}' | xargs kill -9
+	ps -ef | grep run.[py] | awk '{print $$2}' | xargs kill -9
 log:
 	tail -F app.log
