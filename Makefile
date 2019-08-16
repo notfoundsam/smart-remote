@@ -20,7 +20,7 @@ migrate-all:
 rollback-all:
 	docker-compose exec web alembic downgrade base
 ps:
-	ps ax | $(grep '[p]ython3 run.py')
+	ps ax | grep 'python3 run.py'
 kill:
 	kill $(ps ax | grep '[p]ython3 run.py' | awk '{print $1}')
 log:
