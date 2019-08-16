@@ -1,20 +1,17 @@
 import os, functools, json, logging
 from flask import Flask, redirect, session, request, g, jsonify, make_response, abort, send_from_directory
-# from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_socketio import SocketIO, emit, disconnect
 from flask_cors import CORS
-# from flask_migrate import Migrate
 from app.bootstrap import Config, Cache
 from threading import Lock
 
 flask_app = Flask(__name__)
 config = Config(flask_app)
 cache = Cache()
+
 CORS(flask_app, supports_credentials=True)
 
-# db = SQLAlchemy(flask_app)
-# mg = Migrate(flask_app, db)
 so = SocketIO(flask_app)
 lm = LoginManager()
 lm.init_app(flask_app)
@@ -555,59 +552,15 @@ def handle_disconnect():
     logging.info("Delete user %s from socketio" % current_user.id)
     # del so_clients[current_user.id]
 
-@so.on('json')
-@authenticated_only
-def handle_json(data):
+# @so.on('json')
+# @authenticated_only
+# def handle_json(data):
     # Debug
-    logging.info("received json: %s" % data)
+    # logging.info("received json: %s" % data)
     
     # if data['action'] == 'catch_ir_signal':
     #     # signal = ir_reader.read_signal()
     #     emit('json', {'response': {'result': 'success', 'callback': 'ir_signal', 'signal': '1500 800 800 800 1500 1500'}})
-
-
-# thread = None
-# thread_lock = Lock()
-
-# def background_thread():
-#     """Example of how to send server generated events to clients."""
-#     count = 0
-#     # status = True
-#     while True:
-#         so.sleep(20)
-#         count += 1
-#         so.emit('test', {'count': count}, broadcast=True)
-
-        # if status:
-        #     status = False
-        #     event = {
-        #         'event': 'stop',
-        #         'host_name': 'rpi-node-1'
-        #     }
-        # else:
-        #     status = True
-        #     event = {
-        #         'event': 'start',
-        #         'host_name': 'rpi-node-1'
-        #     }
-
-        # event = {
-        #         'event': 'restart',
-        #         'host_name': 'rpi-node-1'
-        #     }
-        # if serv.node_sevice.pushToNode(event) == False:
-        #     pass
-            # so.emit('recievedIr', {'result': 'error', 'errors': 'Node is offline'})
-        # nh = NodeHelper(db_session)
-        # so.emit('updateNodes', {'nodes': nh.getNodes()}, broadcast=True)
-
-# @so.on('connect')
-# def test_connect():
-#     global thread
-#     with thread_lock:
-#         if thread is None:
-#             thread = so.start_background_task(target=background_thread)
-    # so.emit('test', ('foo', 'bar'), broadcast=True)
 
 @so.on('catch_ir')
 def handle_catch_ir(json_data):
@@ -629,6 +582,6 @@ def handle_catch_ir(json_data):
             if serv.node_sevice.pushToNode(event) == False:
                 so.emit('recievedIr', {'result': 'error', 'errors': 'Node is offline'})
 
-@so.on('emit_method')
-def handle_emit_method(message):
-    logging.info("received emit_method: %s" % message)
+# @so.on('emit_method')
+# def handle_emit_method(message):
+#     logging.info("received emit_method: %s" % message)

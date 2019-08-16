@@ -242,8 +242,11 @@ class SocketParser():
                     cache.setRadioParams(radio.id, params)
                     
         elif 'type' in data and data['type'] == 'ir':
-            logging.debug(data['ir_signal'])
-            so.emit('recievedIr', {'result': 'success', 'ir_signal': data['ir_signal']}, broadcast=True)
+            if data['result'] == 'success':
+                # logging.debug(data['ir_signal'])
+                so.emit('recievedIr', {'result': 'success', 'ir_signal': data['ir_signal']}, broadcast=True)
+            elif data['result'] == 'error':
+                so.emit('recievedIr', {'result': 'error', 'error': data['error']}, broadcast=True)
 
     def parseMessage(data):
         message = {}

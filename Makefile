@@ -20,6 +20,8 @@ migrate-all:
 rollback-all:
 	docker-compose exec web alembic downgrade base
 ps:
-	ps ax | grep run.py
+	ps ax | grep 'puthon3 run.py'
+kill:
+	kill $(ps ax | grep 'puthon3 run.py' | awk '{print $1}')
 log:
 	tail -F app.log
