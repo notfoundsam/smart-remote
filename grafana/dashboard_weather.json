@@ -50,7 +50,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "connected",
-      "options": {},
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -99,7 +98,7 @@
             {
               "key": "radio_pipe",
               "operator": "=",
-              "value": "48"
+              "value": "49"
             }
           ]
         },
@@ -142,12 +141,12 @@
             {
               "key": "radio_pipe",
               "operator": "=",
-              "value": "49"
+              "value": "50"
             }
           ]
         },
         {
-          "alias": "Living top",
+          "alias": "Test",
           "groupBy": [
             {
               "params": [
@@ -185,7 +184,7 @@
             {
               "key": "radio_pipe",
               "operator": "=",
-              "value": "50"
+              "value": "52"
             }
           ]
         }
@@ -262,7 +261,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "connected",
-      "options": {},
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -311,7 +309,7 @@
             {
               "key": "radio_pipe",
               "operator": "=",
-              "value": "48"
+              "value": "49"
             }
           ]
         },
@@ -354,7 +352,7 @@
             {
               "key": "radio_pipe",
               "operator": "=",
-              "value": "49"
+              "value": "50"
             }
           ]
         },
@@ -395,9 +393,52 @@
           ],
           "tags": [
             {
+              "key": "radio",
+              "operator": "=",
+              "value": "0xAABBCCDD11"
+            }
+          ]
+        },
+        {
+          "alias": "Test",
+          "groupBy": [
+            {
+              "params": [
+                "5m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "weather",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "tempValue"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
               "key": "radio_pipe",
               "operator": "=",
-              "value": "50"
+              "value": "52"
             }
           ]
         }
@@ -474,7 +515,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "connected",
-      "options": {},
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -567,6 +607,49 @@
               "key": "radio_pipe",
               "operator": "=",
               "value": "50"
+            }
+          ]
+        },
+        {
+          "alias": "Test",
+          "groupBy": [
+            {
+              "params": [
+                "5m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "weather",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "presValue"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "radio_pipe",
+              "operator": "=",
+              "value": "52"
             }
           ]
         }
@@ -644,7 +727,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "connected",
-      "options": {},
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -739,6 +821,49 @@
               "value": "50"
             }
           ]
+        },
+        {
+          "alias": "Test",
+          "groupBy": [
+            {
+              "params": [
+                "10m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "weather",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "batValue"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "radio_pipe",
+              "operator": "=",
+              "value": "52"
+            }
+          ]
         }
       ],
       "thresholds": [],
@@ -809,7 +934,7 @@
         "y": 9
       },
       "id": 6,
-      "interval": null,
+      "interval": "",
       "links": [],
       "mappingType": 1,
       "mappingTypes": [
@@ -825,7 +950,6 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
-      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -850,7 +974,7 @@
           "groupBy": [
             {
               "params": [
-                "2m"
+                "1m"
               ],
               "type": "time"
             },
@@ -884,13 +1008,13 @@
             {
               "key": "radio_pipe",
               "operator": "=",
-              "value": "50"
+              "value": "49"
             }
           ]
         }
       ],
       "thresholds": "2.5,3,4.2",
-      "timeFrom": null,
+      "timeFrom": "10m",
       "title": "Battery outside",
       "type": "singlestat",
       "valueFontSize": "80%",
@@ -945,7 +1069,6 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
-      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -1003,7 +1126,7 @@
             {
               "key": "radio_pipe",
               "operator": "=",
-              "value": "49"
+              "value": "50"
             }
           ]
         }
@@ -1031,7 +1154,7 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {
@@ -1062,5 +1185,5 @@
   "timezone": "",
   "title": "weather",
   "uid": "nCkI-iigz",
-  "version": 2
+  "version": 4
 }
