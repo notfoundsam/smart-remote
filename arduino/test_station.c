@@ -8,7 +8,7 @@ RF24 radio(9, 10); // For nano pin 9 and 10
 int radio_retries = 10;
 int radio_delay = 10;
 
-uint8_t radio_id = 51;
+uint8_t radio_id = 52;
 unsigned long status_timer;
 
 void setup() {
@@ -35,9 +35,7 @@ void loop() {
     radio.read(&payload, sizeof(payload));
 
     if (payload[0] == radio_id && payload[1] == 48) {
-      // delay(250);
       sendACK();
-      Serial.println("fp ack");
 
       // If recive IR signal (it starts with i)
       if (payload[2] == 105) {
@@ -83,7 +81,7 @@ void readCommand(uint8_t *code) {
       radio.read(&payload, sizeof(payload));
 
       if (payload[0] != radio_id) {
-        Serial.println("wtf2");
+        // Serial.println("wtf2");
         continue;
       }
       
@@ -182,7 +180,7 @@ boolean sendWithACK(uint8_t *data, uint8_t size) {
     // Wait 15ms for responce
     while (millis() - ack_started_at <= radio_delay) {
       if (radio.available()) {
-        Serial.print("came\n");
+        // Serial.print("came\n");
         radio.read(&response, sizeof(response));
 
         if (data[0] == response[0] && response[1] == 6) {
@@ -190,7 +188,7 @@ boolean sendWithACK(uint8_t *data, uint8_t size) {
         }
       }
     }
-    Serial.print(".");
+    // Serial.print(".");
   }
 
   return false;
