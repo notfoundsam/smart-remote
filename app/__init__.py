@@ -528,6 +528,76 @@ def delete_radio(radio_id):
     so.emit('updateRadios', {'radios': radios}, broadcast=True)
     return jsonify({'result': result})
 
+# Node routes
+@flask_app.route('/api/v1/mqtts', methods=['GET'])
+@login_required
+def get_mqtts():
+    db_session = config.getNewDbSession()
+    mh = MqttHelper(db_session)
+    nodes = mh.getMqtts()
+    db_session.close()
+    return jsonify({'mqtts': mqtts})
+
+@flask_app.route('/api/v1/mqtts', methods=['POST'])
+@login_required
+def create_mqtt():
+    if not request.json or not 'name' in request.json or not 'topic' in request.json or not 'order' in request.json:
+        abort(400)
+
+    db_session = config.getNewDbSession()
+    mh = MqttHelper(db_session)
+    mqtt = mh.createMqtt(request.json)
+    mqtts = mh.getMqtts()
+    db_session.close()
+    so.emit('updateMqtts', {'mqtts': mqtts}, broadcast=True)
+    return jsonify({'mqtt': mqtt}), 201
+
+@flask_app.route('/api/v1/mqtts/<int:mqtt_id>', methods=['GET'])
+@login_required
+def get_mqtt(mqtt_id):
+    db_session = config.getNewDbSession()
+    mh = MqttHelper(db_session, mqtt_id)
+    mqtt = nh.getMqtt()
+    db_session.close()
+
+    if mqtt is None:
+        abort(404)
+
+    return jsonify({'mqtt': mqtt})
+
+@flask_app.route('/api/v1/mqtts/<int:mqtt_id>', methods=['PUT'])
+@login_required
+def update_mqtt(mqtt_id):
+    if not request.json or not 'name' in request.json or not 'topic' in request.json or not 'order' in request.json:
+        abort(400)
+
+    db_session = config.getNewDbSession()
+    mh = MqttHelper(db_session, mqtt_id)
+    mqtt = mh.updateMqtt(request.json)
+    mqtts = mh.getMqtts()
+    db_session.close()
+
+    if mqtt is None:
+        abort(404) 
+
+    so.emit('updateMqtts', {'mqtts': mqtts}, broadcast=True)
+    return jsonify({'mqtt': mqtt})
+
+@flask_app.route('/api/v1/mqtts/<int:mqtt_id>', methods=['DELETE'])
+@login_required
+def delete_mqtt(mqtt_id):
+    db_session = config.getNewDbSession()
+    mh = MqttHelper(db_session, mqtt_id)
+    result = mh.deleteMqtt()
+    mqtts = mh.getMqtts()
+    db_session.close()
+
+    if result is None:
+        abort(404)
+    
+    so.emit('updateMqtts', {'mqtts': mqtts}, broadcast=True)
+    return jsonify({'result': result})
+
 #############
 # Socket io #
 #############

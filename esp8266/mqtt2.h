@@ -28,18 +28,20 @@ EspMQTTClient client(
   false                    // Enable debug messages
 );
 
-const uint16_t kIrLed = 4;  // ESP8266 GPIO pin to use. Recommended: 4 (D2).
-const uint8_t kRedLed = 5;  // ESP8266 GPIO pin to use.
+const uint8_t IR_LED_PIN = 4;  // ESP8266 GPIO pin to use. Recommended: 4 (D2).
+const uint8_t RED_LED_PIN = 0;  // ESP8266 GPIO pin to use.
 
 const uint8_t RED_ON_CODE = 11;
 const uint8_t RED_OFF_CODE = 10;
 
-IRsend irsend(kIrLed);  // Set the GPIO to be used to sending the message.
+IRsend irsend(IR_LED_PIN);  // Set the GPIO to be used to sending the message.
 
 // uint16_t raw_signal[400];
 
 void setup()
 {
+  pinMode(RED_LED_PIN, OUTPUT);
+  digitalWrite(RED_LED_PIN, LOW);
   irsend.begin();
   Serial.begin(115200);
 }
@@ -48,11 +50,20 @@ void onConnectionEstablished()
 {
   // Subscribe to "mytopic/test" and display received message to Serial
   client.subscribe("alexa/esp1/red_led", [](const String & command) {
-    Serial.println("red_led");
-    code = atoi(command);
+    uint16_t rsize = command.length();
+    char buffer[rsize+1];
+
+    for (int i = 0; i < rsize; i++) {
+      buffer[i] = command[i];
+    }
+
+    int code = atoi(buffer);
+
     if (code == RED_ON_CODE) {
+      digitalWrite(RED_LED_PIN, HIGH);
       Serial.println("LED ON");
     } else if (code == RED_OFF_CODE) {
+      digitalWrite(RED_LED_PIN, LOW);
       Serial.println("LED OFF");
     }
   });

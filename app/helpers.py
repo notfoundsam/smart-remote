@@ -1,5 +1,5 @@
 import logging
-from app.models import Rc, Button, Node, Arduino, Radio
+from app.models import Rc, Button, Node, Arduino, Radio, Mqtt
 # from app import db
 from datetime import datetime
 
@@ -109,95 +109,6 @@ class RcHelper:
             buttons.append(b)
 
         return buttons
-
-class BgroupHelper:
-
-    def __init__(self, rc_id, group_id = None):
-        self.rc = Rc.query.filter_by(id = rc_id).first()
-        self.set(group_id)
-
-    def get(self):
-        return self.rc
-
-    def set(self, group_id):
-        if self.rc is None:
-            self.button = None
-        else:
-            self.button = self.rc.bgroups.filter((Bgroup.id == group_id)).first()
-
-    # def getRcs(self):
-    #     rcs = []
-
-    #     for rc in Rc.query.order_by(Rc.order).all():
-    #         r = {
-    #             'id': rc.id,
-    #             'name': rc.name,
-    #             'icon': rc.icon,
-    #             'order': rc.order,
-    #             'public': rc.public
-    #         }
-
-    #         rcs.append(r)
-
-    #     return rcs
-
-    # def createRc(self, params):
-    #     rc = Rc(name = params['name'],
-    #             icon = params['icon'],
-    #             order = params['order'],
-    #             public = params['public'],
-    #             timestamp = datetime.utcnow())
-
-    #     db.session.add(rc)
-    #     db.session.commit()
-
-    #     return {'id': rc.id,
-    #             'name': rc.name,
-    #             'icon': rc.icon,
-    #             'order': rc.order,
-    #             'public': rc.public}
-
-    # def getRc(self):
-    #     if self.rc is None:
-    #         return None
-        
-    #     return {'id': self.rc.id,
-    #             'name': self.rc.name,
-    #             'icon': self.rc.icon,
-    #             'order': self.rc.order,
-    #             'public': self.rc.public}
-    
-    # def updateRc(self, params):
-    #     if self.rc is None:
-    #         return None
-
-    #     self.rc.name = params['name']
-    #     self.rc.icon = params['icon']
-    #     self.rc.order = params['order']
-    #     self.rc.public = params['public']
-    #     self.rc.timestamp = datetime.utcnow()
-
-    #     db.session.commit()
-        
-    #     return {'id': self.rc.id,
-    #             'name': self.rc.name,
-    #             'icon': self.rc.icon,
-    #             'order': self.rc.order,
-    #             'public': self.rc.public}
-
-    # def deleteRc(self):
-    #     if self.rc is None:
-    #         return None
-
-    #     for btn in self.rc.buttons:
-    #         db.session.delete(btn)
-
-    #     db.session.commit()
-    #     db.session.delete(self.rc)
-    #     db.session.commit()
-    #     self.rc = None
-
-    #     return True
 
 class ButtonHelper:
 
@@ -398,13 +309,7 @@ class NodeHelper:
         return True
 
     def getNodeByName(self, host_name):
-        try:
-            node = self.session.query(Node).filter_by(host_name = host_name).first()
-        except Exception as e:
-            self.session.rollback()
-            logging.error('[helpers] db session error. rolled back')
-            logging.error(str(e))
-            return False
+        node = self.session.query(Node).filter_by(host_name = host_name).first()
 
         return node
 
@@ -605,3 +510,81 @@ class RadioHelper:
         
     def getByPipe(self, pipe):
         return self.session.query(Radio).filter_by(pipe = pipe).first()
+
+class MqttHelper:
+
+    def __init__(self, session, mqtt_id = None):
+        self.session = session
+        self.set(mqtt_id)
+
+    def get(self):
+        return self.mqtt
+
+    def set(self, mqtt_id):
+        self.mqtt = self.session.query(Mqtt).filter_by(id = mqtt_id).first() if mqtt_id else None
+
+    def getMqtts(self):
+        mqtts = []
+
+        for mqtt in self.session.query(Mqtt).order_by(Mqtt.order).all():
+            n = {'id': mqtt.id,
+                'name': mqtt.name,
+                'topic': mqtt.topic,
+                'order': mqtt.order}
+
+            mqtts.append(n)
+
+        return mqtts
+
+    def createMqtt(self, params):
+        mqtt = mqtt(
+                    name = params['name'],
+                    topic = params['topic'],
+                    order = params['order'],
+                    timestamp = datetime.utcnow())
+
+        self.session.add(mqtt)
+        self.session.commit()
+
+        return {'id': mqtt.id,
+                'name': mqtt.name,
+                'topic': mqtt.topic,
+                'order': mqtt.order}
+
+    def getMqtt(self):
+        if self.mqtt is None:
+            return None
+        
+        return {'id': self.mqtt.id,
+                'name': self.mqtt.name,
+                'topic': self.mqtt.topic,
+                'order': self.mqtt.order}
+
+    def updateMqtt(self, params):
+        if self.mqtt is None:
+            return None
+
+        self.mqtt.name = params['name']
+        self.mqtt.topic = params['topic']
+        self.mqtt.order = params['order']
+        self.mqtt.timestamp = datetime.utcnow()
+
+        self.session.commit()
+        
+        return {'id': self.mqtt.id,
+                'name': self.mqtt.name,
+                'topic': self.mqtt.topic,
+                'order': self.mqtt.order}
+
+    def deleteMqtt(self):
+        if self.mqtt is None:
+            return None
+
+        for arduino in self.mqtt.arduinos:
+            self.session.delete(arduino)
+
+        self.session.commit()
+        self.session.delete(self.mqtt)
+        self.session.commit()
+        self.mqtt = None
+        return True
