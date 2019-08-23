@@ -238,15 +238,18 @@ class SocketParser():
                 db_session.close()
                 
                 if radio:
+                    logging.debug(radio.id)
+                    logging.debug(params)
                     so.emit('updateRadio', {'radio_id': radio.id, 'params': params}, broadcast=True)
                     cache.setRadioParams(radio.id, params)
                     
         elif 'type' in data and data['type'] == 'ir':
-            if data['result'] == 'success':
-                # logging.debug(data['ir_signal'])
-                so.emit('recievedIr', {'result': 'success', 'ir_signal': data['ir_signal']}, broadcast=True)
-            elif data['result'] == 'error':
-                so.emit('recievedIr', {'result': 'error', 'error': data['error']}, broadcast=True)
+            if 'origin_event' in data and data['origin_event'] is not None and 'room' in data['origin_event']:
+                logging.debug('-- ir event --')
+                if data['result'] == 'success':
+                    so.emit('recievedIr', {'result': 'success', 'ir_signal': data['ir_signal']}, room=data['origin_event']['room'])
+                elif data['result'] == 'error':
+                    so.emit('recievedIr', {'result': 'error', 'error': data['error']}, room=data['origin_event']['room'])
 
     def parseMessage(data):
         message = {}
