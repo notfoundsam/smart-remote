@@ -64,6 +64,7 @@ class Button(Base):
     color = Column(String(10))
     # radio / mqtt
     type = Column(String(20))
+    mqtt_topic = Column(String(200))
     message = Column(Text)
     timestamp = Column(DateTime)
 

@@ -24,7 +24,7 @@ def upgrade():
     op.add_column('arduino', sa.Column('radio_w_pipe', sa.String(length=10), nullable=True))
     op.add_column('arduino', sa.Column('use_radio', sa.Boolean(), nullable=True))
 
-    op.add_column('button', sa.Column('mqtt_id', sa.Integer(), nullable=True))
+    op.add_column('button', sa.Column('mqtt_topic', sa.String(length=200), nullable=True))
 
     op.create_table('mqtt',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -47,7 +47,7 @@ def downgrade():
     op.drop_column('arduino', 'radio_crc_length')
     op.drop_column('arduino', 'radio_channel')
 
-    op.drop_column('button', 'mqtt_id')
+    op.drop_column('button', 'mqtt_topic')
     
     op.drop_table('mqtt')
     # ### end Alembic commands ###

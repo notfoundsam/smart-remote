@@ -124,12 +124,13 @@ class ButtonHelper:
 
     def createButton(self, params):
         btn = Button(rc_id = params['rc_id'],
-                    radio_id = params['radio_id'],
+                    radio_id = params['radio_id'] if params['radio_id'] else None,
                     name = params['name'],
                     order_hor = params['order_hor'],
                     order_ver = params['order_ver'],
                     color = params['color'],
                     type = params['type'],
+                    mqtt_topic = params['mqtt_topic'] if params['mqtt_topic'] else None,
                     message = params['message'],
                     timestamp = datetime.utcnow())
 
@@ -146,6 +147,7 @@ class ButtonHelper:
                 'order_ver': btn.order_ver,
                 'color': btn.color,
                 'type': btn.type,
+                'mqtt_topic': btn.mqtt_topic,
                 'message': btn.message}
 
     def getButton(self):
@@ -159,19 +161,21 @@ class ButtonHelper:
                 'order_hor': self.button.order_hor,
                 'order_ver': self.button.order_ver,
                 'color': self.button.color,
-                'message': self.button.message,
-                'type': self.button.type}
+                'type': self.button.type,
+                'mqtt_topic': self.button.mqtt_topic,
+                'message': self.button.message}
 
     def updateButton(self, params):
         if self.button is None:
             return None
 
-        self.button.radio_id = params['radio_id']
+        self.button.radio_id = params['radio_id'] if params['radio_id'] else None
         self.button.name = params['name']
         self.button.order_hor = params['order_hor']
         self.button.order_ver = params['order_ver']
         self.button.color = params['color']
         self.button.type = params['type']
+        self.button.mqtt_topic = params['mqtt_topic'] if params['mqtt_topic'] else None
         self.button.message = params['message']
         self.button.timestamp = datetime.utcnow()
 
@@ -185,6 +189,7 @@ class ButtonHelper:
                 'order_ver': self.button.order_ver,
                 'color': self.button.color,
                 'type': self.button.type,
+                'mqtt_topic': self.button.mqtt_topic,
                 'message': self.button.message}
 
     def deleteButton(self):
@@ -199,6 +204,7 @@ class ButtonHelper:
                 'order_ver': self.button.order_ver,
                 'color': self.button.color,
                 'type': self.button.type,
+                'mqtt_topic': self.button.mqtt_topic,
                 'message': self.button.message}
 
         self.session.delete(self.button)

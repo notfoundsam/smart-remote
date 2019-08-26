@@ -1,4 +1,4 @@
-import os, functools, json, logging
+import os, functools, json, logging, socket
 from flask import Flask, redirect, session, request, g, jsonify, make_response, abort, send_from_directory
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_socketio import SocketIO, emit, disconnect
@@ -179,7 +179,7 @@ def get_rc_buttons(rc_id):
 @flask_app.route('/api/v1/buttons', methods=['POST'])
 @login_required
 def create_button():
-    if not request.json or not 'rc_id' in request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'message' in request.json or not 'type' in request.json or not 'radio_id' in request.json:
+    if not request.json or not 'rc_id' in request.json or not 'name' in request.json or not 'order_hor' in request.json or not 'order_ver' in request.json or not 'color' in request.json or not 'message' in request.json or not 'type' in request.json or not 'radio_id' in request.json and not 'mqtt_topic' in request.json:
         abort(400)
     
     db_session = config.getNewDbSession()
@@ -247,25 +247,38 @@ def delete_button(btn_id):
 def push_button(btn_id):
     db_session = config.getNewDbSession()
     bh = ButtonHelper(db_session, btn_id)
-    button = bh.getButton()
+    button = bh.get()
 
-    if bh.get() is None:
+    if button is None:
         db_session.close()
         abort(404)
 
-    if bh.get().type == 'radio':
-
+    if button.type == 'radio':
         event = {
             'event': 'pushButton',
             'user_id': current_user.id,
             'room': so_clients[current_user.id],
-            'button_id': bh.get().id,
+            'button_id': button.id,
             'host_name': bh.getHostName()
         }
         result = serv.node_sevice.pushToNode(event)
+    elif button.type == 'mqtt':
+        message = {
+            'type': 'mqtt',
+            'topic': button.mqtt_topic,
+            'message': button.message
+        }
+        dump = '%s' % json.dumps(message)
+
+        try:
+            sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            sock.connect((config.NODE_RED_HOST, config.NODE_RED_PORT))
+            sock.send(dump.encode())
+        except Exception as e:
+            logging.error('Node-red is offline')
 
     db_session.close()
-    return jsonify({'result': result})
+    return jsonify({'result': True})
 
 # Node routes
 @flask_app.route('/api/v1/nodes', methods=['GET'])

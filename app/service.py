@@ -222,8 +222,8 @@ class SocketParser():
                 logging.error('%s received: %s' % (self.hostname, data['message']))
 
             if params:
-                message = [params, tags]
-                dump = '%s\n' % json.dumps(message)
+                message = {'type': 'log', 'message': [params, tags]}
+                dump = '%s' % json.dumps(message)
 
                 try:
                     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
