@@ -94,7 +94,7 @@ class Cache:
         if radio_id in self.radios:
             return self.radios[radio_id]
         
-        return {}
+        return None
 
     def setRadioParams(self, radio_id, params):
         self.radios[radio_id] = {

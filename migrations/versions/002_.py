@@ -29,10 +29,12 @@ def upgrade():
     op.create_table('mqtt',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=50), nullable=True),
-    sa.Column('topic', sa.String(length=200), nullable=True),
+    sa.Column('client_name', sa.String(length=50), nullable=True),
     sa.Column('order', sa.Integer(), nullable=True),
+    sa.Column('enabled', sa.Boolean(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('client_name')
     )
     # ### end Alembic commands ###
 

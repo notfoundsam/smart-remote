@@ -535,18 +535,19 @@ class MqttHelper:
         for mqtt in self.session.query(Mqtt).order_by(Mqtt.order).all():
             n = {'id': mqtt.id,
                 'name': mqtt.name,
-                'topic': mqtt.topic,
-                'order': mqtt.order}
+                'client_name': mqtt.client_name,
+                'order': mqtt.order,
+                'enabled': mqtt.enabled}
 
             mqtts.append(n)
 
         return mqtts
 
     def createMqtt(self, params):
-        mqtt = mqtt(
-                    name = params['name'],
-                    topic = params['topic'],
+        mqtt = Mqtt(name = params['name'],
+                    client_name = params['client_name'],
                     order = params['order'],
+                    enabled = params['enabled'],
                     timestamp = datetime.utcnow())
 
         self.session.add(mqtt)
@@ -554,8 +555,9 @@ class MqttHelper:
 
         return {'id': mqtt.id,
                 'name': mqtt.name,
-                'topic': mqtt.topic,
-                'order': mqtt.order}
+                'client_name': mqtt.client_name,
+                'order': mqtt.order,
+                'enabled': mqtt.enabled}
 
     def getMqtt(self):
         if self.mqtt is None:
@@ -563,33 +565,32 @@ class MqttHelper:
         
         return {'id': self.mqtt.id,
                 'name': self.mqtt.name,
-                'topic': self.mqtt.topic,
-                'order': self.mqtt.order}
+                'client_name': self.mqtt.client_name,
+                'order': self.mqtt.order,
+                'enabled': self.mqtt.enabled}
 
     def updateMqtt(self, params):
         if self.mqtt is None:
             return None
 
         self.mqtt.name = params['name']
-        self.mqtt.topic = params['topic']
+        self.mqtt.client_name = params['client_name']
         self.mqtt.order = params['order']
+        self.mqtt.enabled = params['enabled']
         self.mqtt.timestamp = datetime.utcnow()
 
         self.session.commit()
         
         return {'id': self.mqtt.id,
                 'name': self.mqtt.name,
-                'topic': self.mqtt.topic,
-                'order': self.mqtt.order}
+                'client_name': self.mqtt.client_name,
+                'order': self.mqtt.order,
+                'enabled': self.mqtt.enabled}
 
     def deleteMqtt(self):
         if self.mqtt is None:
             return None
 
-        for arduino in self.mqtt.arduinos:
-            self.session.delete(arduino)
-
-        self.session.commit()
         self.session.delete(self.mqtt)
         self.session.commit()
         self.mqtt = None

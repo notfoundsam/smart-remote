@@ -17,7 +17,7 @@ lm = LoginManager()
 lm.init_app(flask_app)
 
 from app import service
-from app.helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, RadioHelper
+from app.helpers import RcHelper, ButtonHelper, NodeHelper, ArduinoHelper, RadioHelper, MqttHelper
 from app.models import User
 
 serv = service.Service()
@@ -541,20 +541,20 @@ def delete_radio(radio_id):
     so.emit('updateRadios', {'radios': radios}, broadcast=True)
     return jsonify({'result': result})
 
-# Node routes
+# Mqtt routes
 @flask_app.route('/api/v1/mqtts', methods=['GET'])
 @login_required
 def get_mqtts():
     db_session = config.getNewDbSession()
     mh = MqttHelper(db_session)
-    nodes = mh.getMqtts()
+    mqtts = mh.getMqtts()
     db_session.close()
     return jsonify({'mqtts': mqtts})
 
 @flask_app.route('/api/v1/mqtts', methods=['POST'])
 @login_required
 def create_mqtt():
-    if not request.json or not 'name' in request.json or not 'topic' in request.json or not 'order' in request.json:
+    if not request.json or not 'name' in request.json or not 'client_name' in request.json or not 'order' in request.json:
         abort(400)
 
     db_session = config.getNewDbSession()
@@ -570,7 +570,7 @@ def create_mqtt():
 def get_mqtt(mqtt_id):
     db_session = config.getNewDbSession()
     mh = MqttHelper(db_session, mqtt_id)
-    mqtt = nh.getMqtt()
+    mqtt = mh.getMqtt()
     db_session.close()
 
     if mqtt is None:
@@ -581,7 +581,7 @@ def get_mqtt(mqtt_id):
 @flask_app.route('/api/v1/mqtts/<int:mqtt_id>', methods=['PUT'])
 @login_required
 def update_mqtt(mqtt_id):
-    if not request.json or not 'name' in request.json or not 'topic' in request.json or not 'order' in request.json:
+    if not request.json or not 'name' in request.json or not 'client_name' in request.json or not 'order' in request.json:
         abort(400)
 
     db_session = config.getNewDbSession()
@@ -591,7 +591,7 @@ def update_mqtt(mqtt_id):
     db_session.close()
 
     if mqtt is None:
-        abort(404) 
+        abort(404)
 
     so.emit('updateMqtts', {'mqtts': mqtts}, broadcast=True)
     return jsonify({'mqtt': mqtt})
