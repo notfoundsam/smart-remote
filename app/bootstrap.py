@@ -29,6 +29,11 @@ class Config:
             self.DB_NAME       = 'smart_remote'
             self.DB_USER       = 'root'
             self.DB_PASS       = 'root'
+
+            # MqttListener settings
+            self.MQTT_LISTENER_BIND_ADDRESS = ''
+            self.MQTT_LISTENER_BIND_PORT    = 32005
+            self.MQTT_LISTENER_CONNECTIONS  = 10
         else:
             self.NODE_RED_HOST = '192.168.100.111'
             self.NODE_RED_PORT = 9090
@@ -38,15 +43,20 @@ class Config:
             self.DB_USER       = 'root'
             self.DB_PASS       = 'root'
 
+            # MqttListener settings
+            self.MQTT_LISTENER_BIND_ADDRESS = ''
+            self.MQTT_LISTENER_BIND_PORT    = 32006
+            self.MQTT_LISTENER_CONNECTIONS  = 10
+
         # DiscoverService settings
         self.BROADCAST_MASK      = '255.255.255.255'
         self.BROADCAST_PORT      = 32000
         self.BROADCAST_INTERVAL  = 5
 
-        # RpiNode settings
-        self.SOCKET_BIND_ADDRESS = ''
-        self.SOCKET_BIND_PORT    = 32001
-        self.SOCKET_CONNECTIONS  = 5
+        # NodeListener settings
+        self.NODE_LISTENER_BIND_ADDRESS = ''
+        self.NODE_LISTENER_BIND_PORT    = 32001
+        self.NODE_LISTENER_CONNECTIONS  = 5
 
         # Flask settings
         self.app.config['TRAP_HTTP_EXCEPTIONS']           = True

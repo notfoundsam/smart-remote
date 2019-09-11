@@ -7,16 +7,21 @@ class Service():
 
     def __init__(self):
         self.first_request = None
-        self.node_sevice = None
+        self.node_listener = None
+        self.mqtt_listener = None
         self.discover_service = None
 
     def activateDiscoverService(self):
         self.discover_service = DiscoverService()
         self.discover_service.start()
     
-    def activateNodeService(self):
-        self.node_sevice = NodeService()
-        self.node_sevice.start()
+    def activateNodeListener(self):
+        self.node_listener = NodeListener()
+        self.node_listener.start()
+    
+    def activateMqttListener(self):
+        self.mqtt_listener = MqttListener()
+        self.mqtt_listener.start()
 
 class DiscoverService(threading.Thread):
 
@@ -33,7 +38,7 @@ class DiscoverService(threading.Thread):
             sock.sendto(message.encode(), (config.BROADCAST_MASK, config.BROADCAST_PORT))
             time.sleep(config.BROADCAST_INTERVAL)
 
-class NodeService(threading.Thread):
+class NodeListener(threading.Thread):
 
     def __init__(self):
         self.nodes = {}
@@ -42,8 +47,8 @@ class NodeService(threading.Thread):
     def run(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind((config.SOCKET_BIND_ADDRESS, config.SOCKET_BIND_PORT))        
-        sock.listen(config.SOCKET_CONNECTIONS)
+        sock.bind((config.NODE_LISTENER_BIND_ADDRESS, config.NODE_LISTENER_BIND_PORT))        
+        sock.listen(config.NODE_LISTENER_CONNECTIONS)
 
         while True:
             conn, addr = sock.accept()
@@ -93,6 +98,22 @@ class NodeService(threading.Thread):
         if hostname in self.nodes:
             del self.nodes[hostname]
             logging.info('delete successuful %s' % hostname)
+
+class MqttListener(threading.Thread):
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind((config.NODE_LISTENER_BIND_ADDRESS, config.NODE_LISTENER_BIND_PORT))        
+        sock.listen(config.NODE_LISTENER_CONNECTIONS)
+
+        while True:
+            conn, addr = sock.accept()
+            node = RpiNode(self, conn, addr)
+            node.start()
 
 class RpiNode(threading.Thread):
 

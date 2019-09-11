@@ -218,13 +218,13 @@ class ButtonHelper:
 
     #     return Node.query.filter_by(id = self.button.node_id).first()
 
-    def catchIrSignal(self, node_sevice, event):
+    def catchIrSignal(self, node_listener, event):
         node = self.session.query(Node).filter_by(id = self.button.node_id).first()
 
         event.host_name = node.host_name
         event.button_id = self.button.id
         
-        if node is not None and node_sevice.pushToNode(event):
+        if node is not None and node_listener.pushToNode(event):
             return True
 
         return False

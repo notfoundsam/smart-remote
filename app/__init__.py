@@ -27,7 +27,7 @@ so_clients = {}
 @flask_app.before_first_request
 def activate_services():
     serv.activateDiscoverService()
-    serv.activateNodeService()
+    serv.activateNodeListener()
 
 @lm.user_loader
 def load_user(id):
@@ -261,7 +261,7 @@ def push_button(btn_id):
             'button_id': button.id,
             'host_name': bh.getHostName()
         }
-        result = serv.node_sevice.pushToNode(event)
+        result = serv.node_listener.pushToNode(event)
     elif button.type == 'mqtt':
         message = {
             'type': 'mqtt',
@@ -386,7 +386,7 @@ def create_arduino():
     }
     db_session.close()
 
-    if serv.node_sevice.pushToNode(event) == False:
+    if serv.node_listener.pushToNode(event) == False:
         pass
         # so.emit('recievedIr', {'result': 'error', 'errors': 'Node is offline'})
 
@@ -427,7 +427,7 @@ def update_arduino(arduino_id):
     }
     db_session.close()
 
-    if serv.node_sevice.pushToNode(event) == False:
+    if serv.node_listener.pushToNode(event) == False:
         pass
         # so.emit('recievedIr', {'result': 'error', 'errors': 'Node is offline'})
     
@@ -451,7 +451,7 @@ def delete_arduino(arduino_id):
         'event': 'restart',
         'host_name': host_name
     }
-    if serv.node_sevice.pushToNode(event) == False:
+    if serv.node_listener.pushToNode(event) == False:
         pass
         # so.emit('recievedIr', {'result': 'error', 'errors': 'Node is offline'})
 
@@ -662,7 +662,7 @@ def handle_catch_ir(json_data):
                 'host_name': node.host_name
             }
 
-            if serv.node_sevice.pushToNode(event) == False:
+            if serv.node_listener.pushToNode(event) == False:
                 so.emit('recievedIr', {'result': 'error', 'errors': 'Node is offline'})
 
 # @so.on('emit_method')
