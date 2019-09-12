@@ -107,13 +107,38 @@ class MqttListener(threading.Thread):
     def run(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind((config.NODE_LISTENER_BIND_ADDRESS, config.NODE_LISTENER_BIND_PORT))        
-        sock.listen(config.NODE_LISTENER_CONNECTIONS)
+        sock.bind((config.MQTT_LISTENER_BIND_ADDRESS, config.MQTT_LISTENER_BIND_PORT))        
+        sock.listen(config.MQTT_LISTENER_CONNECTIONS)
 
         while True:
             conn, addr = sock.accept()
-            node = RpiNode(self, conn, addr)
-            node.start()
+            logging.info('New connection from MQTT %s' % addr[0])
+            
+            message_buff = ''
+
+            while True:
+                try:
+                    data = conn.recv(1)
+                    if data:
+                        udata = data.decode()
+
+                        if udata != "\n":
+                            message_buff += udata
+                            continue
+
+                        logging.debug(message_buff)
+                        mp = MqttMessageParser(message_buff)
+                        mp.run()
+                        message_buff = ''
+                    else:
+                        logging.info('Connection closed for MQTT %s' % self.addr[0])
+                        break
+                except Exception as e:
+                    logging.error('Socket error, close connection MQTT')
+                    logging.error(e)
+                    break
+
+            conn.close()
 
 class RpiNode(threading.Thread):
 
@@ -164,8 +189,8 @@ class RpiNode(threading.Thread):
                             handshake = 'accept'
                             self.conn.send(handshake.encode())
                     else:                        
-                        sp = SocketParser(self, message_buff)
-                        sp.run()
+                        np = NodeMessageParser(self.hostname, message_buff)
+                        np.run()
 
                     message_buff = ''
                 else:
@@ -184,13 +209,12 @@ class RpiNode(threading.Thread):
         self.conn.close()
         # self.db_session.close()
 
-class SocketParser():
+class NodeMessageParser():
 
-    def __init__(self, rpi_node, data):
+    def __init__(self, hostname, data):
         # threading.Thread.__init__(self)
-        self.hostname = rpi_node.hostname
+        self.hostname = hostname
         self.data = data
-        self.service = rpi_node.service
         
     def run(self):
         try:
@@ -199,8 +223,6 @@ class SocketParser():
             logging.debug(self.data)
             logging.error('Broken json from socket')
             return
-
-        data = json.loads(self.data)
 
         if 'type' in data and data['type'] == 'response':
             logging.debug('%s received: %s' % (self.hostname, self.data))
@@ -276,3 +298,60 @@ class SocketParser():
         message = {}
 
         return message
+
+class MqttMessageParser():
+
+    def __init__(self, data):
+        self.data = data
+        
+    def run(self):
+        try:
+            data = json.loads(self.data)
+        except ValueError as e:
+            logging.debug(self.data)
+            logging.error('Broken json from socket')
+            return
+
+        if 'tp' in data and data['tp'] == 'rs':
+            pass
+
+        elif 'tp' in data and data['tp'] == 'ev':
+            params = {}
+            tags = {}
+
+            if 'cl' in data:
+                tags['mqtt_client'] = data['cl']
+            try:
+                if 'h' in data:
+                    params['humiValue'] = float(data['h'])
+                if 't' in data:
+                    params['tempValue'] = float(data['t'])
+                if 'p' in data:
+                    params['presValue'] = float(data['p'])
+                if 'b' in data:
+                    params['batValue'] = float(data['b'])
+            except ValueError:
+                logging.error('Incorrect value: %s' % data['message'])
+                return
+
+            if params:
+                message = {'type': 'log', 'message': [params, tags]}
+                dump = '%s' % json.dumps(message)
+
+                try:
+                    sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+                    sock.connect((config.NODE_RED_HOST, config.NODE_RED_PORT))
+                    sock.send(dump.encode())
+                except Exception as e:
+                    logging.error('Node-red is offline')
+
+                # db_session = config.getNewDbSession()
+                # rh = helpers.RadioHelper(db_session)
+                # radio = rh.getByPipe(data['radio_pipe'])
+                # db_session.close()
+                
+                # if radio:
+                #     logging.debug(radio.id)
+                #     logging.debug(params)
+                #     so.emit('updateRadio', {'radio_id': radio.id, 'params': params}, broadcast=True)
+                #     cache.setRadioParams(radio.id, params)

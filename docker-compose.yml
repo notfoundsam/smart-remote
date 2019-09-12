@@ -12,35 +12,6 @@ services:
       - "3390:3306"
     networks:
       - rpi-net
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: ["python3","-u","run.py"]
-    working_dir: /app
-    environment:
-      - FLASK_ENV=development
-      - FLASK_DEBUG=1
-      - APP_DOCKER=true
-      - FLASK_APP=app/__init__.py
-    volumes:
-      - ./:/app
-    ports:
-      - "5000:5000"
-      - "5002:5002"
-      # - "9090:9090"
-    privileged: true
-    # devices:
-    #   - "/dev/ttyUSB0:/dev/ttyUSB0"
-    networks:
-      - rpi-net
-    # network_mode: host
-    depends_on:
-      - influxdb
-      - db
-      - node-red
-      - grafana
-      - mosquitto
   node-red:
     build:
       context: ./node-red
@@ -80,6 +51,35 @@ services:
       - "9001:9001"
     networks:
       - rpi-net
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python3","-u","run.py"]
+    working_dir: /app
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - APP_DOCKER=true
+      - FLASK_APP=app/__init__.py
+    volumes:
+      - ./:/app
+    ports:
+      - "5000:5000"
+      - "5002:5002"
+      # - "9090:9090"
+    privileged: true
+    # devices:
+    #   - "/dev/ttyUSB0:/dev/ttyUSB0"
+    networks:
+      - rpi-net
+    # network_mode: host
+    depends_on:
+      - influxdb
+      - db
+      - node-red
+      - grafana
+      - mosquitto
 
 networks:
   rpi-net:

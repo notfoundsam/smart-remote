@@ -28,6 +28,7 @@ so_clients = {}
 def activate_services():
     serv.activateDiscoverService()
     serv.activateNodeListener()
+    serv.activateMqttListener()
 
 @lm.user_loader
 def load_user(id):
