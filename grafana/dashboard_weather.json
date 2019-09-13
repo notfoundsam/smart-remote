@@ -187,6 +187,49 @@
               "value": "52"
             }
           ]
+        },
+        {
+          "alias": "mqtt",
+          "groupBy": [
+            {
+              "params": [
+                "5m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "weather",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "humiValue"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "mqtt_client",
+              "operator": "=",
+              "value": "esp02"
+            }
+          ]
         }
       ],
       "thresholds": [],
@@ -441,6 +484,49 @@
               "value": "52"
             }
           ]
+        },
+        {
+          "alias": "mqtt",
+          "groupBy": [
+            {
+              "params": [
+                "5m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "weather",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "tempValue"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "mqtt_client",
+              "operator": "=",
+              "value": "esp02"
+            }
+          ]
         }
       ],
       "thresholds": [],
@@ -650,6 +736,49 @@
               "key": "radio_pipe",
               "operator": "=",
               "value": "52"
+            }
+          ]
+        },
+        {
+          "alias": "mqtt",
+          "groupBy": [
+            {
+              "params": [
+                "5m"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "weather",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "presValue"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "mqtt_client",
+              "operator": "=",
+              "value": "esp02"
             }
           ]
         }
@@ -1154,7 +1283,7 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {
@@ -1185,5 +1314,5 @@
   "timezone": "",
   "title": "weather",
   "uid": "nCkI-iigz",
-  "version": 4
+  "version": 5
 }
