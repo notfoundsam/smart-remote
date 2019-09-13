@@ -1,7 +1,8 @@
 import serial, socket, threading
 import time, random, json, array
 import os, sys, logging
-from app import helpers, so, config, cache
+from app import so, config, cache
+from app.helpers import NodeHelper, RadioHelper, MqttHelper
 
 class Service():
 
@@ -57,7 +58,7 @@ class NodeListener(threading.Thread):
 
     def addNode(self, node):
         db_session = config.getNewDbSession()
-        nh = helpers.NodeHelper(db_session)
+        nh = NodeHelper(db_session)
         host_name = node.hostname
         logging.info('try to add node %s' % host_name)
         
@@ -162,7 +163,7 @@ class RpiNode(threading.Thread):
             # self.conn.close()
 
     def run(self):
-        logging.info('New connection from %s' % self.addr[0])
+        logging.info('New connection from Node %s' % self.addr[0])
         message_buff = ''
 
         while True:
@@ -276,7 +277,7 @@ class NodeMessageParser():
                     logging.error('Node-red is offline')
 
                 db_session = config.getNewDbSession()
-                rh = helpers.RadioHelper(db_session)
+                rh = RadioHelper(db_session)
                 radio = rh.getByPipe(data['radio_pipe'])
                 db_session.close()
                 
@@ -345,13 +346,12 @@ class MqttMessageParser():
                 except Exception as e:
                     logging.error('Node-red is offline')
 
-                # db_session = config.getNewDbSession()
-                # rh = helpers.RadioHelper(db_session)
-                # radio = rh.getByPipe(data['radio_pipe'])
-                # db_session.close()
+                db_session = config.getNewDbSession()
+                mh = MqttHelper(db_session)
+                mqtt = mh.getByClientName(data['cl'])
+                db_session.close()
                 
-                # if radio:
-                #     logging.debug(radio.id)
-                #     logging.debug(params)
-                #     so.emit('updateRadio', {'radio_id': radio.id, 'params': params}, broadcast=True)
-                #     cache.setRadioParams(radio.id, params)
+                if mqtt:
+                    logging.debug(params)
+                    so.emit('updateMqtt', {'mqtt_id': mqtt.id, 'params': params}, broadcast=True)
+                    cache.setMqttParams(mqtt.id, params)

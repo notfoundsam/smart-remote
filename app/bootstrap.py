@@ -99,7 +99,9 @@ class Cache:
 
     def __init__(self):
         self.radios = {}
+        self.mqtts = {}
 
+    # Radio params
     def getRadioParams(self, radio_id):
         if radio_id in self.radios:
             return self.radios[radio_id]
@@ -115,3 +117,20 @@ class Cache:
     def clearRadioParams(self, radio_id, params):
         if radio_id in self.radios:
             del self.radios[radio_id]
+
+    # MQTT params
+    def getMqttParams(self, mqtt_id):
+        if mqtt_id in self.mqtts:
+            return self.mqtts[mqtt_id]
+        
+        return None
+
+    def setMqttParams(self, mqtt_id, params):
+        self.mqtts[mqtt_id] = {
+            'params': params,
+            'last_update': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+    
+    def clearMqttParams(self, mqtt_id, params):
+        if mqtt_id in self.mqtts:
+            del self.mqtts[mqtt_id]

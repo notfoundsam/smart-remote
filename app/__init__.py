@@ -550,6 +550,10 @@ def get_mqtts():
     mh = MqttHelper(db_session)
     mqtts = mh.getMqtts()
     db_session.close()
+
+    for m in mqtts:
+        m['params'] = cache.getRadioParams(m['id'])
+    
     return jsonify({'mqtts': mqtts})
 
 @flask_app.route('/api/v1/mqtts', methods=['POST'])
@@ -563,6 +567,10 @@ def create_mqtt():
     mqtt = mh.createMqtt(request.json)
     mqtts = mh.getMqtts()
     db_session.close()
+
+    for m in mqtts:
+        m['params'] = cache.getRadioParams(m['id'])
+    
     so.emit('updateMqtts', {'mqtts': mqtts}, broadcast=True)
     return jsonify({'mqtt': mqtt}), 201
 
@@ -594,6 +602,9 @@ def update_mqtt(mqtt_id):
     if mqtt is None:
         abort(404)
 
+    for m in mqtts:
+        m['params'] = cache.getRadioParams(m['id'])
+
     so.emit('updateMqtts', {'mqtts': mqtts}, broadcast=True)
     return jsonify({'mqtt': mqtt})
 
@@ -608,6 +619,9 @@ def delete_mqtt(mqtt_id):
 
     if result is None:
         abort(404)
+
+    for m in mqtts:
+        m['params'] = cache.getRadioParams(m['id'])
     
     so.emit('updateMqtts', {'mqtts': mqtts}, broadcast=True)
     return jsonify({'result': result})

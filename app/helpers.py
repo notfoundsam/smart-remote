@@ -1,6 +1,5 @@
 import logging
 from app.models import Rc, Button, Node, Arduino, Radio, Mqtt
-# from app import db
 from datetime import datetime
 
 class RcHelper:
@@ -595,3 +594,6 @@ class MqttHelper:
         self.session.commit()
         self.mqtt = None
         return True
+
+    def getByClientName(self, client_name):
+        return self.session.query(Mqtt).filter_by(client_name = client_name).first()
