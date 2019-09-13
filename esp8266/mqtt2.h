@@ -181,6 +181,6 @@ void loop()
     status_timer = millis();
 
     // Publish a message to "mytopic/test"
-    client.publish("app/mqtt", "This is a message");
+    client.publish("app/mqtt", "{\"cl\":\"esp02\",\"tp\":\"ev\", \"t\":24.45,\"h\":56.30,\"p\":1012.05}\n");
   }
 }
