@@ -10,9 +10,14 @@ class FirstRequest(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
 
+        # Flask app
+        self.APP_PORT = 5000
+        self.APP_HOST = ''
+        self.REQUES_HOST = '127.0.0.1'
+
     def run(self):
         time.sleep(2)
-        r = requests.get('http://127.0.0.1:5000/')
+        r = requests.get('http://%s:%d/' % (self.REQUES_HOST, self.APP_PORT))
 
 class Config:
 

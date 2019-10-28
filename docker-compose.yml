@@ -1,56 +1,5 @@
 version: '2'
 services:
-  db:
-    image: mysql:5.7
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=smart_remote
-    volumes:
-      - mysql-data:/var/lib/mysql
-    ports:
-      - "3390:3306"
-    networks:
-      - rpi-net
-  node-red:
-    build:
-      context: ./node-red
-      dockerfile: Dockerfile
-    environment:
-      - FLOWS=smart_remote.json
-    volumes:
-      - node-red:/data
-    ports:
-      - "1880:1880"
-      - "9090:9090"
-    user: node-red
-    networks:
-      - rpi-net
-  influxdb:
-    image: influxdb
-    environment:
-      - INFLUXDB_DB=smart_remote
-    volumes:
-      - influx-data:/var/lib/influxdb
-    ports:
-      - "8086:8086"
-    networks:
-      - rpi-net
-  grafana:
-    image: grafana/grafana
-    volumes:
-      - grafana:/var/lib/grafana
-    ports:
-      - "3000:3000"
-    networks:
-      - rpi-net
-  mosquitto:
-    image: eclipse-mosquitto
-    ports:
-      - "1883:1883"
-      - "9001:9001"
-    networks:
-      - rpi-net
   web:
     build:
       context: .
@@ -67,26 +16,12 @@ services:
     ports:
       - "5000:5000"
       - "5002:5002"
-      # - "9090:9090"
     privileged: true
     # devices:
     #   - "/dev/ttyUSB0:/dev/ttyUSB0"
     networks:
-      - rpi-net
-    # network_mode: host
-    depends_on:
-      - influxdb
-      - db
-      - node-red
-      - grafana
-      - mosquitto
+      - smart-remote_rpi-net
 
 networks:
-  rpi-net:
-    driver: bridge
-
-volumes:
-  influx-data:
-  mysql-data:
-  node-red:
-  grafana:
+  smart-remote_rpi-net:
+    external: true
